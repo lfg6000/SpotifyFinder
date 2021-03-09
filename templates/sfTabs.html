@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include "_css_files.html" %}
+
+  <title>SpotifyFinder</title>
+</head>
+
+<body>
+
+  <div class="navbarTabs">
+    <a href="/" style="float: left; font-size: 16px; padding: 10px 18px 6px 18px;">Home</a>
+    {# this float right text is same color as backgrnd, it is used to help center SpotifyFinder Text    #}
+    <a href="" style="float: right; font-size: 16px; padding: 10px 18px 6px 18px; color: #1db954; pointer-events: none;">Spacing</a>
+    <a href="" class="tabsHatText" style="pointer-events: none;">SpotifyFinder</a>
+  </div>
+
+
+  <div class="tab">
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'PlayLists')" id="btnPlTab">PlayLists</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Tracks')" id="btnTracksTab">Tracks</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Duplicates')" id="btnDupsTab">Duplicates</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Artists')" id="btnArtistsTab">Artists</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Info')" id="btnInfoTab">Help</button>
+    <button class="tablinks tabRight" style="pointer-events: none;" id="cookieDisp">Info</button>
+  </div>
+
+  <div id="PlayLists" class="tabcontent">
+    {% include "plTab.html" %}
+    <hr class="sep1px">
+    <div id="plTabs_outerRow2" class="clearfix">
+      <div class="innerRowLeft rowMargin2"><label id="plTab_info1" class="spaceRight"></label></div>
+      <div class="innerRowLeft rowMargin2"><label id="plTab_info2"></label></div>
+<!--      <div class="innerRowRight rowMargin2"><button onclick="plTab_btnCoffee()" title="Support the project" class="spaceTopBot">Coffee</button></div>-->
+      <div class="innerRowRight rowMargin2"><button onclick="window.open('https://www.buymeacoffee.com/SpotifyFinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Buy me a coffee</button></div>
+      <div class="innerRowRight rowMargin2"><label id="plTab_info3" style="color: red;"></label></div>
+    </div>
+    <div class="borderGreen"></div>
+    <div id="plTabs_outerRow3" class="clearfix">
+      <div class="innerRowLeft rowMargin3 progressStatus"><div id="plTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="plTab_progStat1" style="color: red;">lblStatus</label></div>
+    </div>
+  </div>
+
+  <div id="Tracks" class="tabcontent">
+    {% include "tracksTab.html" %}
+    <hr class="sep1px">
+    <div id="tracksTab_outerRow2" class="clearfix">
+      <div class="innerRowLeft rowMargin2"><label id="tracksTab_info1" class="spaceRight"></label></div>
+      <div class="innerRowLeft rowMargin2"><label id="tracksTab_info2"></label></div>
+<!--      <div class="innerRowRight rowMargin2"><button onclick="tracksTab_btnCoffee()" title="Support the project" class="spaceTopBot">Buy a Coffee</button></div>-->
+      <div class="innerRowRight rowMargin2"><button onclick="window.open('https://www.buymeacoffee.com/SpotifyFinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Buy me a coffee</button></div>
+      <div class="innerRowRight rowMargin2"><label id="tracksTab_info3" style="color: red;"></label></div>
+    </div>
+    <div class="borderGreen"></div>
+    <div id="tracksTab_outerRow3" class="clearfix">
+      <div class="innerRowLeft rowMargin3 progressStatus"><div id="tracksTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="tracksTab_progStat1" style="color: red;">lblStatus</label></div>
+    </div>
+  </div>
+
+  <div id="Duplicates" class="tabcontent">
+    {% include "dupsTab.html" %}
+    <hr class="sep1px">
+    <div id="dupsTab_outerRow2" class="clearfix">
+      <div class="innerRowLeft rowMargin2"><label id="dupsTab_info1" class="spaceRight"></label></div>
+      <div class="innerRowLeft rowMargin2"><label id="dupsTab_info2"></label></div>
+<!--      <div class="innerRowRight rowMargin2"><button onclick="dupsTab_btnCoffee()" title="Support the project" class="spaceTopBot">Buy a Coffee</button></div>-->
+      <div class="innerRowRight rowMargin2"><button onclick="window.open('https://www.buymeacoffee.com/SpotifyFinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Buy me a coffee</button></div>
+      <div class="innerRowRight rowMargin2"><label id="dupsTab_info3" style="color: red;"></label></div>
+    </div>
+    <div class="borderGreen"></div>
+    <div id="dupsTab_outerRow3" class="clearfix">
+      <div class="innerRowLeft rowMargin3 progressStatus"><div id="dupsTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="dupsTab_progStat1" style="color: red;">lblStatus</label></div>
+    </div>
+  </div>
+
+  <div id="Artists" class="tabcontent">
+    {% include "artistsTab.html" %}
+    <hr class="sep1px">
+    <div id="artistsTab_outerRow2" class="clearfix">
+      <div class="innerRowLeft rowMargin2"><label id="artistsTab_info1" class="spaceRight"></label></div>
+      <div class="innerRowLeft rowMargin2"><label id="artistsTab_info2"></label></div>
+<!--      <div class="innerRowRight rowMargin2"><button onclick="artistsTab_btnCoffee()" title="Support the project" class="spaceTopBot">Buy a Coffee</button></div>-->
+      <div class="innerRowRight rowMargin2"><button onclick="window.open('https://www.buymeacoffee.com/SpotifyFinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Buy me a coffee</button></div>
+      <div class="innerRowRight rowMargin2"><label id="artistsTab_info3" style="color: red;"></label></div>
+    </div>
+    <div class="borderGreen"></div>
+    <div id="artistsTab_outerRow3" class="clearfix">
+      <div class="innerRowLeft rowMargin3 progressStatus"><div id="artistsTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="artistsTab_progStat1" style="color: red;">lblStatus</label></div>
+    </div>
+  </div>
+
+  <div id="Info" class="tabcontent tabBorder">
+    {% include "infoTab.html" %}
+  </div>
+
+  {% include "_js_files.html" %}
+
+</body>
+</html>

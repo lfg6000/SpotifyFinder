@@ -1,0 +1,72 @@
+
+<!-- the names are concatenated to prevent the header in this table (tracksTable) from switching to 2 rows -->
+<!-- with 2 rows in the tracksTable it will not line up with the header in the plNameTable -->
+
+
+<div class="clearfix" style="width: 100%;">
+  <div style="width: 20%; float: left;">
+    <div style="border: 1px solid black; border-bottom: none; border-left: none; padding-top:8px;">
+      <table id="artistNamesTable" class="cell-border compact order-column" style="width:100%;">
+        <thead>
+          <tr>
+            <th>ArtistName</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div style="width: 80%; float: left;">
+    <div style="border: 1px solid black; border-bottom: none; border-right: none; padding-top:8px;">
+      <table id="artistTracksTable" class="cell-border compact order-column" style="width:100%;">
+        <thead>
+          <tr>
+            <th></th>
+            <th>TrackName</th>
+            <th>PlayistName</th>
+            <th>AlbumName</th>
+            <th>Duration</th>
+            <th>Track</th>
+            <th>PlaylistOwner</th>
+            <th>TrackId</th>
+            <th>PlaylistId</th>
+            <th>TrackUri</th>
+            <th>AristId</th>
+            <th>PlaylistOwnerId</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th></th>
+            <th>TrackName</th>
+            <th>PlayistName</th>
+            <th>AlbumName</th>
+            <th>Duration</th>
+            <th>Track</th>
+            <th>PlaylistOwner</th>
+            <th>TrackId</th>
+            <th>PlaylistId</th>
+            <th>TrackUri</th>
+            <th>AristId</th>
+            <th>PlaylistOwnerId</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+  <div class="borderGreen2"></div>
+  <div id="artistsTab_outerRow1" class="clearfix">
+    <div class="innerRowLeft  rowMargin1"><button onclick="artistsTab_btnRemoveTracks()" title="Remove selected tracks">Remove Tracks </button></div>
+    <div class="innerRowLeft  rowMargin1"><button onclick="artistsTab_btnRefresh()"       title="Restore original sort">Refresh</button></div>
+    <div class="innerRowRight rowMargin1"><button onclick="artistsTab_btnHelp()"         title="Artist Tab Info">?</button></div>
+  </div>
+

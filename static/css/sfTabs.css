@@ -1,0 +1,434 @@
+
+  *{ font-family: "Verdana"; }
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* home page with login btn                                                                                                       */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+  /* https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_fixed_menu */
+
+  .navbarHomeWhiteSp {
+    overflow: hidden;
+    background-color: white;
+    position: fixed;
+    top: 0px;
+    height: 6px;
+    width: 100%;
+  }
+
+  .navbarHome {
+    overflow: hidden;
+    background-color: #1db954;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+  }
+
+  .navbarHome a {
+    display: block;
+    color: #000000;
+    text-align: center;
+    padding-top: 5px;
+    height: 60px;
+    text-decoration: none;
+    pointer-events: none;
+  }
+
+  .navbarHomeBtn {
+    position: fixed;
+    margin-top: 39px;
+    height: 50px;
+    background-color: white;
+  }
+
+  .navbarHomeAboutTxt {
+    padding-top: 70px;
+    padding-left: 20px;
+  }
+
+  .homeHatText {
+    font-style: italic;
+    font-size: 26px;
+    font-weight: bold;
+  }
+
+  .homeBtnLogin{
+    background-color: #1db954;
+    display:block;
+    border-radius: 6px;
+    font-size: 20px;
+    margin: auto;
+    margin-top: 10px;
+  }
+
+  .homeBtnLogin:hover{
+    background-color: #00fc89;
+  }
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* tabs page header                                                                                                               */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+  .navbarTabs {
+    overflow: hidden;
+    background-color: #1db954;
+    position: sticky;
+    top: 0px;
+    margin-top: 0px;
+  }
+
+  .navbarTabs a {
+    /*float: right;*/
+    display: block;
+    color: #000000;
+    text-align: center;
+    padding: 2px 2px 4px 2px;
+    text-decoration: none;
+  }
+
+  .navbarTabs a:hover {
+    background: #00fc89;
+    /*color: white;*/
+  }
+
+  .tabsHatText {
+    font-style: italic;
+    font-size: 26px;
+    font-weight: bold;
+  }
+
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* tabs on the tabs page                                                                                                          */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+  /* #1ed760 from spotify.com green button hover*/
+  /* #1db954 from spotify.com green button*/
+
+  .tab {
+    overflow: hidden;
+    /*border: 1px solid #ccc;*/
+    /*background-color: #1db954;*/
+    background-color: white;
+    margin-top: 2px;
+  }
+
+  /* Style the buttons inside the tab */
+  .tab button {
+    background-color: #1db954;
+    /*float: left;*/
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 2px 42px;
+    transition: 0.3s;
+    font-size: 16px;
+    border-radius: 8px 8px 0px 0px;
+  }
+
+  .tabLeft {
+    float: left;
+  }
+
+  .tabRight {
+    float: right;
+  }
+
+  /* Change background color of buttons on hover */
+  .tab button:hover {
+    /*background-color: #56fce0;*/
+    background-color: #00fc89;
+  }
+
+  /* Create an active/current tablink class */
+  .tab button.active {
+    background-color: #00fc89;
+  }
+
+  /* Style the tab content */
+  .tabcontent {
+    display: block;     /* should be display: none   but initial splitter pos is wrong; block causes tracks and artists tabs to flash*/
+    padding: 0px 0px;
+    margin: 0px 0px;
+    /*border: 1px solid blue;*/
+    border: 1px solid black;
+    border-top: none;
+    /* background-color: #00dfff; */
+  }
+
+  .tabBorder {
+    border: 1px solid black;
+  }
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* info tab                                                                                                                       */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+  .infoBtnRow {
+    margin: 10px 0px 10px 0;
+    text-align: left;
+    /*border: 1px solid green;*/
+  }
+
+  .infoBtn  {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+  }
+
+  .infoBtn:focus {
+    outline: none;
+    box-shadow: 0 0 3pt 2pt #1ed760;
+  }
+
+  .infoTextPanel {
+    padding-top: 0px;
+    /*padding-bottom: 4px;*/
+    margin-left: 20px;
+  }
+
+  .innerInfoTextPanel {
+    overflow-x: auto;
+    overflow-y: visible;
+    /*height: 500px;*/
+  }
+
+  .coffeeBMC{
+    background-color: #1db954;
+    display:block;
+    border-radius: 6px;
+    font-size: 12px;
+    color: white;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 4px 2px 4px;
+    /*float: left;*/
+    font-family: cursive;
+    border: 1px solid lightgray;
+  }
+
+  .coffeeBMC:hover{
+    background-color: #00fc89;
+  }
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* tables                                                                                                                         */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+  th { font-size: 15px; }
+
+  td { font-size: 14px; }
+
+  /* white background for selected item */
+  table.dataTable tbody tr.selected {
+      background-color: #FFFFFF !important;
+  }
+
+  /* thinner box around focus item */
+  table.dataTable tbody th.focus,
+  table.dataTable tbody td.focus {
+    box-shadow: inset 0px 0px 0px 1px green;
+  }
+
+  /* dup table row color */
+  .clrDup {
+    background-color: #E4F7F7 !important;
+  }
+
+  /* always show the scroll bars */
+  .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+    overflow-y: scroll !important;
+  }
+
+   /* checkbox pos/style and checkmark pos/style
+       these styles come from select.dataTables.css
+       1) center checkbox in row
+       2) make checkbox square
+       3) remove shadhow on checkmark
+       4) postion checkmark in center of square  */
+  table.dataTable tbody td.select-checkbox,
+  table.dataTable tbody th.select-checkbox {
+    position: relative;
+  }
+
+  table.dataTable tbody td.select-checkbox:before,
+  table.dataTable tbody td.select-checkbox:after,
+  table.dataTable tbody th.select-checkbox:before,
+  table.dataTable tbody th.select-checkbox:after {
+    display: block;
+    position: absolute;
+    top: 1.2em;
+    left: 50%;
+    width: 13px;
+    height: 13px;
+    box-sizing: border-box;
+  }
+
+  table.dataTable tbody td.select-checkbox:before,
+  table.dataTable tbody th.select-checkbox:before {
+    content: ' ';
+    margin-top: -11px;
+    margin-left: -6px;
+    border: 1px solid black;
+    border-radius: 0px;
+  }
+
+  table.dataTable tr.selected td.select-checkbox:after,
+  table.dataTable tr.selected th.select-checkbox:after {
+    content: '\2714';
+    margin-top: -15px;
+    margin-left: -5px;
+    text-align: center;
+    text-shadow: none;
+  }
+
+  table.dataTable tbody td.disabledCkBx:before {
+    border: 1px solid lightgray !important;
+  }
+
+  /* for search box at the bottom of a column */
+  tfoot input {
+    width: 80%;
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    float: left;
+  }
+
+  /* search btn next to search input at bottom of a column */
+  .btnClrSearch {
+    background-color: #FFFFFF;
+    color: #000000;
+    padding: 0px 2px 3px 2px;
+    text-align: center;
+    margin: 0px 2px 0px 2px;
+    border-radius: 8px;
+  }
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* btn and status lines below tables                                                                                              */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* - a class selector is a name preceded by a full stop (“.”)
+   - an ID selector is a name preceded by a hash character (“#”). */
+
+  .lineDiv
+  {
+    width: 100%;
+    height: 1px;
+    border-bottom: 1px solid black;
+  }
+
+  .borderGreen
+  {
+    width: 100%;
+    height: 2px;
+    border-bottom: 2px solid #1db954;
+  }
+
+  .borderGreen2
+  {
+    width: 100%;
+    margin-top: -1px;
+    border-bottom: 2px solid #1db954;
+  }
+
+  /* separator line */
+  .sep1px
+  {
+    border: 1px solid LightGray;
+    height: 0px;
+    background-color: LightGray;
+    margin-top: 0px;
+    margin-left: 2px;
+    margin-bottom: 0px;
+    margin-right: 2px;
+  }
+
+  .rowMargin1
+  {
+    margin-top: 6px;
+    margin-left: 4px;
+    margin-bottom: 6px;
+    margin-right: 4px;
+  }
+
+  .rowMargin2
+  {
+    margin-top: 4px;
+    margin-left: 4px;
+    margin-bottom: 1px;
+    margin-right: 4px;
+  }
+
+  .rowMargin3
+  {
+    margin-top: 4px;
+    margin-left: 4px;
+    margin-bottom: 4px;
+    margin-right: 4px;
+  }
+
+  /* when using floats you have to clear the float so the div does not collapse */
+  .clearfix::after
+  {
+    content: ".";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+  }
+
+  #plTabs_outerRow1 { width:100%; }
+  #plTabs_outerRow2 { width:100%; }
+  #plTabs_outerRow3 { width:100%; }
+
+  #tracksTab_outerRow1 { width:100%; }
+  #tracksTab_outerRow2 { width:100%; }
+  #tracksTab_outerRow3 { width:100%; }
+
+  #dupsTab_outerRow1 { width:100%; }
+  #dupsTab_outerRow2 { width:100%; }
+  #dupsTab_outerRow3 { width:100%; }
+
+  #artistsTab_outerRow1 { width:100%; }
+  #artistsTab_outerRow2 { width:100%; }
+  #artistsTab_outerRow3 { width:100%; }
+
+  #infoTab_outerRow1 { width:100%; }
+
+  .spaceRight { margin-right: 60px; }
+  .spaceTopBot { margin-top: 0px; margin-bottom: 0px; }
+
+  .innerRowLeft
+  {
+    display: inline-block;
+    float: left;
+  }
+  .innerRowRight
+  {
+    display: inline-block;
+    float: right;
+  }
+
+  .errMsg
+  {
+    color: red;
+  }
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* progress bar                                                                                                              */
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+  .progressStatus {
+    width: 20%;
+    background-color: #fff;
+    border: 1px solid black;
+  }
+
+  .progressBar {
+    width: 0%;
+    height: 20px;
+    background-color: #1ed760;
+    text-align: left;
+    line-height: 20px;
+    color: black;
+  }
+
+

@@ -1,0 +1,46 @@
+
+
+
+<div style="width: 100%;">
+  <div style="border:1px solid black; border-bottom: none; border-right: none; border-left: none; padding-top:8px;">
+    <table id="plTable" class="cell-border compact order-column" style="width:100%;">
+      <thead>
+        <tr>
+          <th></th>
+          <th>PlaylistName</th>
+          <th>Tracks</th>
+          <th>Public</th>
+          <th>PlaylistOwner</th>
+          <th>PlaylistId</th>
+          <th>PlaylistOwnerId</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <th></th>
+          <th>PlaylistName</th>
+          <th>Tracks</th>
+          <th>Public</th>
+          <th>PlaylistOwner</th>
+          <th>PlaylistId</th>
+          <th>PlaylistOwnerId</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+
+  <div class="borderGreen2"></div>
+  <div id="plTabs_outerRow1" class="clearfix">
+    <div class="innerRowLeft rowMargin1"><select id="plTabs_cbUsers" onchange="plTabs_cbPlOwnersOnChange()" title="A list of unique Owners Name/Owners Id for all the playlists in your Spotify Library.   Owners Name/Owners Id represents the owner/creator of a playlist.">Owners Name/Owners Id</select></div>
+    <div class="innerRowLeft rowMargin1"><button onClick="plTabs_btnSelectAll()" title="Select all the playlists">Select All</button></div>
+    <div class="innerRowLeft rowMargin1"><button onClick="plTabs_btnClearAll()" title="Unselect all the playlists">Clear All</button></div>
+    <div class="innerRowLeft rowMargin1"><button onClick="plTabs_btnReload()" title="Press this if you changed a playlist in a Spotify App">Reload From Spotify</button></div>
+    <div class="innerRowLeft rowMargin1"><button onClick="plTabs_btnRefresh()" title="Restore original sort">Refresh</button></div>
+    <div class="innerRowRight rowMargin1"><button onClick="plTabs_btnHelp()" title="Playlist Tab Info">?</button></div>
+  </div>
+
+
+
+

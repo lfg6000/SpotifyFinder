@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+
+	<style>
+
+[type="radio"]{
+    opacity:0;
+}
+
+[type="radio"] + label{
+    position:relative;
+    padding-left:6px;
+    padding-right: 10px;
+    top: -4px;
+    cursor:pointer;
+    display:inline-block;
+    color: black;
+    line-height:0px;
+}
+
+[type="radio"] + label::before{
+    content:"";
+    position:absolute;
+    left:-15px;
+    top:-6px;
+    width:10px;
+    height:10px;
+    border-radius: 100%;
+    border: 1px solid black;
+    background:#fff;
+}
+
+[type="radio"]:checked + label::after{
+    content:"";
+    position:absolute;
+    left:-12px;
+    top:-3px;
+    width:6px;
+    height:6px;
+    border-radius:100%;
+    background: green;
+}
+
+
+
+  .innerRowLeft
+  {
+    display: inline-block;
+    float: left;
+  }
+
+  .rowMargin1
+  {
+    margin-top: 6px;
+    margin-left: 4px;
+    margin-bottom: 6px;
+    margin-right: 4px;
+  }
+
+	</style>
+</head>
+
+<body>
+
+
+
+<input type="radio" id="vanilla" name="ice-cream" >
+<label for="vanilla">Vanilla</label>
+
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 12pt;">
+        <fieldset style="margin:-2px 0px 0px 0px; padding: 0px 6px 0px 6px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Find Dups Using</legend>
+          <input  type="radio" name="rPlSearch" id="rPlSearchId" value="Track Id" checked><label for="rPlSearchId">Track Id (Exact Match)</label>
+          <input  type="radio" name="rPlSearch" id="rPlSearchNad" value="Nad"><label for="rPlSearchNad">Track Name/Artist Name/Duration (Very Close Match)</label>
+        </fieldset>
+      </span>
+    </div>
+
+</body>
+
+</html>

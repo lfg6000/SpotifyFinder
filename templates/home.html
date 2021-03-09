@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    {% include "_css_files.html" %}
+
+    <title>SpotifyFinder</title>
+  </head>
+
+<body>
+
+  <div style="width: 60%; margin-left:20%;" class="navbarHomeWhiteSp">
+    <h6>---------------</h6>
+  </div>
+
+  <div style="width: 60%; margin-left:20%; margin-top: 6px;" class="navbarHome">
+    <a href="#home" class="homeHatText">SpotifyFinder</a>
+  </div>
+
+  <div style="width: 60%; margin-left:20%;" class="navbarHomeBtn">
+    <button onclick="location.href='/SpotifyLogin'" class="homeBtnLogin"><i class="fa fa-spotify" aria-hidden="true"></i>&nbsp; Log in with Spotify</button>
+  </div>
+
+  <div style="width: 60%; margin-left:20%;" class="navbarHomeAboutTxt">
+    {% include "help/helpTextAbout.html" %}
+  </div>
+</body>
+</html>
