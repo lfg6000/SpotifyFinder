@@ -32,7 +32,7 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 # needed for flash messages
 # needed for encrypting session cookies
 app.config['SECRET_KEY'] = oLoader.sFlaskAppSecretKey
-# print('app.config[SECRET_KEY] = ', app.config['SECRET_KEY'])
+# print('>>app.config[SECRET_KEY] = ', app.config['SECRET_KEY'])
 
 # SESSION_COOKIE_HTTPONLY defaults to true, if true javascript cookies=document.cookie is not able to read the cookie(s)
 # because the cookie(s) are only for server side usage and not accessible to the client
@@ -123,12 +123,12 @@ Session(app)
 #----------------------------------------------------------------------------------------------
 # @app.before_first_request
 # def before_1st_rq():
-#     print('---- start before_1st_rq  ----' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+#     print('>>---- start before_1st_rq  ----' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 #----------------------------------------------------------------------------------------------
 # @app.before_request
 # def before_rq():
-#   print('---- start before_rq  ----')
+#   print('>>---- start before_rq  ----')
 
 #----------------------------------------------------------------------------------------------
 def getCookie():
@@ -140,19 +140,19 @@ def getCookie():
 
 #----------------------------------------------------------------------------------------------
 def cookieDump(caller):
-    print('cookie/sid,  ' + caller + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ',  cookie = ' + getCookie() + ',  sid = ' + session.sid)
+    print('>>cookie/sid,  ' + caller + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ',  cookie = ' + getCookie())
 
 #----------------------------------------------------------------------------------------------
 @app.route('/', methods=['get', 'post'])
 def home():
   # hdrs = dict(request.headers)  # use this to view request msg header
-  cookieDump('home')
+  # cookieDump('home')
   return render_template("home.html")
 
 # #----------------------------------------------------------------------------------------------
 @app.route("/SpotifyLogin")
 def SpotifyLogin():
-  cookieDump('SpotifyLogin')
+  # cookieDump('SpotifyLogin')
   authUrl = oLoader.oAuthLogin()
   return redirect(authUrl)
 
@@ -167,7 +167,7 @@ def oAuthCallback():
 #----------------------------------------------------------------------------------------------
 @app.route("/Tabs", methods=['get', 'post'])
 def Tabs():
-  cookieDump('/Tabs')
+  # cookieDump('/Tabs')
 
   # if this throws than the session has expired, the user will be sent to the home page
   try:
@@ -184,67 +184,67 @@ def Tabs():
       if (key == 'findDups'):
         modePlaylist = rqJson['modePlaylist']
         modeSearch = rqJson['modeSearch']
-        print('/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
+        # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
         retVal = oLoader.findDups(modePlaylist, modeSearch)
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getDupsTrackList'):
         modePlaylist = rqJson['modePlayList']
         modeSearch = rqJson['modeSearch']
-        print('/Tabs getDupsTrackList()')
+        # print('>>/Tabs getDupsTrackList()')
         retVal, dupsTrackList, numDupsMatch, dupsClrList = oLoader.getDupsTrackList(modePlaylist, modeSearch)
         return jsonify({ 'errRsp': retVal, 'dupsTrackList': dupsTrackList, 'numDupsMatch': numDupsMatch, 'dupsClrList': dupsClrList})
 
       if (key == 'loadArtistDict'):
-        print('/Tabs loadArtistDict()')
+        # print('>>/Tabs loadArtistDict()')
         retVal = oLoader.loadArtistDict()
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getArtistDict'):
-        print('/Tabs getArtistDict()')
+        # print('>>/Tabs getArtistDict()')
         retVal, artistDict = oLoader.getArtistDict()
         return jsonify({ 'errRsp': retVal, 'artistDict': artistDict})
 
       if (key == 'loadArtistTrackList'):
         artistId = rqJson['artistId']
-        print('/Tabs loadArtistTrackList() - artistId = ' + artistId)
+        # print('>>/Tabs loadArtistTrackList() - artistId = ' + artistId)
         retVal = oLoader.loadArtistTrackList(artistId)
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getArtistTrackList'):
-        print('/Tabs getArtistTrackList()')
+        # print('>>/Tabs getArtistTrackList()')
         retVal, artistTrackList = oLoader.getArtistTrackList()
         return jsonify({ 'errRsp': retVal, 'artistTrackList': artistTrackList})
 
       if (key == 'loadPlTracks'):
-        print('/Tabs loadPlTracks()')
+        # print('>>/Tabs loadPlTracks()')
         retVal = oLoader.loadPlTracks()
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getPlSelectedDict'):
-        print('/Tabs getPlSelectedDict')
+        # print('>>/Tabs getPlSelectedDict')
         retVal, plSelectedDict = oLoader.getPlSelectedDict()
         return jsonify({ 'errRsp': retVal, 'plSelectedDict': plSelectedDict })
 
       if (key == 'getTrackList'):
         plId = rqJson['plId']
-        print('/Tabs getTrackList() - plId = ' + plId)
+        # print('>>/Tabs getTrackList() - plId = ' + plId)
         retVal, trackList, duration = oLoader.getTrackList(plId)
         return jsonify({ 'errRsp': retVal, 'trackList': trackList, 'plDuration': duration})
 
       if (key == 'setPlSelectedDict'):
-        print('/Tabs setPlSelectedDict()')
+        # print('>>/Tabs setPlSelectedDict()')
         newPlSelectedDict = rqJson['newPlSelectedDict']
         retVal = oLoader.setPlSelectedDict(newPlSelectedDict)
         return jsonify({ 'errRsp': retVal })
 
       # if (key == 'getCntrs'):
-      #   print('/Tabs getCntrs')
+      #   print('>>/Tabs getCntrs')
       #   retVal, plSelectionCntr, tracksRemovedCntr = oLoader.getCntrs()
       #   return jsonify({ 'errRsp': retVal, 'plSelectionCntr': plSelectionCntr, 'tracksRemovedCntr': tracksRemovedCntr })
 
       if (key == 'loadSpotifyInfo'):
-        print('/Tabs loadSpotifyInfo')
+        # print('>>/Tabs loadSpotifyInfo')
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo()
         # the mysql server is optional if db name is not set skip the one and only db read/write
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
@@ -252,34 +252,34 @@ def Tabs():
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie(), 'sid': sid})
 
       if (key == 'loadPlDict'):
-        print('/Tabs loadPlDict()')
+        # print('>>/Tabs loadPlDict()')
         retVal = oLoader.loadPlDict()
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getPlDict'):
-        print('/Tabs getPlDict')
+        # print('>>/Tabs getPlDict')
         retVal, plDict, nPlaylists, nTracks, userList = oLoader.getPlDict()
         return jsonify({ 'errRsp': retVal, 'plDict': plDict , 'NPlaylists': nPlaylists, 'NTracks': nTracks, 'userList': userList })
 
       # if (key == 'incPlSelectionCntr'):
-      #   print('/Tabs incPlSelectionCntr')
+      #   print('>>/Tabs incPlSelectionCntr')
       #   retVal = oLoader.incPlSelectionCntr()
       #   return jsonify({ 'errRsp': retVal })
 
       if (key == 'removeTracks'):
-        print('/Tabs removeTracks()')
+        # print('>>/Tabs removeTracks()')
         rmTracksList = rqJson['rmTracksList']
-        pprint.pprint(rmTracksList)  # pprint sorts on key
+        # pprint.pprint(rmTracksList)  # pprint sorts on key
         retVal = oLoader.removeTracks(rmTracksList)
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getErrLog'):
-        print('/Tabs getErrLog()')
+        # print('>>/Tabs getErrLog()')
         retVal, errLog = oLoader.getErrLog()
         return jsonify({ 'errRsp': retVal, 'errLog': errLog })
 
       if (key == 'getInfoHtml'):
-        print('/Tabs getInfoHtml()')
+        # print('>>/Tabs getInfoHtml()')
         fnRq = rqJson['infoRq']
         retVal, htmlStr = oLoader.getInfoHtml(fnRq);
         # jsonStr = json.dumps(htmlStr)
@@ -287,7 +287,7 @@ def Tabs():
 
     return;
 
-  print('/Tabs render_template sfTabs.html')
+  # print('>>/Tabs render_template sfTabs.html')
   # oLoader.initLoader()
   return render_template("sfTabs.html")
 
@@ -321,6 +321,6 @@ if __name__ == '__main__':
   # app.run(host='0.0.0.0', port=5000, debug=True)
   # app.run(host='192.168.2.9', port=5000, debug=True)
   # app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False) #, threaded=True)
-  print('calling app.run()')
+  # print('>>calling app.run()')
   app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False) #, threaded=True)
   # app.run(host='192.168.2.10', port=5000, debug=True, use_reloader=False)#, threaded=True)

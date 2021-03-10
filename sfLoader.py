@@ -39,7 +39,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def initLoader(this):
-    print('>>loader.initLoader()')
+    # print('>>loader.initLoader()')
     # session['mSpotipy'] = None
     session['mUserId'] = ''
     session['mUserName'] = ''
@@ -62,19 +62,19 @@ class SpfLoader():
     # session['mTracksRemovedCntr'] = 1
     session['mErrLog'] = []
 
-    errDesc = []
-    errDesc.append('Description of error log entries:')
-    errDesc.append("entry[0] - error code]")
-    errDesc.append('entry[1] - date time when the err was posted')
-    errDesc.append('entry[2] - method in which error occurred')
-    errDesc.append('entry[3] - description of error for display')
-    errDesc.append('entry[4] - system exception info[0]')
-    errDesc.append('entry[5] - system exception info[0]')
-    errDesc.append('entry[6] - system exception info[0]')
-    this.addErrLogEntry(errDesc)
+    # errDesc = []
+    # errDesc.append('Description of error log entries:')
+    # errDesc.append("entry[0] - error code]")
+    # errDesc.append('entry[1] - date time when the err was posted')
+    # errDesc.append('entry[2] - method in which error occurred')
+    # errDesc.append('entry[3] - description of error for display')
+    # errDesc.append('entry[4] - system exception info[0]')
+    # errDesc.append('entry[5] - system exception info[0]')
+    # errDesc.append('entry[6] - system exception info[0]')
+    # this.addErrLogEntry(errDesc)
 
-    retVal = [sfConst.errNone, this.getDateTm(), 'initLoader()', 'New Session Started', 'sid=' + session.sid, '', 'this is not an error']
-    this.addErrLogEntry(retVal)
+    # retVal = [sfConst.errNone, this.getDateTm(), 'initLoader()', 'New Session Started', 'sid=' + session.sid, '', 'this is not an error']
+    # this.addErrLogEntry(retVal)
 
 
 
@@ -182,7 +182,7 @@ class SpfLoader():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
 
     try:
-      print('>>loader.oAuthLogin()')
+      # print('>>loader.oAuthLogin()')
 
       # the pythonanywhere error log file is filling up with Spotipy warning: Couldn't read cache at: .cache
       # spotipy oauth2.py logs this warning to the python logger because it can not rd/wr a .cache file on pythonanywhere
@@ -205,7 +205,7 @@ class SpfLoader():
                                             scope=scope)
 
       authUrl = spoAuth.get_authorize_url()
-      # print('authUrl = ' + authUrl)
+      # print('>>authUrl = ' + authUrl)
       return authUrl
 
     except Exception:
@@ -222,7 +222,7 @@ class SpfLoader():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
 
     try:
-      print('>>loader.oAuthCallback()')
+      # print('>>loader.oAuthCallback()')
 
       scope = 'playlist-read-private '
       scope += 'playlist-read-collaborative '
@@ -256,7 +256,7 @@ class SpfLoader():
   def oAuthGetToken(this, session):
     # Check to see if token is valid and gets a new token if not
     try:
-      print('>>loader.oAuthGetToken()')
+      # print('>>loader.oAuthGetToken()')
       tokenInfo = session.get("tokenInfo", {})
 
       # Checking if the session already has a token stored
@@ -271,7 +271,7 @@ class SpfLoader():
       # Refreshing token if it has expired
       if (is_token_expired):
         # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
-        print('>>loader.oAuthGetToken() - token expired')
+        # print('>>loader.oAuthGetToken() - token expired')
         spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.clientId, client_secret=this.clientSecret, redirect_uri=this.redirectUri, scope=this.scope)
         tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
 
@@ -288,7 +288,7 @@ class SpfLoader():
   def oAuthGetSpotifyObj(this):
     # try:
     #   raise Exception('throwing loader.oAuthGetToken() returned Not Authorized')
-      print('>>loader.oAuthGetSpotifyObj()')
+    #   print('>>loader.oAuthGetSpotifyObj()')
       session['tokenInfo'], tokenValid = this.oAuthGetToken(session)
       session.modified = True
       if not tokenValid:
@@ -304,12 +304,13 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def loadSpotifyInfo(this):
-    print('>>loader.loadSpotifyInfo()')
+    # print('>>loader.loadSpotifyInfo()')
     try:
       # raise Exception('throwing loader.loadSpotifyInfo()')
       results = this.oAuthGetSpotifyObj().current_user()
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
+      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'])
       return [sfConst.errNone], session['mUserId'], session['mUserName'], session.sid
     except Exception:
       tupleExc = sys.exc_info()
@@ -319,7 +320,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def loadUniqueSpotifyInfo(this, mysql):
-    print('>>loader.loadUniqueSpotifyInfo()')
+    # print('>>loader.loadUniqueSpotifyInfo()')
 
     # using db is optional. the app works fine w/o a db.
     # if this.sMySqlDbName is empty we are not using a db so we just return
@@ -373,7 +374,7 @@ class SpfLoader():
 
       mysql.connection.commit()
       cursor.close()
-      print('>>loader.loadUniqueSpotifyInfo - cursor close')
+      # print('>>loader.loadUniqueSpotifyInfo - cursor close')
 
     except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
       retVal = [sfConst.errSqlErr, this.getDateTm(), 'loadUniqueSpotifyInfo()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
@@ -428,7 +429,7 @@ class SpfLoader():
   # ---------------------------------------------------------------
   def getErrLog(this):
     try:
-      print('>>loader.getErrLog()')
+      # print('>>loader.getErrLog()')
       # raise Exception('throwing loader.getErrLog()')
       return [sfConst.errNone], session['mErrLog']
     except Exception:
@@ -508,7 +509,7 @@ class SpfLoader():
         # spotify only returns 50 playlists at a time so we loop until we have them all
         # 'https://api.spotify.com/v1/me/playlists'
         results = this.oAuthGetSpotifyObj().current_user_playlists(limit=50, offset=idx)
-        # print('num playlist fetched = ' + str(len(results['items'])))
+        # print('>>num playlist fetched = ' + str(len(results['items'])))
         if (len(results['items']) < 50):
           done = True
 
@@ -583,7 +584,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def loadPlTracks(this):
-    # print('>>loader.loadPlTracks()')
+    print('>>loader.loadPlTracks()')
     # mPlTracksDict['plId'] = trackList[]
     #   - one trackList[] for each playlist
     # trackList[] = each list entry is dict of track values
@@ -595,11 +596,11 @@ class SpfLoader():
       plTracksAlreadyLoaded = 0
       for plSelectedId, plSelectedDictVals in session['mPlSelectedDict'].items():
         if plSelectedId in session['mPlTracksDict']:  # did we already loaded the tracks for the pl
-          # print('loader.loadPlTracks() - skipping tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
+          # print('>>loader.loadPlTracks() - skipping tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
           plTracksAlreadyLoaded += 1
           continue
 
-        # print('loader.loadPlTracks() - fetching tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
+        # print('>>loader.loadPlTracks() - fetching tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
 
         idx = 0
         dur = 0
@@ -655,7 +656,7 @@ class SpfLoader():
 
         plValues['Duration'] = this.msToHms(dur, 1)
         session['mPlTracksDict'][plSelectedId] = tracksList
-      # print('loader.loadPlTracks() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
+      # print('>>loader.loadPlTracks() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlTracksDict.json', 'w') as f:
       #   json.dump(session['mPlTracksDict'], f)
@@ -692,7 +693,7 @@ class SpfLoader():
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
   def rmTracksFromSpotPlaylist(this, plId, spotRmTrackList):
-    # print('>>loader.rmTracksFromSpotPlaylist()')
+    print('>>loader.rmTracksFromSpotPlaylist()')
     # spotRmTrackList uses spotify key names
 
     #  url         = 'https://api.spotify.com/v1/playlists/6llbMlPvjrSSy8NTLfBltc/tracks'
@@ -731,7 +732,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def removeTracks(this, rmTrackList):
-    print('>>loader.removeTracks()')
+    # print('>>loader.removeTracks()')
 
     try:
       # raise Exception('throwing loader.removeTracks()')
@@ -873,7 +874,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def findDupsId(this, modePlaylist):
-    print('>>loader.findDupsId() match on Track Id')
+    # print('>>loader.findDupsId() match on Track Id')
 
     try:
       session['mDupsTrackList'].clear()
@@ -902,7 +903,7 @@ class SpfLoader():
               continue
             if rplId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
               continue
-            # print('comparing lplId: ' + lplTrackList[0]['Playlist Name'] + ' to rplId: ' + rplTrackList[0]['Playlist Name'])
+            # print('>>comparing lplId: ' + lplTrackList[0]['Playlist Name'] + ' to rplId: ' + rplTrackList[0]['Playlist Name'])
             for ltkVals in lplTrackList:
               for rtkVals in rplTrackList:
                 if ltkVals['Track Id'] == rtkVals['Track Id']:
@@ -942,7 +943,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def findDupsNad(this, modePlaylist):
-    print('>>loader.findDupsNad()  match on TrackName/ArtistName/Duration')
+    # print('>>loader.findDupsNad()  match on TrackName/ArtistName/Duration')
 
     try:
       session['mDupsTrackList'].clear()
@@ -971,7 +972,7 @@ class SpfLoader():
               continue
             if rplId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
               continue
-            # print('comparing lplId: ' + lplTrackList[0]['Playlist Name'] + ' to rplId: ' + rplTrackList[0]['Playlist Name'])
+            # print('>>comparing lplId: ' + lplTrackList[0]['Playlist Name'] + ' to rplId: ' + rplTrackList[0]['Playlist Name'])
             for ltkVals in lplTrackList:
               for rtkVals in rplTrackList:
                 if ltkVals['Track Id'] != rtkVals['Track Id']:
@@ -1022,7 +1023,7 @@ class SpfLoader():
   # ---------------------------------------------------------------
   def getArtistDict(this):
     try:
-      print('>>loader.getArtistDict()')
+      # print('>>loader.getArtistDict()')
       # raise Exception('throwing loader.getArtistDict()')
       return [sfConst.errNone], session['mArtistDict']
     except Exception:
@@ -1045,7 +1046,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def loadArtistDict(this):
-    # print('>>loader.loadArtistDict()')
+    print('>>loader.loadArtistDict()')
 
     try:
       # raise Exception('throwing loader.loadArtistDict()')
