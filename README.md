@@ -8,6 +8,8 @@ SpotifyFinder is a web app that allows you to:
   * find duplicates (and remove them) in your Spotify playlists.
   * to see where a particular artist appears in your Spotify playlists.
 
+![alt text](https://github.com/lfg6000/SpotifyFinder/blob/master/static/sfScrnShot.png?raw=true)
+
 ### Technical Details
 * Server Side:
     * Python - server side language
