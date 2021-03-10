@@ -26,10 +26,10 @@ class SpfLoader():
     this.scope += 'playlist-modify-public '
     this.scope += 'playlist-modify-private '
 
-    this.sAppSecretKey    = ''
-    this.sClientId        = ''
-    this.sClientSecret    = ''
-    this.sRedirectUri     = ''
+    this.sFlaskAppSecretKey    = ''
+    this.sSpotifyClientId        = ''
+    this.sSpotifyClientSecret    = ''
+    this.sSpotifyRedirectUri     = ''
     this.sMySqlHost       = ''
     this.sMySqlUser       = ''
     this.sMySqlPwRoot     = ''
@@ -64,8 +64,8 @@ class SpfLoader():
 
     errDesc = []
     errDesc.append('Description of error log entries:')
-    errDesc.append("entry[0] - [1 = info msg], [-# = error code]")
-    errDesc.append('entry[1] - date time when the occurred')
+    errDesc.append("entry[0] - error code]")
+    errDesc.append('entry[1] - date time when the err was posted')
     errDesc.append('entry[2] - method in which error occurred')
     errDesc.append('entry[3] - description of error for display')
     errDesc.append('entry[4] - system exception info[0]')
@@ -115,32 +115,60 @@ class SpfLoader():
   # login and user
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
-  def loadKvFile(this):
+  def loadCfgFile(this):
     try:
+      # - load cfg params from a cfg file (json dict)
+      # - we can not push the json cfg file with our flask and spotify secret keys
+      #   to github because this would expose them.
+
+      cfgFnd = 0
       grpKey = 'local_server_127_0_0_1'
 
+      # cfg when running on a hosting service
+      # cfg when running on original developer's machine
       vPath = os.path.dirname(os.path.abspath(__file__)) + '/templates/' + 'helper.txt'
-      if (vPath.find('slipstream') != -1):
-        grpKey = 'remote_server'
+      if (os.path.isfile(vPath)):
+        cfgFnd = 1
+        if (vPath.find('slipstream') != -1):
+          grpKey = 'remote_server'
 
-      print('>>loader.loadHelperFile() path to helper.txt = ' + vPath)
+      # cfg when running from a github clone
+      if (cfgFnd == 0):
+        vPath = os.path.dirname(os.path.abspath(__file__)) + '/sfCfg.json'
+        if (os.path.isfile(vPath)):
+          cfgFnd = 1
+
+      if (cfgFnd == 0):
+        raise Exception('Cfg file not found. Missing File: ', vPath)
+
+      print('>>loader.loadCfgFile() path to cfg file = ' + vPath)
       fHelper = open(vPath, "r")
       hVal = json.load(fHelper)
-      this.sAppSecretKey    = hVal[grpKey]['sAppSecretKey']
-      this.sClientId        = hVal[grpKey]['sClientId']
-      this.sClientSecret    = hVal[grpKey]['sClientSecret']
-      this.sRedirectUri     = hVal[grpKey]['sRedirectUri']
-      this.sMySqlHost       = hVal[grpKey]['sMySqlHost']
-      this.sMySqlUser       = hVal[grpKey]['sMySqlUser']
-      this.sMySqlPwRoot     = hVal[grpKey]['sMySqlPwRoot']
-      this.sMySqlPwUser     = hVal[grpKey]['sMySqlPwUser']
+      this.sFlaskAppSecretKey     = hVal[grpKey]['sFlaskAppSecretKey']
+      this.sSpotifyClientId       = hVal[grpKey]['sSpotifyClientId']
+      this.sSpotifyClientSecret   = hVal[grpKey]['sSpotifyClientSecret']
+      this.sSpotifyRedirectUri    = hVal[grpKey]['sSpotifyRedirectUri']
+      this.sMySqlHost             = hVal[grpKey]['sMySqlHost']
+      this.sMySqlUser             = hVal[grpKey]['sMySqlUser']
+      this.sMySqlPwRoot           = hVal[grpKey]['sMySqlPwRoot']
+      this.sMySqlPwUser           = hVal[grpKey]['sMySqlPwUser']
       this.sMySqlDbName     = hVal[grpKey]['sMySqlDbName']
+
+      if (this.sFlaskAppSecretKey == ''):
+        raise Exception('Cfg file error.  sFlaskAppSecretKey is empty. cfg file: ', vPath)
+      if (this.sSpotifyClientId == ''):
+        raise Exception('Cfg file error.  sSpotifyClientId is empty. cfg file: ', vPath)
+      if (this.sSpotifyClientSecret == ''):
+        raise Exception('Cfg file error.  sSpotifyClientSecret is empty. cfg file: ', vPath)
+
+      return 1
+
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errHelperTxt, this.getDateTm(), 'loadHelperFile()', 'helper.txt failed to load.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errCfgFile, this.getDateTm(), 'loadCfgFile()', 'Error loading config file.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       pprint.pprint(retVal) #pprint sorts on key
       # this.addErrLogEntry(retVal) # session not available yet
-      return 'oLoader:login() failed'
+      return -1
 
   # ---------------------------------------------------------------
   def oAuthLogin(this):
@@ -171,9 +199,9 @@ class SpfLoader():
       scope += 'playlist-modify-public '
       scope += 'playlist-modify-private '
 
-      spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sClientId,
-                                            client_secret = this.sClientSecret,
-                                            redirect_uri  = this.sRedirectUri,
+      spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
+                                            client_secret = this.sSpotifyClientSecret,
+                                            redirect_uri  = this.sSpotifyRedirectUri,
                                             scope=scope)
 
       authUrl = spoAuth.get_authorize_url()
@@ -204,9 +232,9 @@ class SpfLoader():
       # - on PA the .cache write fails if we do not set the cache_path param
       # - we do not care if the .cache wr fails on PA since we cache the token info in the session dict
       #   and i think we really do not want a .cache file when there are multiple users on the site
-      spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sClientId,
-                                            client_secret = this.sClientSecret,
-                                            redirect_uri  = this.sRedirectUri,
+      spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
+                                            client_secret = this.sSpotifyClientSecret,
+                                            redirect_uri  = this.sSpotifyRedirectUri,
                                             scope=scope)
       session.clear()
       code = request.args.get('code')
@@ -293,16 +321,40 @@ class SpfLoader():
   def loadUniqueSpotifyInfo(this, mysql):
     print('>>loader.loadUniqueSpotifyInfo()')
 
-    # i am thinking lock table is not needed see: https://dev.mysql.com/doc/refman/8.0/en/table-locking.html
+    # using db is optional. the app works fine w/o a db.
+    # if this.sMySqlDbName is empty we are not using a db so we just return
+
+    # this web app does not use google analytics or any other tracking utilities
+    # but we do want to know how many unique users actually use the web app
+    # so we have a MySql table to count unique visits
+
+    # it looks like using 'lock table' is not needed see: https://dev.mysql.com/doc/refman/8.0/en/table-locking.html
     # InnoDB tables use row-level locking so that multiple sessions and applications can read from and write to the same table
     # simultaneously, without making each other wait or producing inconsistent results. For this storage engine, avoid using the
     # LOCK TABLES statement, because it does not offer any extra protection, but instead reduces concurrency. The automatic
     # row-level locking makes these tables suitable for your busiest databases with your most important data, while also simplifying
     # application logic since you do not need to lock and unlock tables. Consequently, the InnoDB storage engine is the default in MySQL.
 
+    # these are the sql cmds to create the database and it's one table with four columns
+    # CREATE DATABASE IF NOT EXISTS `spotifyFinderDb` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+    # USE `spotifyFinderDb`;
+    #
+    # CREATE TABLE IF NOT EXISTS `uniqueUsers` (
+    #   `userId` varchar(50) NOT NULL,
+    #   `userName` varchar(50) NOT NULL,
+    #   `visitCounter` int(11) NOT NULL,
+    #   `lastVisit` DATETIME  NOT NULL,
+    #   PRIMARY KEY (`userId`)
+    # ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8;
+
     # this is only time we update the db so it is ok if the db connection time outs
     cursor = None
     try:
+
+      # if sMySqlDbName is empty we are not configure to use a db
+      if (this.sMySqlDbName == ''):
+        return
+
       userId = session['mUserId']
       userName = session['mUserName']
       sqlDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')

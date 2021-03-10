@@ -1,0 +1,14 @@
+{
+  "local_server_127_0_0_1":
+  {
+    "sFlaskAppSecretKey":     "",
+    "sSpotifyClientId":       "",
+    "sSpotifyClientSecret":   "",
+    "sSpotifyRedirectUri":    "http://127.0.0.1:5000/oAuthCallback",
+    "sMySqlHost":             "",
+    "sMySqlUser":             "",
+    "sMySqlPwRoot":           "",
+    "sMySqlPwUser":           "",
+    "sMySqlDbName":           ""
+  }
+}

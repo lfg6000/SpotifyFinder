@@ -3,7 +3,7 @@
 ### Website:
 View this project live at:   https://slipstreamcode.pythonanywhere.com/
 
-### Overview
+### Why (App Overview)
 SpotifyFinder is a web app that allows you to:
   * find duplicates (and remove them) in your Spotify playlists.
   * to see where a particular artist appears in your Spotify playlists.
@@ -26,31 +26,30 @@ SpotifyFinder is a web app that allows you to:
     * jquery.ScrolTo - utility to scroll a previously selected table row into view
 
 ### Values Specific to your Instance
-The app needs a few values that are specific to your instance to run.  Put this json dictionary
-into a file called helper.txt in the templates directory.
-
-{
+The app needs a few values that are specific to your instance to run. You will need to edit 
+sfCfg.json. This file is in the main project dir.  In sfCfg.json there are 9 config params. 
+You must set the first 3 values, the fourth value is already set for you, and the last 5 values
+are optionally. 
 
     "local_server_127_0_0_1":   
     {
-        "sAppSecretKey":     "your flask secret key",
-        "sClientId":         "your spotify client id",
-        "sClientSecret":     "your spotify client secret",
-        "sRedirectUri":      "http://127.0.0.1:5000/oAuthCallback",
-        "sMySqlHost":        "localhost or leave blank",
-        "sMySqlUser":        "your user name or leave blank",
-        "sMySqlPwRoot":      "your root pw or leave blank",
-        "sMySqlPwUser":      "your pw or leave blank",
-        "sMySqlDbName":      "name of your db or leave blank"
-    }     
-}
+        "sFlaskAppSecretKey":     "your flask secret key",
+        "sSpotifyClientId":       "your spotify client id",
+        "sSpotifyClientSecret":   "your spotify client secret",
+        "sSpotifyRedirectUri":    "http://127.0.0.1:5000/oAuthCallback",
+        "sMySqlHost":             "optional: leave blank or localhost",
+        "sMySqlUser":             "optional: leave blank or your user name",
+        "sMySqlPwRoot":           "optional: leave blank or your root pw",
+        "sMySqlPwUser":           "optional: leave blank or your pw",
+        "sMySqlDbName":           "optional: leave blank or name of your db"
+    }
 
 You will need to go to the Spotify Developer website, https://developer.spotify.com/, 
 to create a Spotify App which will provide you with a spotify client id and a spotify 
-client secret, be sure to set the redirect Uri to "http://127.0.0.1:5000/oAuthCallback"
-in the spotify dev console for the spotify app you created.  Put the values from the 
-Spotify dev console into the above json dict. MySql is optional so you can just 
-leave the MySql values empty/blank.
+client secret, be sure to set the spotify redirect Uri to "http://127.0.0.1:5000/oAuthCallback"
+in the spotify dev console for the spotify app you created.  Put the sSpotifyClientId
+and sSpotifyClientSecret from the Spotify dev console into the above json dict. MySql
+is optional so you can just leave the MySql values empty/blank.
 
 ### MySql is Optional
 To remove the need for a MySql server from this project just do not populate the above MySql 

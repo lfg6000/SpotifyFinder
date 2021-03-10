@@ -6,49 +6,16 @@ import spotipy
 import json, logging, datetime, pprint, os, time
 import sfLoader, sfConst
 
-
-# { mozilla request headers
-#     'Host': '127.0.0.1:5000',
-#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0',
-#     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-#     'Accept-Language': 'en-US,en;q=0.5',
-#     'Accept-Encoding': 'gzip, deflate',
-#     'Referer': 'http://127.0.0.1:5000/',
-#     'Dnt': '1',
-#     'Connection': 'keep-alive',
-#     'Cookie': 'session=41556fbc-1549-409a-821e-34169e2462ca',
-#     'Upgrade-Insecure-Requests': '1',
-#     'Sec-Gpc': '1'
-# }
-
-# {  chrome browser request headers
-#     'Host': '127.0.0.1:5000',
-#     'Connection': 'keep-alive',
-#     'Upgrade-Insecure-Requests': '1',
-#     'Dnt': '1',
-#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
-#     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-#     'Sec-Fetch-Site': 'same-origin',
-#     'Sec-Fetch-Mode': 'navigate',
-#     'Sec-Fetch-User': '?1',
-#     'Sec-Fetch-Dest': 'document',
-#     'Referer': 'http://127.0.0.1:5000/',
-#     'Accept-Encoding': 'gzip, deflate, br',
-#     'Accept-Language': 'en-US,en;q=0.9',
-#     'Cookie': 'session=ec898092-228f-410b-9051-359c7f2a9660'
-# }
-
 #----------------------------------------------------------------------------------------------
-# things to remember
-# - favicon not showing up firefox: clear the cache in firefox (options,privacy,clear data,clear cache)
-#   - you will have to login to all your standard sites again, gmail, amazon
-# - flask requries all .css and js fine be in '../static'
-
+# - flask requries all .css and js files be in '/static/..'
+# - favicon not showing up firefox/chrome: clear the cache in firefox/chrome
 #----------------------------------------------------------------------------------------------
+
+
 app = Flask(__name__)
 
 oLoader = sfLoader.SpfLoader()
-oLoader.loadKvFile() # call this before setting 'SECRET_KEY'
+oLoader.loadCfgFile() # call this before setting 'SECRET_KEY'
 
 # for firefox debugging use this to stop caching...so html files are alwasy reload...put this in a .css file used by all pages
 #   <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
@@ -64,7 +31,7 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
 # needed for flash messages
 # needed for encrypting session cookies
-app.config['SECRET_KEY'] = oLoader.sAppSecretKey
+app.config['SECRET_KEY'] = oLoader.sFlaskAppSecretKey
 # print('app.config[SECRET_KEY] = ', app.config['SECRET_KEY'])
 
 # SESSION_COOKIE_HTTPONLY defaults to true, if true javascript cookies=document.cookie is not able to read the cookie(s)
@@ -124,11 +91,14 @@ app.config['SESSION_COOKIE_SECURE'] = False     # leave this set to false for no
 # call from_object after all the config params are set
 app.config.from_object(__name__)
 
-app.config['MYSQL_HOST'] = oLoader.sMySqlHost
-app.config['MYSQL_USER'] = oLoader.sMySqlUser
-app.config['MYSQL_PASSWORD'] = oLoader.sMySqlPwRoot
-app.config['MYSQL_DB'] = oLoader.sMySqlDbName
-mysql = MySQL(app)
+# using a MySql db is optional
+# if the sMySqlDbName is empty then do not use the db
+if (oLoader.sMySqlDbName != ''):
+  app.config['MYSQL_HOST'] = oLoader.sMySqlHost
+  app.config['MYSQL_USER'] = oLoader.sMySqlUser
+  app.config['MYSQL_PASSWORD'] = oLoader.sMySqlPwRoot
+  app.config['MYSQL_DB'] = oLoader.sMySqlDbName
+  mysql = MySQL(app)
 
 # init the server side session handler
 Session(app)
@@ -151,7 +121,6 @@ Session(app)
 #     return dict(mdebug=print_in_console)
 
 #----------------------------------------------------------------------------------------------
-# timestamp
 # @app.before_first_request
 # def before_1st_rq():
 #     print('---- start before_1st_rq  ----' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -278,7 +247,7 @@ def Tabs():
         print('/Tabs loadSpotifyInfo')
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo()
         # the mysql server is optional if db name is not set skip the one and only db read/write
-        if ((retVal[0] == 1) and (app.config['MYSQL_DB'] != '')): # if db name is not set skip the db write
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.loadUniqueSpotifyInfo(mysql)
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie(), 'sid': sid})
 
