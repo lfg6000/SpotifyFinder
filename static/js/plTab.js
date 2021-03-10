@@ -103,7 +103,7 @@
 
         plTabs_updateSelectedCntInfo();
 
-        $('#cookieDisp').text(vCookie);
+        // $('#cookieDisp').text(vCookie);
 
         console.log('plTab_afActivate() - exit');
         return;

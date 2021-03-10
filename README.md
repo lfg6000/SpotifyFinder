@@ -37,11 +37,11 @@ are optionally.
         "sSpotifyClientId":       "your spotify client id",
         "sSpotifyClientSecret":   "your spotify client secret",
         "sSpotifyRedirectUri":    "http://127.0.0.1:5000/oAuthCallback",
-        "sMySqlHost":             "optional: leave blank or localhost",
-        "sMySqlUser":             "optional: leave blank or your user name",
-        "sMySqlPwRoot":           "optional: leave blank or your root pw",
-        "sMySqlPwUser":           "optional: leave blank or your pw",
-        "sMySqlDbName":           "optional: leave blank or name of your db"
+        "sMySqlHost":             "",  # optional
+        "sMySqlUser":             "",  # optional
+        "sMySqlPwRoot":           "",  # optional
+        "sMySqlPwUser":           "",  # optional
+        "sMySqlDbName":           ""   # optional
     }
 
 You will need to go to the Spotify Developer website, https://developer.spotify.com/, 
@@ -52,15 +52,17 @@ and sSpotifyClientSecret from the Spotify dev console into the above json dict. 
 is optional so you can just leave the MySql values empty/blank.
 
 ### MySql is Optional
-To remove the need for a MySql server from this project just do not populate the above MySql 
-config params and this website will work just fine and you will not need to setup a MySql 
-server.  You will still need to import the Flask-MySqlDb package into your IDE.
+This website works fine w/o a MySql server/db.  If you leave sMySqlDbName, in sfCfg.json, empty you 
+will not need to setup a MySql server/db. You will still need to import the Flask-MySqlDb package 
+into your IDE.
 
 ### Running this Project from and IDE
   * download the project from github
-  * open the project directory in your favorite IDE.  
+  * open the project in your favorite IDE.  
   * import the above python packages marked with (pkg).
+  * edit sfCfg.json and set the first 3 values
   * use the IDE to start the project  
   * open a web browser to http://127.0.0.1:5000
   * the home page will appear  
-  * hit login w/ spotify and a Spotify.com dialogue will ask you to login in
+  * hit "Login with Spotify" and a Spotify.com dialogue will ask you to login in
+
