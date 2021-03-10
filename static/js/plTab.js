@@ -15,7 +15,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTab_initPlTab(tableHeight=300)
   {
-    console.log("plTab_initPlTab() - plTable ready()");
+    // console.log("plTab_initPlTab() - plTable ready()");
 
     // must be before table creation
     // add search input boxes to the dom at the bottom of the desired columns
@@ -76,7 +76,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTab_redraw()
   {
-    console.log('plTab_redraw()');
+    // console.log('__SF__plTab_redraw()');
     vPlTable.columns.adjust().draw();
   }
 
@@ -85,7 +85,7 @@
   {
     try
     {
-      console.log("plTab_afActivate() vPlTabActivated = " + vPlTabActivated);
+      // console.log("plTab_afActivate() vPlTabActivated = " + vPlTabActivated);
 
       if (vPlTabActivated === 0)
       {
@@ -105,13 +105,13 @@
 
         // $('#cookieDisp').text(vCookie);
 
-        console.log('plTab_afActivate() - exit');
+        // console.log('__SF__plTab_afActivate() - exit');
         return;
       }
 
       if (vLastTracksRemovedCntr !== curTracksRemovedCntr)
       {
-        console.log("plTab_afActivate() - last and cur removed cntrs are different");
+        // console.log("plTab_afActivate() - last and cur removed cntrs are different");
 
         vLastTracksRemovedCntr = curTracksRemovedCntr;
 
@@ -123,17 +123,17 @@
         vPlTable.clear().draw();
         await plTab_afLoadPlTable();
         await plTab_afRestorePlTableCkboxes();
-        console.log('plTab_afActivate() - exit');
+        // console.log('__SF__plTab_afActivate() - exit');
       }
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('plTab_afActivate() finally.');
+      // console.log('__SF__plTab_afActivate() finally.');
       tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
     }
   }
@@ -143,7 +143,7 @@
   {
     try
     {
-      console.log("plTab_afRefresh()");
+      // console.log("plTab_afRefresh()");
       tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
       tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
@@ -154,12 +154,12 @@
     }
     catch(err)
     {
-      // console.log('plTab_afRefresh() caught error: ', err);
+      // console.log('__SF__plTab_afRefresh() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('plTab_afRefresh() finally.');
+      // console.log('__SF__plTab_afRefresh() finally.');
       tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
     }
   }
@@ -168,9 +168,9 @@
   async function plTab_afloadSpotifyInfo()
   {
     // foo.bar();
-    // console.log('plTab_afloadSpotifyInfo()');
+    // console.log('__SF__plTab_afloadSpotifyInfo()');
     rVal = 1;
-    console.log('plTab_afloadSpotifyInfo() - vUrl - loadSpotifyInfo');
+    console.log('__SF__plTab_afloadSpotifyInfo() - vUrl - loadSpotifyInfo');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadSpotifyInfo: 'loadSpotifyInfo' }), });
     if (!response.ok)
@@ -178,7 +178,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('plTab_afloadSpotifyInfo() reply = ', reply);
+      // console.log('__SF__plTab_afloadSpotifyInfo() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('plTab_afloadSpotifyInfo()', reply['errRsp'], 'plTab_errInfo')
 
@@ -186,7 +186,7 @@
       vUserName = reply['userName']
       vCookie = reply['cookie']
       vSid = reply['sid']
-      console.log('plTabs_loadSpotifyInfo() - \n   userId = ' + vUserId + ',\n   userName = ' + vUserName + ',\n   cookie = ' + vCookie + ',\n   sid = ' + vSid);
+      // console.log('__SF__plTabs_loadSpotifyInfo() - \n   userId = ' + vUserId + ',\n   userName = ' + vUserName + ',\n   cookie = ' + vCookie + ',\n   sid = ' + vSid);
       infoTab_addClientLogMsg(['sid = '+ vSid ]);
     }
   }
@@ -194,8 +194,8 @@
   //-----------------------------------------------------------------------------------------------
   async function plTab_afLoadPlDict()
   {
-    // console.log('plTab_afLoadPlDict()');
-    console.log('plTab_afLoadPlDict() - vUrl - loadPlDict');
+    // console.log('__SF__plTab_afLoadPlDict()');
+    console.log('__SF__plTab_afLoadPlDict() - vUrl - loadPlDict');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadPlDict: 'loadPlDict' }), });
     if (!response.ok)
@@ -203,7 +203,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('plTab_afLoadPlDict() reply = ', reply);
+      // console.log('__SF__plTab_afLoadPlDict() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('plTab_afLoadPlDict()', reply['errRsp'], 'plTab_errInfo')
     }
@@ -212,8 +212,8 @@
   //-----------------------------------------------------------------------------------------------
   async function plTab_afLoadPlTable()
   {
-    // console.log('plTab_afLoadPlTable()');
-    console.log('plTab_afLoadPlTable() - vUrl - getPlDict');
+    // console.log('__SF__plTab_afLoadPlTable()');
+    console.log('__SF__plTab_afLoadPlTable() - vUrl - getPlDict');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ getPlDict: 'getPlDict' }), });
     if (!response.ok)
@@ -221,7 +221,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('plTab_afLoadPlTable() reply = ', reply);
+      // console.log('__SF__plTab_afLoadPlTable() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('plTab_afLoadPlTable()', reply['errRsp'], 'plTab_errInfo')
 
@@ -256,7 +256,7 @@
     // on the initial load we select all the playlists for the current user
     let idx = 0;
     let cnt = 0;
-    // console.log('user id = ' + vUserId)
+    // console.log('__SF__user id = ' + vUserId)
     vPlTabLoading = true;
     vPlTable.rows().every(function ()
     {
@@ -276,8 +276,8 @@
   //-----------------------------------------------------------------------------------------------
   async function plTab_afRestorePlTableCkboxes()
   {
-    // console.log('plTab_afRestorePlTableCkboxes()');
-    console.log('plTab_afRestorePlTableCkboxes() - vUrl - getPlSelectedDict');
+    // console.log('__SF__plTab_afRestorePlTableCkboxes()');
+    console.log('__SF__plTab_afRestorePlTableCkboxes() - vUrl - getPlSelectedDict');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ getPlSelectedDict: 'getPlSelectedDict' }), });
     if (!response.ok)
@@ -285,14 +285,14 @@
     else
     {
       let reply = await response.json();
-      // console.log('plTab_afRestorePlTableCkboxes() reply = ', reply);
+      // console.log('__SF__plTab_afRestorePlTableCkboxes() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('plTab_afRestorePlTableCkboxes()', reply['errRsp'], 'plTab_errInfo')
 
       let plSelectedDict = reply['plSelectedDict']
       if (Object.keys(plSelectedDict).length > 0)
       {
-        //console.log('plTab_afRestorePlTableCkboxes() - reselect rows using plSelectedDict ');
+        //console.log('__SF__plTab_afRestorePlTableCkboxes() - reselect rows using plSelectedDict ');
         let idx = 0;
         vPlTabLoading = true;
         vPlTable.rows().every(function()
@@ -317,14 +317,14 @@
   {
     // called when the user presses reload from spotify
     // refetch all the playlists from spotify (loadPlDict) and reload the plTable
-    console.log("plTab_reload() - simulating a page refresh click");
+    // console.log("plTab_reload() - simulating a page refresh click");
     document.location.reload(true) // page refresh does a complete reload
   }
 
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnRefresh()
   {
-    console.log('plTabs_btnRefresh()');
+    // console.log('__SF__plTabs_btnRefresh()');
     plTab_afRefresh();
   }
 
@@ -357,7 +357,7 @@
   //-----------------------------------------------------------------------------------------------
   async function plTab_afUpdatePlSelectedDict()
   {
-    // console.log('plTab_afUpdatePlSelectedDict()');
+    // console.log('__SF__plTab_afUpdatePlSelectedDict()');
     let newPlSelectedDict = {};
     $.each(vPlTable.rows('.selected').nodes(), function(i, item)
     {
@@ -367,11 +367,11 @@
 
     // if (Object.keys(newPlSelectedDict).length === 0)  // exit if no playlists are selected
     // {
-    //   console.log('plTab_afUpdatePlSelectedDict() exiting because 0 playlists are selected');
+    //   console.log('__SF__plTab_afUpdatePlSelectedDict() exiting because 0 playlists are selected');
     //   return;
     // }
 
-    console.log('plTab_afUpdatePlSelectedDict() - vUrl - setPlSelectedDict');
+    console.log('__SF__plTab_afUpdatePlSelectedDict() - vUrl - setPlSelectedDict');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ setPlSelectedDict: 'setPlSelectedDict', newPlSelectedDict: newPlSelectedDict }) });
     if (!response.ok)
@@ -379,7 +379,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('tracksTab_afLoadPlTracks() reply = ', reply);
+      // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('plTab_afUpdatePlSelectedDict()', reply['errRsp'], 'tracksTab_errInfo')
     }
@@ -391,8 +391,8 @@
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     // try
     // {
-    //   // console.log('plTab_afIncPlSelectionCntr()');
-    //   console.log('plTab_afIncPlSelectionCntr() - vUrl - incPlSelectionCntr');
+    //   // console.log('__SF__plTab_afIncPlSelectionCntr()');
+    //   console.log('__SF__plTab_afIncPlSelectionCntr() - vUrl - incPlSelectionCntr');
     //   let response = await fetch(vUrl, {
     //     method: 'POST', headers: {'Content-Type': 'application/json',},
     //     body: JSON.stringify({incPlSelectionCntr: 'incPlSelectionCntr'}),
@@ -402,19 +402,19 @@
     //   else
     //   {
     //     let reply = await response.json();
-    //     // console.log('plTab_afIncPlSelectionCntr() reply = ', reply);
+    //     // console.log('__SF__plTab_afIncPlSelectionCntr() reply = ', reply);
     //     if (reply['errRsp'][0] !== 1)
     //       tabs_throwSvrErr('plTab_afIncPlSelectionCntr()', reply['errRsp'], 'plTab_errInfo')
     //   }
     // }
     // catch(err)
     // {
-    //   // console.log('plTab_afActivate() caught error: ', err);
+    //   // console.log('__SF__plTab_afActivate() caught error: ', err);
     //   tabs_errHandler(err);
     // }
     // finally
     // {
-    //   console.log('plTab_afIncPlSelectionCntr() finally.');
+    //   console.log('__SF__plTab_afIncPlSelectionCntr() finally.');
     //   tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
     // }
 
@@ -423,16 +423,16 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_getSelectedCnt()
   {
-    //console.log('plTabs_getSelectedCnt()');
+    //console.log('__SF__plTabs_getSelectedCnt()');
     let cnt = vPlTable.rows({ selected: true }).count();
-    console.log('plTabs_getSelectedCnt() - cnt = ' + cnt);
+    // console.log('__SF__plTabs_getSelectedCnt() - cnt = ' + cnt);
     return cnt;
   }
 
   //-----------------------------------------------------------------------------------------------
   function plTabs_updateSelectedCntInfo()
   {
-    //console.log('plTabs_updateSelectedCntInfo()');
+    //console.log('__SF__plTabs_updateSelectedCntInfo()');
     let count = vPlTable.rows({ selected: true }).count();
     tabs_setLabel('plTab_info1', 'Selected Playlists: ' + count);
   }
@@ -440,7 +440,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnClearSearchPlOnClick()
   {
-    //console.log('plTabs_btnClearSearchPlNameOnClick()');
+    //console.log('__SF__plTabs_btnClearSearchPlNameOnClick()');
     // clear search boxes under pl table
     $("input[name^='plColSearchIB']").each(function()
     {
@@ -457,7 +457,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnSelectAll()
   {
-    console.log('plTabs_btnSelectAll()')
+    // console.log('__SF__plTabs_btnSelectAll()')
     vPlTabLoading = true;
     vPlTable.rows().every(function()
     {
@@ -472,7 +472,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnClearAll()
   {
-    console.log('plTabs_btnClearAll()')
+    // console.log('__SF__plTabs_btnClearAll()')
     vPlTabLoading = true;
     vPlTable.rows().every(function()
     {
@@ -487,9 +487,9 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_cbPlOwnersOnChange()
   {
-    // console.log('plTabs_cbPlOwnersOnChange()')
+    // console.log('__SF__plTabs_cbPlOwnersOnChange()')
     let curSel = $('#plTabs_cbUsers option:selected').text();
-    console.log('plTabs_cbPlOwnersOnChange() selected = ' + curSel);
+    // console.log('__SF__plTabs_cbPlOwnersOnChange() selected = ' + curSel);
     if (curSel === cbOwnerDefault)
       return;
 
@@ -517,9 +517,9 @@
     {
       // https://github.com/flesler/jquery.scrollTo  (a jquery plugin in)
       // https://stackoverflow.com/questions/35468228/scroll-to-specific-row-in-datatable
-      // console.log('plTabs_cbPlOwnersOnChange() selectRowData = ' + selectRowData);
+      // console.log('__SF__plTabs_cbPlOwnersOnChange() selectRowData = ' + selectRowData);
       let selection = $('#plTable .' + selectRowData);
-      // console.log('plTabs_cbPlOwnersOnChange(): selection = \n' + JSON.stringify(selection, null, 4));
+      // console.log('__SF__plTabs_cbPlOwnersOnChange(): selection = \n' + JSON.stringify(selection, null, 4));
       $(".dataTables_scrollBody").scrollTo(selection);
     }
   }
@@ -527,7 +527,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnHelp()
   {
-    // console.log('plTabs_btnHelp()');
+    // console.log('__SF__plTabs_btnHelp()');
     vHtmlInfoFn = 'helpTextTabPl.html';
     $("#btnInfoTab")[0].click();
   }
@@ -535,7 +535,7 @@
   // //-----------------------------------------------------------------------------------------------
   // function plTab_btnCoffee()
   // {
-  //   console.log('plTabs_btnCoffee()');
+  //   console.log('__SF__plTabs_btnCoffee()');
   //   vHtmlInfoFn = 'helpTextCoffee.html';
   //   $("#btnInfoTab")[0].click();
   // }

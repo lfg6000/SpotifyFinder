@@ -9,7 +9,7 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_initTracksTab(tableHeight=300)
   {
-    console.log("tracksTab_initTracksTab()  plNamesTable ready()");
+    // console.log("tracksTab_initTracksTab()  plNamesTable ready()");
 
     // add search input boxes to the dom at the bottom of the desired columns
     let ftIdx = 0;
@@ -78,7 +78,7 @@
       ftIdx += 1;
     });
 
-    console.log("tracksTab_initTracksTab()  tracksTable ready()");
+    // console.log("tracksTab_initTracksTab()  tracksTable ready()");
     vPlTracksTable = $('#tracksTable').DataTable(
     {
       "fnRowCallback": function(nRow, rowData)
@@ -121,7 +121,7 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_redraw()
   {
-    console.log('tracksTab_redraw()');
+    // console.log('__SF__tracksTab_redraw()');
     vPlNamesTable.columns.adjust().draw();
     vPlTracksTable.columns.adjust().draw();
   }
@@ -129,14 +129,14 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_selectRow()
   {
-    //console.log('tracksTab_selectRow()');
+    //console.log('__SF__tracksTab_selectRow()');
     // issue:
     //  - when clicking on a name row the selection is not remembered when switching back to this tab
     //  - when arrow up/dn on a name row the selection is remembered when switching back to this tab
     // fix:
     //  - we store the last selected row and apply it when switching this tab
     //  - focus() calls select() which calls artistsTab_afLoadArtistTracksTableSeq()
-    console.log('tracksTab_selectRow() - focus - lastSelectedRow = ' + vPlNameTableLastSelectedRow);
+    // console.log('__SF__tracksTab_selectRow() - focus - lastSelectedRow = ' + vPlNameTableLastSelectedRow);
     vPlNamesTable.cell(vPlNameTableLastSelectedRow, 0).focus();
 
     // issue:
@@ -155,8 +155,8 @@
   {
     try
     {
-      // console.log('tracksTab_activate()');
-      console.log('tracksTab_activate() - lastCnt = ' + vLastPlSelectionCntrTracksTab + ', curCnt = ' + curPlSelectionCntr);
+      // console.log('__SF__tracksTab_activate()');
+      // console.log('__SF__tracksTab_activate() - lastCnt = ' + vLastPlSelectionCntrTracksTab + ', curCnt = ' + curPlSelectionCntr);
 
       if (vLastPlSelectionCntrTracksTab !== curPlSelectionCntr)
       {
@@ -171,7 +171,7 @@
 
         // this will start a chain of async calls
         //   1) loadPlTracks -> loadPlTracks, 2) loadPlNames -> getPlSelectedDict, 3) loadPlTracks -> getTrackList
-        console.log('tracksTab_afActivate() - start loading');
+        // console.log('__SF__tracksTab_afActivate() - start loading');
         tabs_set2Labels('tracksTab_info1', 'Loading', 'tracksTab_info2', 'Loading');
         tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...', showStrImmed=true);
 
@@ -179,17 +179,17 @@
         await tracksTab_afLoadPlNameTable();
         await tracksTab_afLoadTracksTable(plId = '');
 
-        console.log('tracksTab_afActivate() - loading done - exit');
+        // console.log('__SF__tracksTab_afActivate() - loading done - exit');
       }
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('tracksTab_afActivate() finally.');
+      // console.log('__SF__tracksTab_afActivate() finally.');
       vTracksTabLoading = false;
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -199,8 +199,8 @@
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadPlTracks()
   {
-    // console.log('tracksTab_afLoadPlTracks()');
-    console.log('tracksTab_afLoadPlTracks() - vUrl - loadPlTracks');
+    // console.log('__SF__tracksTab_afLoadPlTracks()');
+    console.log('__SF__tracksTab_afLoadPlTracks() - vUrl - loadPlTracks');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadPlTracks: 'loadPlTracks' }), });
     if (!response.ok)
@@ -208,7 +208,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('tracksTab_afLoadPlTracks() reply = ', reply);
+      // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afLoadPlTracks()', reply['errRsp'], 'tracksTab_errInfo')
     }
@@ -217,10 +217,10 @@
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadPlNameTable()
   {
-    // console.log('tracksTab_afLoadPlNameTable()');
+    // console.log('__SF__tracksTab_afLoadPlNameTable()');
     // vPlNamesTable.clear().draw(); // this does not work well here
 
-    console.log('tracksTab_afLoadPlNameTable() - vUrl - getPlSelectedDict');
+    console.log('__SF__tracksTab_afLoadPlNameTable() - vUrl - getPlSelectedDict');
     let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
                                       body: JSON.stringify({getPlSelectedDict: 'getPlSelectedDict'}),});
     if (!response.ok)
@@ -228,12 +228,12 @@
     else
     {
       let reply = await response.json();
-      // console.log('tracksTab_afLoadPlNameTable() reply = ', reply);
+      // console.log('__SF__tracksTab_afLoadPlNameTable() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afLoadPlNameTable()', reply['errRsp'], 'tracksTab_errInfo')
 
       let plSelectedDict = reply['plSelectedDict']
-      // console.log('tracksTab_loadPlNameTable() - plSelectedDict = \n' + JSON.stringify(plSelectedDict, null, 4));
+      // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDict = \n' + JSON.stringify(plSelectedDict, null, 4));
       $.each(plSelectedDict, function (key, values)
       {
         vPlNamesTable.row.add([values['Playlist Name'], key]);
@@ -241,7 +241,7 @@
       vPlNamesTable.draw();
 
       if (Object.keys(plSelectedDict).length === 0)
-        console.log('tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
+        console.log('__SF__tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
       else
         vPlNamesTable.cell(':eq(0)').focus();
         // vPlNamesTable.row(':eq(0)').select();
@@ -252,7 +252,7 @@
   function tracksTab_plNameTableSelect() { /* make function appear in pycharm structure list */ }
   $('#plNamesTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
-    console.log('tracksTab_plNameTableRow_onSelect() - plNamesTable row select indexes = ', indexes);
+    // console.log('__SF__tracksTab_plNameTableRow_onSelect() - plNamesTable row select indexes = ', indexes);
     let rowData = $('#plNamesTable').DataTable().row(indexes).data();
     tracksTab_afLoadTracksTableSeq(plId = rowData[1]);
   });
@@ -261,14 +261,14 @@
   function tracksTab_plNameTableKeyFocus() { /* make function appear in pycharm structure list */ }
   $('#plNamesTable').on('key-focus', function (e, datatable, cell)
   {
-    console.log('tracksTab_plNameTableRow_onFocus() - plNamesTable key focus ');
+    // console.log('__SF__tracksTab_plNameTableRow_onFocus() - plNamesTable key focus ');
     if (vTracksTabLoading === true) // needed when doing a initial load or reload of both tables
     {
-      console.log('tracksTab_plNameTableRow_onFocus() - exiting - loading is true');
+      // console.log('__SF__tracksTab_plNameTableRow_onFocus() - exiting - loading is true');
       return;
     }
     // datatable.rows().deselect();
-    console.log('tracksTab_plNameTableRow_onFocus() - selecting row = ' + cell.index().row);
+    // console.log('__SF__tracksTab_plNameTableRow_onFocus() - selecting row = ' + cell.index().row);
     vPlNameTableLastSelectedRow = cell.index().row;
     datatable.row( cell.index().row ).select();
   });
@@ -278,7 +278,7 @@
   {
     try
     {
-      // console.log('tracksTab_afLoadTracksTableSeq() - plId = ' + plId');
+      // console.log('__SF__tracksTab_afLoadTracksTableSeq() - plId = ' + plId');
       vTracksTabLoading = true;
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
@@ -289,12 +289,12 @@
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('tracksTab_afLoadTracksTableSeq() finally.');
+      // console.log('__SF__tracksTab_afLoadTracksTableSeq() finally.');
       vTracksTabLoading = false;
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -310,11 +310,11 @@
     if (plId === '')
     {
       plId = vPlNamesTable.row(0).data()[1];
-      // console.log('tracksTab_afLoadTracksTable() - using first row plId = ' + plId);
+      // console.log('__SF__tracksTab_afLoadTracksTable() - using first row plId = ' + plId);
     }
 
     // vPlTracksTable.clear().draw();// this does not work well here
-    console.log('tracksTab_afLoadTracksTable() - vUrl - getTrackList');
+    console.log('__SF__tracksTab_afLoadTracksTable() - vUrl - getTrackList');
     let response = await fetch(vUrl, {  method: 'POST', headers: {'Content-Type': 'application/json',},
                                         body: JSON.stringify({getTrackList: 'getTrackList', plId: plId}),});
 
@@ -323,7 +323,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('tracksTab_afLoadPlTracks() reply = ', reply);
+      // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afLoadTracksTable()', reply['errRsp'], 'tracksTab_errInfo')
 
@@ -348,7 +348,7 @@
   {
     rowData = vPlTracksTable.row(cell.node()).data()
     // let rowData = vPlTracksTable.row(indexes).data();
-    // console.log('tracksTab_tracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
+    // console.log('__SF__tracksTab_tracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
     if (rowData[10] != vUserId)   // playlistOwnerId != vUserId
     {
        e.preventDefault();
@@ -370,7 +370,7 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_btnRemoveTracks()
   {
-    console.log('tracksTab_btnRemoveTracks()');
+    // console.log('__SF__tracksTab_btnRemoveTracks()');
     tracksTab_afRmTracksSeq();
   }
 
@@ -379,7 +379,7 @@
   {
     try
     {
-      console.log('tracksTab_afRmTracksSeq()');
+      // console.log('__SF__tracksTab_afRmTracksSeq()');
       vTracksTabLoading = true;
 
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -397,18 +397,18 @@
         return
 
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
-      console.log('tracksTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      // console.log('__SF__tracksTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afRemoveTracks(rmTrackList);
       await tracksTab_afLoadTracksTable(pl=rowData[8]);
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('tracksTab_afRmTracksSeq() finally.');
+      // console.log('__SF__tracksTab_afRmTracksSeq() finally.');
       vTracksTabLoading = false;
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -418,9 +418,9 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_btnRefresh()
   {
-    console.log('tracksTab_btnRefresh()');
+    // console.log('__SF__tracksTab_btnRefresh()');
     let rowData = vPlTracksTable.row(0).data();
-    // console.log('tracksTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
+    // console.log('__SF__tracksTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
     vPlTracksTable.order([]); // remove sorting
     tracksTab_afLoadTracksTableSeq(plId = rowData[8]);
   }
@@ -428,7 +428,7 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_btnClearSearchPlNameOnClick()
   {
-    // console.log('tracksTab_btnClearSearchPlNameOnClick()');
+    // console.log('__SF__tracksTab_btnClearSearchPlNameOnClick()');
     vTracksTabLoading = true; // prevent any pl name selections
     let searchInputBox = $('[name="plNamesTableSearchBox"]');
     searchInputBox.val('');
@@ -456,7 +456,7 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_updateSelectedCnt()
   {
-    // console.log('tracksTab_updateSelectedCnt()');
+    // console.log('__SF__tracksTab_updateSelectedCnt()');
     let count = vPlTracksTable.rows({ selected: true }).count();
     tabs_setLabel('tracksTab_info1', 'Selected Tracks: ' + count);
   }
@@ -471,7 +471,7 @@
   //-----------------------------------------------------------------------------------------------
   // function tracksTab_btnCoffee()
   // {
-  //   console.log('plTabs_btnCoffee()');
+  //   console.log('__SF__plTabs_btnCoffee()');
   //   vHtmlInfoFn = 'helpTextCoffee.html';
   //   $("#btnInfoTab")[0].click();
   // }

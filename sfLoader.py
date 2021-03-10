@@ -625,8 +625,14 @@ class SpfLoader():
 
           for item in tracks['items']:
             track = item['track']
+            # we do not have the users countryCode because we do not ask for that permission
             # if countryCode not in track['available_markets']:
             #   continue
+
+            # a daily wellness playlist from spotify had a podcast episode in the middle of a bunch of songs
+            # we are ignoring podcast episodes.  track['type'] can be 'track' or 'episode'
+            if (track['type'] != 'track'):  # a daily wellness playlist from spotify had a
+              continue
             tracksList.append({'Track Id': track['id'],
                                'Playlist Id': plSelectedId,
                                'Playlist Name': plValues['Playlist Name'],

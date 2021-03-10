@@ -13,7 +13,7 @@
   //-----------------------------------------------------------------------------------------------
   function infoTab_activate()
   {
-    console.log('infoTab_activate() vHtmlInfoFn = ' + vHtmlInfoFn);
+    // console.log('__SF__infoTab_activate() vHtmlInfoFn = ' + vHtmlInfoFn);
 
     if (vHtmlInfoFn == '')
     {
@@ -67,10 +67,10 @@
   //-----------------------------------------------------------------------------------------------
   async function infoTab_afHtmlInfo(fn)
   {
-    // console.log('infoTab_afHtmlInfo()');
+    // console.log('__SF__infoTab_afHtmlInfo()');
     try
     {
-      console.log('infoTab_afHtmlInfo() - vUrl - getInfoHtml');
+      console.log('__SF__infoTab_afHtmlInfo() - vUrl - getInfoHtml');
       let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                          body: JSON.stringify({ getInfoHtml: 'getInfoHtml', infoRq: fn}), });
       if (!response.ok)
@@ -78,27 +78,27 @@
       else
       {
         let reply = await response.json();
-        // console.log('infoTab_afHtmlInfo() reply = ', reply);
+        // console.log('__SF__infoTab_afHtmlInfo() reply = ', reply);
         if (reply['errRsp'][0] !== 1)
           tabs_throwSvrErr('infoTab_afHtmlInfo()', reply['errRsp'], 'plTab_errInfo')
 
         vHtmlInfo = reply['htmlInfo'];
-        // console.log('infoTab_afHtmlInfo() - \n   htmlInfo = ' + vHtmlInfo);
+        // console.log('__SF__infoTab_afHtmlInfo() - \n   htmlInfo = ' + vHtmlInfo);
       }
     }
     catch(err)
     {
-      console.log('infoTab_afHtmlInfo() caught error: ', err);
+      // console.log('__SF__infoTab_afHtmlInfo() caught error: ', err);
       msg = 'Unable to retrieve help info.\n' +
             'Session restart is needed.\n' +
             'Your session my have timed out.\n\n' +
             err.message;
       alert(msg);
     }
-    finally
-    {
-      console.log('infoTab_afHtmlInfo() - finally');
-    }
+    // finally
+    // {
+    //   console.log('__SF__infoTab_afHtmlInfo() - finally');
+    // }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -162,7 +162,7 @@
   //-----------------------------------------------------------------------------------------------
   function infoTab_addClientLogErrMsg(errObj, stackTrace)
   {
-    // console.log('infoTab_addClientLogErrMsg err.stack = ', err.stack);
+    // console.log('__SF__infoTab_addClientLogErrMsg err.stack = ', err.stack);
 
     let arrErrStrs = [];
     arrErrStrs.push((new Date().toLocaleString()).replace(',',' '));
@@ -194,10 +194,10 @@
   //-----------------------------------------------------------------------------------------------
   async function infoTab_afLoadErrLog()
   {
-    // console.log('infoTab_afLoadErrLog()');
+    // console.log('__SF__infoTab_afLoadErrLog()');
     try
     {
-      console.log('infoTab_afLoadErrLog() - vUrl - getErrLog');
+      console.log('__SF__infoTab_afLoadErrLog() - vUrl - getErrLog');
       let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                          body: JSON.stringify({ getErrLog: 'getErrLog'}), });
       if (!response.ok)
@@ -205,25 +205,25 @@
       else
       {
         let reply = await response.json();
-        // console.log('infoTab_afLoadErrLog() reply = ', reply);
+        // console.log('__SF__infoTab_afLoadErrLog() reply = ', reply);
         if (reply['errRsp'][0] !== 1)
           tabs_throwSvrErr('infoTab_afLoadErrLog()', reply['errRsp'], 'plTab_errInfo')
 
         vHtmlInfo = "<pre>" + JSON.stringify(reply['errLog'], undefined, 2) + "</pre>";
-        console.log('infoTab_afLoadErrLog() - \n   errLog = ' + vHtmlInfo);
+        // console.log('__SF__infoTab_afLoadErrLog() - \n   errLog = ' + vHtmlInfo);
       }
     }
     catch(err)
     {
-      console.log('infoTab_afLoadErrLog() caught error: ', err);
+      // console.log('__SF__infoTab_afLoadErrLog() caught error: ', err);
       msg = 'Unable to retrieve err log.\n' +
             'Session restart is needed.\n' +
             'Your session my have timed out.\n\n' +
             err.message;
       alert(msg);
     }
-    finally
-    {
-      console.log('infoTab_afLoadErrLog() - finally');
-    }
+    // finally
+    // {
+    //   console.log('__SF__infoTab_afLoadErrLog() - finally');
+    // }
   }

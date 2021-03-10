@@ -9,7 +9,7 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_initArtistTab(tableHeight=300)
   {
-    console.log("artistsTab_initTracksTab()  artistNamesTable ready()");
+    // console.log("artistsTab_initTracksTab()  artistNamesTable ready()");
 
     // add search input boxes to the dom at the bottom of the desired columns
     let ftIdx = 0;
@@ -77,7 +77,7 @@
       ftIdx += 1;
     });
 
-    console.log("artistsTab_initTracksTab()  artistTracksTable ready()");
+    // console.log("artistsTab_initTracksTab()  artistTracksTable ready()");
     vArtistTracksTable = $('#artistTracksTable').DataTable(
     {
       "fnRowCallback": function(nRow, rowData)
@@ -121,7 +121,7 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_redraw()
   {
-    console.log('artistsTab_redraw()');
+    // console.log('__SF__artistsTab_redraw()');
     vArtistNamesTable.columns.adjust().draw();
     vArtistTracksTable.columns.adjust().draw();
   }
@@ -129,14 +129,14 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_selectRow()
   {
-    //console.log('artistsTab_selectRow()');
+    //console.log('__SF__artistsTab_selectRow()');
     // issue:
     //  - when clicking on a name row the selection is not remembered when switching back to this tab
     //  - when arrow up/dn on a name row the selection is remembered when switching back to this tab
     // fix:
     //  - we store the last selected row and apply it when switching this tab
     //  - focus() calls select() which calls artistsTab_afLoadArtistTracksTableSeq()
-    console.log('artistsTab_selectRow() - focus lastSelectedRow= ' + vArtistNameTableLastSelectedRow);
+    // console.log('__SF__artistsTab_selectRow() - focus lastSelectedRow= ' + vArtistNameTableLastSelectedRow);
     vArtistNamesTable.cell(vArtistNameTableLastSelectedRow, 0).focus();
 
     // issue:
@@ -155,8 +155,8 @@
   {
     try
     {
-      // console.log('artistsTab_activate()');
-      console.log('artistsTab_activate() - lastCnt = ' + vLastPlSelectionCntrArtistsTab + ', curCnt = ' + curPlSelectionCntr);
+      // console.log('__SF__artistsTab_activate()');
+      // console.log('__SF__artistsTab_activate() - lastCnt = ' + vLastPlSelectionCntrArtistsTab + ', curCnt = ' + curPlSelectionCntr);
 
       if (vLastPlSelectionCntrArtistsTab !== curPlSelectionCntr)
       {
@@ -171,7 +171,7 @@
 
         // this will start a chain of async calls
         //   1) loadPlTracks -> loadPlTracks, 2) loadPlNames -> getPlSelectedDict, 3) loadPlTracks -> getTrackList
-        console.log('artistsTab_afActivate() - loading started');
+        // console.log('__SF__artistsTab_afActivate() - loading started');
 
         tabs_set2Labels('artistsTab_info1', 'Loading', 'artistsTab_info2', 'Loading');
         tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Loading Artists...', showStrImmed=true);
@@ -182,17 +182,17 @@
         await artistsTab_afLoadArtistTracks(artistId = '')
         await artistsTab_afLoadArtistTracksTable();
 
-        console.log('artistsTab_afActivate() - loading done - exit');
+        // console.log('__SF__artistsTab_afActivate() - loading done - exit');
       }
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('artistsTab_afActivate() finally.');
+      // console.log('__SF__artistsTab_afActivate() finally.');
       vArtistsTabLoading = false;
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -202,8 +202,8 @@
   //-----------------------------------------------------------------------------------------------
   async function artistsTab_afLoadArtistNames()
   {
-    // console.log('artistsTab_afLoadArtistNames()');
-    console.log('artistsTab_afLoadArtistNames() - vUrl - loadArtistDict');
+    // console.log('__SF__artistsTab_afLoadArtistNames()');
+    console.log('__SF__artistsTab_afLoadArtistNames() - vUrl - loadArtistDict');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadArtistDict: 'loadArtistDict' }), });
     if (!response.ok)
@@ -211,7 +211,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('artistsTab_afLoadArtistNames() reply = ', reply);
+      // console.log('__SF__artistsTab_afLoadArtistNames() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('artistsTab_afLoadArtistNames()', reply['errRsp'], 'artistsTab_errInfo')
     }
@@ -220,10 +220,10 @@
   //-----------------------------------------------------------------------------------------------
   async function artistsTab_afLoadArtistNameTable()
   {
-    // console.log('artistsTab_afLoadArtistNameTable()');
+    // console.log('__SF__artistsTab_afLoadArtistNameTable()');
     // vArtistNamesTable.clear().draw(); // this does not work well here
 
-    console.log('artistsTab_afLoadArtistNameTable() - vUrl - getArtistDict');
+    console.log('__SF__artistsTab_afLoadArtistNameTable() - vUrl - getArtistDict');
     let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
                                       body: JSON.stringify({getArtistDict: 'getArtistDict'}),});
     if (!response.ok)
@@ -231,12 +231,12 @@
     else
     {
       let reply = await response.json();
-      // console.log('artistsTab_afLoadArtistNameTable() reply = ', reply);
+      // console.log('__SF__artistsTab_afLoadArtistNameTable() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('artistsTab_afLoadArtistNameTable()', reply['errRsp'], 'artistsTab_errInfo')
 
       let artistDict = reply['artistDict']
-      // console.log('artistsTab_afLoadArtistNameTable() - artistDict = \n' + JSON.stringify(artistDict, null, 4));
+      // console.log('__SF__artistsTab_afLoadArtistNameTable() - artistDict = \n' + JSON.stringify(artistDict, null, 4));
       $.each(artistDict, function (key, value)
       {
         vArtistNamesTable.row.add([value, key]);
@@ -244,7 +244,7 @@
       vArtistNamesTable.draw();
 
       if (Object.keys(artistDict).length === 0)
-        console.log('artistsTab_afLoadArtistNameTable() - the returned plSelectedDict is empty');
+        console.log('__SF__artistsTab_afLoadArtistNameTable() - the returned plSelectedDict is empty');
       else
         vArtistNamesTable.cell(':eq(0)').focus();
         // vArtistNamesTable.row(':eq(0)').select();
@@ -255,7 +255,7 @@
   function artistsTab_plNameTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistNamesTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
-    console.log('artistsTab_plNameTableRow_onSelect() - artistNamesTable row select indexes = ', indexes);
+    // console.log('__SF__artistsTab_plNameTableRow_onSelect() - artistNamesTable row select indexes = ', indexes);
     let rowData = $('#artistNamesTable').DataTable().row(indexes).data();
     artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[1]);
   });
@@ -264,15 +264,15 @@
   function artistsTab_plNameTableKeyFocus() { /* make function appear in pycharm structure list */ }
   $('#artistNamesTable').on('key-focus', function (e, datatable, cell)
   {
-    console.log('artistsTab_plNameTableRow_onFocus() - artistNamesTable key focus ');
+    // console.log('__SF__artistsTab_plNameTableRow_onFocus() - artistNamesTable key focus ');
     if (vArtistsTabLoading === true) // needed when doing a initial load or reload of both tables
     {
-      console.log('artistsTab_plNameTableKeyFocus() - exiting - loading is true');
+      // console.log('__SF__artistsTab_plNameTableKeyFocus() - exiting - loading is true');
       return;
     }
 
     // datatable.rows().deselect();
-    console.log('artistsTab_plNameTableKeyFocus() - selecting row = ' + cell.index().row);
+    // console.log('__SF__artistsTab_plNameTableKeyFocus() - selecting row = ' + cell.index().row);
     vArtistNameTableLastSelectedRow = cell.index().row;
     datatable.row( cell.index().row ).select();
   });
@@ -283,7 +283,7 @@
   {
     try
     {
-      // console.log('artistsTab_afLoadArtistTracksTableSeq() - plId = ' + plId');
+      // console.log('__SF__artistsTab_afLoadArtistTracksTableSeq() - plId = ' + plId');
       vArtistsTabLoading = true;
       vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
@@ -294,12 +294,12 @@
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('artistsTab_afLoadArtistTracksTableSeq() finally.');
+      // console.log('__SF__artistsTab_afLoadArtistTracksTableSeq() finally.');
       vArtistsTabLoading = false;
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -309,21 +309,21 @@
   //-----------------------------------------------------------------------------------------------
   async function artistsTab_afLoadArtistTracks(artistId = '')
   {
-    // console.log('artistsTab_afLoadArtistTracks() - enter')
+    // console.log('__SF__artistsTab_afLoadArtistTracks() - enter')
     if (plTabs_getSelectedCnt() == 0)  // any pl selected on plTab?
     {
-      // console.log('artistsTab_afLoadArtistTracks() - returning - no pl\'s selected')
+      // console.log('__SF__artistsTab_afLoadArtistTracks() - returning - no pl\'s selected')
       return
     }
 
     if (artistId === '')
     {
       artistId = vArtistNamesTable.row(0).data()[1];
-      console.log('artistsTab_afLoadArtistTracks() - using first row artistId = ' + artistId);
+      // console.log('__SF__artistsTab_afLoadArtistTracks() - using first row artistId = ' + artistId);
     }
 
-    // console.log('artistsTab_afLoadArtistNames()');
-    console.log('artistsTab_afLoadArtistTracks() - vUrl - loadArtistTrackList');
+    // console.log('__SF__artistsTab_afLoadArtistNames()');
+    console.log('__SF__artistsTab_afLoadArtistTracks() - vUrl - loadArtistTrackList');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({loadArtistTrackList: 'loadArtistTrackList', artistId: artistId}),});
     if (!response.ok)
@@ -331,7 +331,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('artistsTab_afLoadArtistTracks() reply = ', reply);
+      // console.log('__SF__artistsTab_afLoadArtistTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('artistsTab_afLoadArtistTracks()', reply['errRsp'], 'artistsTab_errInfo')
     }
@@ -340,15 +340,15 @@
   //-----------------------------------------------------------------------------------------------
   async function artistsTab_afLoadArtistTracksTable()
   {
-    // console.log('artistsTab_afLoadArtistTracksTable() - enter')
+    // console.log('__SF__artistsTab_afLoadArtistTracksTable() - enter')
     if (plTabs_getSelectedCnt() === 0)  // any pl selected on plTab?
     {
-      // console.log('artistsTab_afLoadArtistTracksTable() - returning - no pl\'s selected')
+      // console.log('__SF__artistsTab_afLoadArtistTracksTable() - returning - no pl\'s selected')
       return
     }
 
     // vArtistTracksTable.clear().draw();// this does not work well here
-    console.log('artistsTab_afLoadArtistTracksTable() - vUrl - getArtistTrackList');
+    console.log('__SF__artistsTab_afLoadArtistTracksTable() - vUrl - getArtistTrackList');
     let response = await fetch(vUrl, {  method: 'POST', headers: {'Content-Type': 'application/json',},
                                         body: JSON.stringify({getArtistTrackList: 'getArtistTrackList'}),});
 
@@ -357,7 +357,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('artistsTab_afLoadArtistNames() reply = ', reply);
+      // console.log('__SF__artistsTab_afLoadArtistNames() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('artistsTab_afLoadArtistTracksTable()', reply['errRsp'], 'artistsTab_errInfo')
 
@@ -383,7 +383,7 @@
   {
     rowData = vArtistTracksTable.row(cell.node()).data()
     // let rowData = vPlTracksTable.row(indexes).data();
-    // console.log('artistsTab_artistTracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
+    // console.log('__SF__artistsTab_artistTracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
     if (rowData[11] != vUserId)   // playlistOwnerId != vUserId
     {
        e.preventDefault();
@@ -405,7 +405,7 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_btnRemoveTracks()
   {
-    console.log('artistsTab_btnRemoveTracks()');
+    console.log('__SF__artistsTab_btnRemoveTracks()');
     artistsTab_afRmTracksSeq();
   }
 
@@ -414,7 +414,7 @@
   {
     try
     {
-      console.log('artistsTab_afRmTracksSeq()');
+      console.log('__SF__artistsTab_afRmTracksSeq()');
       vArtistsTabLoading = true;
       vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Removing Tracks...', showStrImmed=true);
@@ -431,7 +431,7 @@
         return
 
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
-      console.log('artistsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      console.log('__SF__artistsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afRemoveTracks(rmTrackList);
       // await artistsTab_afLoadArtistTracksTableSeq(artistId=rowData[10]);
       await artistsTab_afLoadArtistTracks(artistId=rowData[10])
@@ -440,12 +440,12 @@
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('artistsTab_afRmTracksSeq() finally.');
+      console.log('__SF__artistsTab_afRmTracksSeq() finally.');
       vArtistsTabLoading = false;
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -455,9 +455,9 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_btnRefresh()
   {
-    console.log('artistsTab_btnRefresh()');
+    console.log('__SF__artistsTab_btnRefresh()');
     let rowData = vArtistTracksTable.row(0).data();
-    console.log('artistsTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
+    console.log('__SF__artistsTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
     vArtistTracksTable.order([]); // remove sorting
     artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[10]);
   }
@@ -465,7 +465,7 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_btnClearSearchArtistNameOnClick()
   {
-    // console.log('artistsTab_btnClearSearchArtistNameOnClick()');
+    // console.log('__SF__artistsTab_btnClearSearchArtistNameOnClick()');
     vArtistsTabLoading = true;  // prevent any artist name selections
     let searchInputBox = $('[name="artistNamesTableSearchBox"]');
     searchInputBox.val('');
@@ -493,7 +493,7 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_updateSelectedCnt()
   {
-    //console.log('artistsTab_updateSelectedCnt()');
+    //console.log('__SF__artistsTab_updateSelectedCnt()');
     let count = vArtistTracksTable.rows({ selected: true }).count();
     tabs_setLabel('artistsTab_info1', 'Selected Tracks: ' + count);
   }
@@ -508,7 +508,7 @@
   //-----------------------------------------------------------------------------------------------
   // function artistsTab_btnCoffee()
   // {
-  //   console.log('plTabs_btnCoffee()');
+  //   console.log('__SF__plTabs_btnCoffee()');
   //   vHtmlInfoFn = 'helpTextCoffee.html';
   //   $("#btnInfoTab")[0].click();
   // }

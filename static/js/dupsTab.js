@@ -9,7 +9,7 @@
   //-----------------------------------------------------------------------------------------------
   function dupsTab_initPlTab(tableHeight=300)
   {
-    console.log("dupsTab_initPlTab() - dupsTable ready()");
+    // console.log("dupsTab_initPlTab() - dupsTable ready()");
 
     // must be before table creation
     // add search input boxes to the dom at the bottom of the desired columns
@@ -75,7 +75,7 @@
   //-----------------------------------------------------------------------------------------------
   function dupsTab_redraw()
   {
-    console.log('dupsTab_redraw()');
+    // console.log('__SF__dupsTab_redraw()');
     vDupsTable.columns.adjust().draw();
   }
 
@@ -84,8 +84,8 @@
   {
     try
     {
-      // console.log('dupsTab_activate()');
-      console.log('dupsTab_activate() - lastCnt = ' + vLastPlSelectionCntrDupsTab + ', curCnt = ' + curPlSelectionCntr);
+      // console.log('__SF__dupsTab_activate()');
+      // console.log('__SF__dupsTab_activate() - lastCnt = ' + vLastPlSelectionCntrDupsTab + ', curCnt = ' + curPlSelectionCntr);
       if (vLastPlSelectionCntrDupsTab !== curPlSelectionCntr)
       {
         vLastPlSelectionCntrDupsTab = curPlSelectionCntr;
@@ -95,7 +95,7 @@
         // we are reloading both tables so we empty them out
         vDupsTable.clear().draw();
 
-        console.log('dupsTab_afActivate() - start loading');
+        // console.log('__SF__dupsTab_afActivate() - start loading');
         tabs_set2Labels('dupsTab_info1', 'Loading', 'dupsTab_info2', 'Loading');
         tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
@@ -103,17 +103,17 @@
         await dupsTab_afFindDups();
         await dupsTab_afLoadDupsTable();
 
-        console.log('dupsTab_afActivate() - loading done - exit');
+        // console.log('__SF__dupsTab_afActivate() - loading done - exit');
       }
     }
     catch(err)
     {
-      // console.log('dupsTab_afActivate() caught error: ', err);
+      // console.log('__SF__dupsTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('dupsTab_afActivate() finally.');
+      // console.log('__SF__dupsTab_afActivate() finally.');
       vDupsTabLoading = false;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
@@ -124,7 +124,7 @@
   {
     try
     {
-      console.log("dupsTab_afLoadDupsTableSeq()");
+      // console.log("dupsTab_afLoadDupsTableSeq()");
       vDupsTabLoading = true;
       tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
@@ -135,12 +135,12 @@
     }
     catch(err)
     {
-      // console.log('dupsTab_afLoadDupsTableSeq() caught error: ', err);
+      // console.log('__SF__dupsTab_afLoadDupsTableSeq() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('dupsTab_afLoadDupsTableSeq() finally.');
+      // console.log('__SF__dupsTab_afLoadDupsTableSeq() finally.');
       vDupsTabLoading = false;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
@@ -165,27 +165,27 @@
   {
     try
     {
-      console.log('dupsTab_afFindDupsSeq()');
+      // console.log('__SF__dupsTab_afFindDupsSeq()');
       vDupsTabLoading = true;
       vDupsTable.clear().draw();
 
-      console.log('dupsTab_afFindDupsSeq() - start loading');
+      // console.log('__SF__dupsTab_afFindDupsSeq() - start loading');
       tabs_set2Labels('dupsTab_info1', 'Loading', 'dupsTab_info2', 'Loading');
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
       await dupsTab_afFindDups();
       await dupsTab_afLoadDupsTable();
 
-      console.log('dupsTab_afFindDupsSeq() - loading done - exit');
+      // console.log('__SF__dupsTab_afFindDupsSeq() - loading done - exit');
     }
     catch(err)
     {
-      // console.log('dupsTab_afActivate() caught error: ', err);
+      // console.log('__SF__dupsTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('dupsTab_afFindDupsSeq() finally.');
+      // console.log('__SF__dupsTab_afFindDupsSeq() finally.');
       vDupsTabLoading = false;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
@@ -197,13 +197,13 @@
     // var vModePlaylist = 'Across'  // or 'Same'
     // var vModeSearch = 'Track Id'  // or 'Nad' = TrackName/ArtistName/Duration
 
-    // console.log('dupsTab_afFindDups()');
+    // console.log('__SF__dupsTab_afFindDups()');
 
     vModePlaylist = $("input[name='rPlMode']:checked").val();
     vModeSearch = $("input[name='rPlSearch']:checked").val();
-    console.log('dupsTab_afFindDups() - radio btn values vModePlaylist = ' + vModePlaylist + ', vModeSearch = ' + vModeSearch)
+    // console.log('__SF__dupsTab_afFindDups() - radio btn values vModePlaylist = ' + vModePlaylist + ', vModeSearch = ' + vModeSearch)
 
-    console.log('dupsTab_afFindDups() - vUrl - findDups');
+    console.log('__SF__dupsTab_afFindDups() - vUrl - findDups');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ findDups: 'FindDups', modePlaylist: vModePlaylist, modeSearch: vModeSearch }), });
     if (!response.ok)
@@ -211,7 +211,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('dupsTab_afLoadPlDict() reply = ', reply);
+      // console.log('__SF__dupsTab_afLoadPlDict() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('dupsTab_afFindDups()', reply['errRsp'], 'dupsTab_errInfo')
     }
@@ -220,8 +220,8 @@
   //-----------------------------------------------------------------------------------------------
   async function dupsTab_afLoadDupsTable()
   {
-    // console.log('dupsTab_afLoadDupsTable()');
-    console.log('dupsTab_afLoadPlTable() - vUrl - getDupsTrackList');
+    // console.log('__SF__dupsTab_afLoadDupsTable()');
+    console.log('__SF__dupsTab_afLoadPlTable() - vUrl - getDupsTrackList');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ getDupsTrackList: 'getDupsTrackList', modePlayList: vModePlaylist, modeSearch: vModeSearch }), });
     if (!response.ok)
@@ -229,7 +229,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('dupsTab_afLoadPlTable() reply = ', reply);
+      // console.log('__SF__dupsTab_afLoadPlTable() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('dupsTab_afLoadDupsTable()', reply['errRsp'], 'dupsTab_errInfo')
 
@@ -257,7 +257,7 @@
   {
     rowData = vDupsTable.row(cell.node()).data()
     // let rowData = vPlTracksTable.row(indexes).data();
-    // console.log('dupsTab_dupsTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
+    // console.log('__SF__dupsTab_dupsTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
     if (rowData[12] != vUserId)    // playlistOwnerId != vUserId
     {
        e.preventDefault();
@@ -286,7 +286,7 @@
   //-----------------------------------------------------------------------------------------------
   function dupsTab_btnClearSearchPlOnClick()
   {
-    //console.log('dupsTab_btnClearSearchPlOnClick()');
+    //console.log('__SF__dupsTab_btnClearSearchPlOnClick()');
     // clear search boxes under pl table
     $("input[name^='dupsColSearchIB']").each(function()
     {
@@ -303,7 +303,7 @@
   //-----------------------------------------------------------------------------------------------
   function dupsTab_updateSelectedCnt()
   {
-    //console.log('artistsTab_updateSelectedCnt()');
+    //console.log('__SF__artistsTab_updateSelectedCnt()');
     let count = vDupsTable.rows({ selected: true }).count();
     tabs_setLabel('dupsTab_info1', 'Selected Tracks: ' + count);
   }
@@ -313,7 +313,7 @@
   {
     try
     {
-      console.log('dupsTab_afRmTracksSeq()');
+      // console.log('__SF__dupsTab_afRmTracksSeq()');
       vDupsTabLoading = true;
 
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Removing Tracks...', showStrImmed=true);
@@ -330,7 +330,7 @@
         return
 
       vDupsTable.clear();//.draw(); draw causes annoying flash
-      console.log('dupsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      // console.log('__SF__dupsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afRemoveTracks(rmTrackList);
       vDupsTable.clear();
       await dupsTab_afFindDups();
@@ -338,12 +338,12 @@
     }
     catch(err)
     {
-      // console.log('plTab_afActivate() caught error: ', err);
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      console.log('dupsTab_afRmTracksSeq() finally.');
+      // console.log('__SF__dupsTab_afRmTracksSeq() finally.');
       vDupsTabLoading = false;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
@@ -352,21 +352,21 @@
   //-----------------------------------------------------------------------------------------------
   function dupsTab_btnRemoveTracks()
   {
-    console.log('dupsTab_btnRemoveTracks()');
+    // console.log('__SF__dupsTab_btnRemoveTracks()');
     dupsTab_afRmTracksSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_btnRefresh()
   {
-    console.log('dupsTab_btnRefresh()');
+    // console.log('__SF__dupsTab_btnRefresh()');
     dupsTab_afLoadDupsTableSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_btnHelp()
   {
-    // console.log('dupsTab_btnHelp()');
+    // console.log('__SF__dupsTab_btnHelp()');
     vHtmlInfoFn = 'helpTextTabDups.html';
     $("#btnInfoTab")[0].click();
   }
@@ -374,7 +374,7 @@
   //-----------------------------------------------------------------------------------------------
   // function dupsTab_btnCoffee()
   // {
-  //   console.log('plTabs_btnCoffee()');
+  //   console.log('__SF__plTabs_btnCoffee()');
   //   vHtmlInfoFn = 'helpTextCoffee.html';
   //   $("#btnInfoTab")[0].click();
   // }

@@ -8,8 +8,6 @@ SpotifyFinder is a web app that allows you to:
   * find duplicates (and remove them) in your Spotify playlists.
   * to see where a particular artist appears in your Spotify playlists.
 
-![alt text](https://github.com/lfg6000/SpotifyFinder/blob/master/static/sfScrnShot.png?raw=true)
-
 ### Technical Details
 * Server Side:
     * Python - server side language
@@ -58,7 +56,7 @@ This website works fine w/o a MySql server/db.  If you leave sMySqlDbName, in sf
 will not need to setup a MySql server/db. You will still need to import the Flask-MySqlDb package 
 into your IDE.
 
-### Running this Project from and IDE
+### Running this Project from an IDE
   * download the project from github
   * open the project in your favorite IDE.  
   * import the above python packages marked with (pkg).

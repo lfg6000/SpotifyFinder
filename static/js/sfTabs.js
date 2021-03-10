@@ -18,7 +18,7 @@
     // - all the tables are initialized
 
     vUrl = window.location.href;
-    console.log('tabs_document.ready() ***** enter ***** vUrl = ' + vUrl);
+    console.log('__SF__tabs_document.ready() ***** enter ***** vUrl = ' + vUrl);
 
     // - the tables resize horizntally at runtime
     // - the tables do not resize vertically at runtime
@@ -31,7 +31,7 @@
 
     // - getting the client window height
     // https://stackoverflow.com/questions/1145850/how-to-get-height-of-entire-document-with-javascript/44077777
-    console.log('tabs_document.ready() docElement client height = ', document.documentElement.clientHeight);
+    console.log('__SF__tabs_document.ready() docElement client witdh/height = ' + document.documentElement.clientWidth + '/' +  document.documentElement.clientHeight);
 
 
     // attempting to set the table scrolly to use most of the browser client window height
@@ -52,11 +52,11 @@
 
     $(window).resize(function()
     {
-      console.log('>>>>>>>>>>>>>>>> reize()')
+      // console.log('__SF__>>>>>>>>>>>>>>>> reize()')
       vRedrawNeeded = [1,1,1,1];
     });
 
-    console.log('tab_document.ready() ***** exit *****')
+    // console.log('__SF__tab_document.ready() ***** exit *****')
   });
 
   //-----------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@
   {
     try
     {
-      console.log('tabs_afSwitchTabs() - enter', evt, tabName);
+      // console.log('__SF__tabs_afSwitchTabs() - enter', evt, tabName);
 
       if (tabName !== 'Info') // allow tab switch to info page on err even if loading is true
       {
@@ -125,17 +125,17 @@
         return;
       }
 
-      console.log('tabs_afSwitchTabs() - switching tab to = ' + tabName);
+      // console.log('__SF__tabs_afSwitchTabs() - switching tab to = ' + tabName);
       // var cookies = document.cookie; // only works if SESSION_COOKIE_HTTPONLY is false
-      // console.log('cookies = ', cookies)
+      // console.log('__SF__cookies = ', cookies)
 
       // await tabs_afGetCntrs();  // get vCurPlSelectionCntr and vCurTracksRemovedCntr from server
-      console.log('tabs_afSwitchTabs() -   \n vCurPlSelectionCntr ='    + vCurPlSelectionCntr +
-                                         ',\n vCurTracksRemovedCntr = ' + vCurTracksRemovedCntr);
+      // console.log('__SF__tabs_afSwitchTabs() -   \n vCurPlSelectionCntr ='    + vCurPlSelectionCntr +
+      //                                    ',\n vCurTracksRemovedCntr = ' + vCurTracksRemovedCntr);
 
       if (vLastPlSelectionCntr !== vCurPlSelectionCntr)
       {
-        console.log('tabs_afSwitchTabs() - pl list selection cnt has changed - updating plSelectedDict');
+        // console.log('__SF__tabs_afSwitchTabs() - pl list selection cnt has changed - updating plSelectedDict');
         vLastPlSelectionCntr = vCurPlSelectionCntr;
         await plTab_afUpdatePlSelectedDict();
       }
@@ -184,20 +184,20 @@
     }
     catch(err)
     {
-      // console.log('tabs_afSwitchTabs() caught error: ', err);
+      // console.log('__SF__tabs_afSwitchTabs() caught error: ', err);
       tabs_errHandler(err);
     }
-    finally
-    {
-      console.log('tabs_afSwitchTabs() - finally');
-    }
+    // finally
+    // {
+    //   console.log('__SF__tabs_afSwitchTabs() - finally');
+    // }
   }
 
   // //-----------------------------------------------------------------------------------------------
   // async function tabs_afGetCntrs()
   // {
-  //   // console.log('tabs_afGetCntrs()');
-  //   console.log('tabs_afGetCntrs() - vUrl - getCntrs');
+  //   // console.log('__SF__tabs_afGetCntrs()');
+  //   console.log('__SF__tabs_afGetCntrs() - vUrl - getCntrs');
   //   let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
   //                                      body: JSON.stringify({ getCntrs: 'getCntrs' }), });
   //   if (!response.ok)
@@ -205,7 +205,7 @@
   //   else
   //   {
   //     let reply = await response.json();
-  //     console.log('tabs_afGetCntrs() reply = ', reply);
+  //     console.log('__SF__tabs_afGetCntrs() reply = ', reply);
   //     if (reply['errRsp'][0] !== 1)
   //       tabs_throwSvrErr('tabs_afGetCntrs()', reply['errRsp'], 'tracksTab_errInfo')
   //
@@ -217,11 +217,11 @@
   //-----------------------------------------------------------------------------------------------
   async function tabs_afRemoveTracks(rmTracksList)
   {
-    // console.log('tabs_afRemoveTracks()');
+    // console.log('__SF__tabs_afRemoveTracks()');
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRemovedCntr = vCurTracksRemovedCntr + 1;
 
-    console.log('tabs_afRemoveTracks() - vUrl - removeTracks');
+    console.log('__SF__tabs_afRemoveTracks() - vUrl - removeTracks');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ removeTracks: 'loadPlTracks', rmTracksList: rmTracksList }), });
     if (!response.ok)
@@ -229,7 +229,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('tabs_afRemoveTracks() reply = ', reply);
+      // console.log('__SF__tabs_afRemoveTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tabs_afRemoveTracks()', reply['errRsp'], 'tracksTab_errInfo')
     }
@@ -238,7 +238,7 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_progBarStart(progBar, lblId, lblStr, showStrImmed = true)
   {
-    // console.log('tabs_progBarStart() - ' + progBar);
+    // console.log('__SF__tabs_progBarStart() - ' + progBar);
     let element = document.getElementById(progBar);
     let width = 10;
     let cntr = 0;
@@ -251,7 +251,7 @@
     vProgressBarTmr = setInterval(scene, 1000);
     function scene()
     {
-      // console.log('tabs_progBarStart() - scene');
+      // console.log('__SF__tabs_progBarStart() - scene');
       if (width >= 99)
         width = 0;
       else
@@ -269,7 +269,7 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_progBarStop(progBar, lblId, lblStr)
   {
-     // console.log('tabs_progBarStop() - ' + progBar);
+     // console.log('__SF__tabs_progBarStop() - ' + progBar);
      let element = document.getElementById(progBar);
      element.style.width = 0;
      element.innerHTML = '';
@@ -280,14 +280,14 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_setLabel(lblId, lblStr)
   {
-    // console.log('tabs_setLabel() - id =' + lblId + ', str = ' + lblStr);
+    // console.log('__SF__tabs_setLabel() - id =' + lblId + ', str = ' + lblStr);
     $("#" + lblId).html(lblStr);
   }
 
   //-----------------------------------------------------------------------------------------------
   function tabs_set2Labels(lblId1, lblStr1, lblId2, lblStr2)
   {
-    // console.log('tabs_setLabel() - id =' + lblId + ', str = ' + lblStr);
+    // console.log('__SF__tabs_setLabel() - id =' + lblId + ', str = ' + lblStr);
     $("#" + lblId1).text(lblStr1);
     $("#" + lblId2).text(lblStr2);
   }
@@ -305,12 +305,12 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_throwSvrErr(methodName, errArr, errCode)
   {
-    // console.log('tabs_throwSvrErr()');
+    // console.log('__SF__tabs_throwSvrErr()');
     // < and > cause the value string to be blank on the log screem using <pre>
     for (var i = 4; i <= 6; i++)
       errArr[i] = errArr[i].replace('<', ' ').replace('>', ' ');
 
-    console.log('tabs_throwSvrErr() - errArr = ' + errArr);
+    console.log('__SF__tabs_throwSvrErr() - errArr = ' + errArr);
     let errMsg =  'errorType: '           + 'SpotifyFinder Server Error' +
                   ', clientMethod:  '     + methodName +
                   ', errCode: '           + errArr[0].toString() +
@@ -327,11 +327,11 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_errHandler(err)
   {
-    console.log('tabs_errHandler() err = ', err);
+    console.log('__SF__tabs_errHandler() err = ', err);
 
-    // console.log('tabs_errHandler() stackTrace = ', stacktrace());
+    // console.log('__SF__tabs_errHandler() stackTrace = ', stacktrace());
     // st = printStackTrace();
-    // console.log('tabs_errHandler() stackTrace = ', st);
+    // console.log('__SF__tabs_errHandler() stackTrace = ', st);
     infoTab_addClientLogErrMsg(err, ErrorStackParser.parse(err));
 
     let msg = ' ';
@@ -356,7 +356,7 @@
     msg = 'An error has occured.\n' +
           'A session restart is needed.\n\n' +
           'Press Ok and you will be redirected to the home page.\n' +
-          'Press Cancel and you will be redirected to the log viewer';
+          'Press Cancel and you will be redirected to the log viewer.';
 
     if (confirm(msg) == true)
     {
@@ -365,7 +365,7 @@
     }
     else
     {
-      // console.log('tabs_errHandler() cancel - goto info tab ');
+      // console.log('__SF__tabs_errHandler() cancel - goto info tab ');
       vHtmlInfoFn = 'clientLog';
       $("#btnInfoTab")[0].click();
     }
