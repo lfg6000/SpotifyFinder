@@ -1,7 +1,7 @@
 # SpotifyFinder
 
 ### Website:
-View this project live at:   https://slipstreamcode.pythonanywhere.com/
+View this project live at:   https://www.SpotifyFinder.com
 
 ### Why (App Overview)
 SpotifyFinder is a web app that allows you to:
