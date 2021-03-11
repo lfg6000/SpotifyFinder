@@ -254,21 +254,28 @@
   function plTab_initPlTableCkboxes()
   {
     // on the initial load we select all the playlists for the current user
-    let idx = 0;
     let cnt = 0;
     // console.log('__SF__user id = ' + vUserId)
     vPlTabLoading = true;
+
+    let setCkCnt = 100000;
+    if (vUrl.search("127.0.0.1") > 0)
+    {
+      // for testing on a local host we only select the first 6 playlists
+      setCkCnt = 6;
+    }
+
     vPlTable.rows().every(function ()
     {
       // console.log(this.data());
       let rowData = this.data()
       if (rowData[6] === vUserId) // ownerId === vUserId
-        if (cnt < 6)
+        if (cnt < setCkCnt)
         {
-          vPlTable.row(idx).select();
+          // vPlTable.row(idx).select();
+          this.select();
           cnt += 1;
         }
-      idx += 1;
     });
     vPlTabLoading = false;
   }

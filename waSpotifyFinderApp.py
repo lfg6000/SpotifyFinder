@@ -80,7 +80,7 @@ app.config['SESSION_PERMANENT'] = True  # defaults to true
 # 1800 = .5 hr, 3600 = 1 hr, 5400 = 1.5 hrs, 7200 = 2 hrs, 9000 = 2.5 hrs, 10800 = 3 hrs,
 # 14400 = 4 hrs, 28800 = 8hrs, 57600 = 16hrs, 86400 = 24hrs
 # - rmOldSessionFileAge used in rmOldSessionFiles() must be greater than 'PERMANENT_SESSION_LIFETIME' to aviod deleting active session files
-app.config['PERMANENT_SESSION_LIFETIME'] = 1800
+app.config['PERMANENT_SESSION_LIFETIME'] = 5400
 
 # firefox ok with this true and 127.0.0.1
 # firefox not ok with this true and 192.168.2.10
