@@ -198,6 +198,8 @@ def Tabs():
         modeSearch = rqJson['modeSearch']
         # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
         retVal = oLoader.findDups(modePlaylist, modeSearch)
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Dups')
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getDupsTrackList'):
@@ -210,6 +212,8 @@ def Tabs():
       if (key == 'loadArtistDict'):
         # print('>>/Tabs loadArtistDict()')
         retVal = oLoader.loadArtistDict()
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Art')
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getArtistDict'):
@@ -265,7 +269,7 @@ def Tabs():
         retVal = oLoader.loadPlDict()
         # the mysql server is optional if db name is not set skip the one and only db read/write
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-          oLoader.loadUniqueSpotifyInfo(mysql)
+          oLoader.updateDbUniqueSpotifyInfo(mysql)
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getPlDict'):
@@ -283,6 +287,8 @@ def Tabs():
         rmTracksList = rqJson['rmTracksList']
         # pprint.pprint(rmTracksList)  # pprint sorts on key
         retVal = oLoader.removeTracks(rmTracksList)
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Rm')
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getErrLog'):

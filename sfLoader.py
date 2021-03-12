@@ -319,8 +319,8 @@ class SpfLoader():
       return retVal, '', '', ''
 
   # ---------------------------------------------------------------
-  def loadUniqueSpotifyInfo(this, mysql):
-    # print('>>loader.loadUniqueSpotifyInfo()')
+  def updateDbUniqueSpotifyInfo(this, mysql):
+    # print('>>loader.updateDbUniqueSpotifyInfo()')
 
     # using db is optional. the app works fine w/o a db.
     # if this.sMySqlDbName is empty we are not using a db so we just return
@@ -341,14 +341,18 @@ class SpfLoader():
     # USE `spotifyFinderDb`;
     #
     # CREATE TABLE IF NOT EXISTS `uniqueUsers` (
-    #   `userId` varchar(50) NOT NULL,
-    #   `userName` varchar(50) NOT NULL,
-    #   `numPlaylists` int(11) NOT NULL,
-    #   `totalTracks` int(11) NOT NULL,
-    #   `visitCounter` int(11) NOT NULL,
+    #   `userId` varchar(30) NOT NULL,
+    #   `userName` varchar(30) NOT NULL,
+    #   `visitCnt` int NOT NULL,
+    #   `visitCntDups` int NOT NULL,
+    #   `visitCntArt` int NOT NULL,
+    #   `visitCntRm` int NOT NULL,
+    #   `numPlaylists` int NOT NULL,
+    #   `totalTracks` int NOT NULL,
     #   `lastVisit` DATETIME  NOT NULL,
     #   PRIMARY KEY (`userId`)
     # ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
 
     # see notes in waSpotifyFinderApp about db connections...when the request (route) finishes the db connection will be automatically closed
     cursor = None
@@ -369,29 +373,76 @@ class SpfLoader():
       cursor.execute('SELECT * FROM uniqueUsers WHERE userid = % s FOR UPDATE', (userId,))
       user = cursor.fetchone()
       if user:
-        cnt = user['visitCounter'] + 1
-        cursor.execute("UPDATE uniqueUsers SET numPlaylists=%s, totalTracks=%s, visitCounter=%s, lastVisit=%s WHERE userId=%s",
-                       (numPlaylists, totalTracks, cnt, sqlDate, userId))
-        # print('>>loader.loadUniqueSpotifyInfo - inc existing user')
+        visitCnt = user['visitCnt'] + 1
+        cursor.execute("UPDATE uniqueUsers SET visitCnt=%s, numPlaylists=%s, totalTracks=%s, lastVisit=%s WHERE userId=%s",
+                       (int(visitCnt), int(numPlaylists), int(totalTracks), sqlDate, userId))
+        # print('>>loader.updateDbUniqueSpotifyInfo - inc existing user')
       else:
-        cnt = 1
-        cursor.execute('INSERT INTO uniqueUsers VALUES (% s, % s, % s, % s, % s, % s )',
-                       (userId, userName, numPlaylists, totalTracks, cnt, sqlDate))
-        # print('>>loader.loadUniqueSpotifyInfo - add new user')
+        visitCnt = 1
+        visitCntDups = 0
+        visitCntArt = 0
+        visitCntRm = 0
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )',
+                       (userId, userName,
+                        int(visitCnt), int(visitCntDups), int(visitCntArt), int(visitCntRm),
+                        int(numPlaylists), int(totalTracks),
+                        sqlDate))
+        # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
 
       mysql.connection.commit()
       cursor.close()
-      # print('>>loader.loadUniqueSpotifyInfo - cursor close')
+      # print('>>loader.updateDbUniqueSpotifyInfo - cursor close')
 
     except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'loadUniqueSpotifyInfo()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
+      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbUniqueSpotifyInfo()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
       this.addErrLogEntry(retVal)
     except:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'loadUniqueSpotifyInfo()', 'Failed to set unique spotify info.', 'loadUniqueSpotifyInfo - unknown error ', ' ', ' ']
+      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbUniqueSpotifyInfo()', 'Failed to set unique spotify info.', 'updateDbUniqueSpotifyInfo - unknown error ', ' ', ' ']
       this.addErrLogEntry(retVal)
-    # finally:
-    #   if (cursor is not None):
-    #     cursor.execute('UNLOCK TABLES')
+
+  # ---------------------------------------------------------------
+  def updateDbVisitCnt(this, mysql, cntType):
+    # print('>>loader.updateDbVisitCnt()')
+    cursor = None
+    try:
+      # if sMySqlDbName is empty we are not configure to use a db
+      if (this.sMySqlDbName == ''):
+        return
+
+      userId = session['mUserId']
+      sqlDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+      cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+      # cursor.execute('LOCK TABLE uniqueUsers WRITE')
+      cursor.execute('SELECT * FROM uniqueUsers WHERE userid = % s FOR UPDATE', (userId,))
+      user = cursor.fetchone()
+      if user:
+        # print('>>loader.updateDbVisitCnt - inc existing user')
+
+        visitCntDups = user['visitCntDups']
+        visitCntArt = user['visitCntArt']
+        visitCntRm = user['visitCntRm']
+
+        if (cntType == 'Dups'):
+          visitCntDups = visitCntDups + 1
+        if (cntType == 'Art'):
+          visitCntArt = visitCntArt + 1
+        if (cntType == 'Rm'):
+          visitCntRm = visitCntRm + 1
+
+        cursor.execute("UPDATE uniqueUsers SET visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, lastVisit=%s WHERE userId=%s",
+                       (int(visitCntDups), int(visitCntArt), int(visitCntRm), sqlDate, userId))
+        mysql.connection.commit()
+
+      cursor.close()
+      # print('>>loader.updateDbVisitCnt - cursor close')
+
+    except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
+      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
+      this.addErrLogEntry(retVal)
+    except:
+      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', 'updateDbUniqueSpotifyInfo - unknown error ', ' ', ' ']
+      this.addErrLogEntry(retVal)
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
