@@ -467,11 +467,3 @@
     vHtmlInfoFn = 'helpTextTabTracks.html';
     $("#btnInfoTab")[0].click();
   }
-
-  //-----------------------------------------------------------------------------------------------
-  // function tracksTab_btnCoffee()
-  // {
-  //   console.log('__SF__plTabs_btnCoffee()');
-  //   vHtmlInfoFn = 'helpTextCoffee.html';
-  //   $("#btnInfoTab")[0].click();
-  // }

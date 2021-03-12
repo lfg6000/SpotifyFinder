@@ -371,10 +371,3 @@
     $("#btnInfoTab")[0].click();
   }
 
-  //-----------------------------------------------------------------------------------------------
-  // function dupsTab_btnCoffee()
-  // {
-  //   console.log('__SF__plTabs_btnCoffee()');
-  //   vHtmlInfoFn = 'helpTextCoffee.html';
-  //   $("#btnInfoTab")[0].click();
-  // }

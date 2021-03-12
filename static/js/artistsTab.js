@@ -505,10 +505,3 @@
     $("#btnInfoTab")[0].click();
   }
 
-  //-----------------------------------------------------------------------------------------------
-  // function artistsTab_btnCoffee()
-  // {
-  //   console.log('__SF__plTabs_btnCoffee()');
-  //   vHtmlInfoFn = 'helpTextCoffee.html';
-  //   $("#btnInfoTab")[0].click();
-  // }
