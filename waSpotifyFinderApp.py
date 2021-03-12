@@ -91,6 +91,18 @@ app.config['SESSION_COOKIE_SECURE'] = False     # leave this set to false for no
 # call from_object after all the config params are set
 app.config.from_object(__name__)
 
+
+# Flask app context notes
+# - https://flask.palletsprojects.com/en/1.1.x/appcontext/
+# - When a Flask application begins handling a request, it pushes an application context and a request context. When the request ends it
+#   pops the request context then the application context. Typically, an application context will have the same lifetime as a request.
+
+# Db Connection Notes
+# - Flask_MySqlDb opens and closes db connections using a flask app context.
+# - If a request (route) uses the db: a connection will be opened and when the request finishes the connection will automatically be closed.
+# - venv/Lib/site-packages/flask_mysqldb/__init__.py  connection is called by your request code when updating the db
+# - venv/Lib/site-packages/flask_mysqldb/__init__.py  teardown is called automatically when the request finishes to close the connection
+
 # using a MySql db is optional
 # if the sMySqlDbName is empty then do not use the db
 if (oLoader.sMySqlDbName != ''):
@@ -246,14 +258,14 @@ def Tabs():
       if (key == 'loadSpotifyInfo'):
         # print('>>/Tabs loadSpotifyInfo')
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo()
-        # the mysql server is optional if db name is not set skip the one and only db read/write
-        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-          oLoader.loadUniqueSpotifyInfo(mysql)
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie(), 'sid': sid})
 
       if (key == 'loadPlDict'):
         # print('>>/Tabs loadPlDict()')
         retVal = oLoader.loadPlDict()
+        # the mysql server is optional if db name is not set skip the one and only db read/write
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.loadUniqueSpotifyInfo(mysql)
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getPlDict'):

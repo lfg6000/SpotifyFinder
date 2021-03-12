@@ -343,12 +343,14 @@ class SpfLoader():
     # CREATE TABLE IF NOT EXISTS `uniqueUsers` (
     #   `userId` varchar(50) NOT NULL,
     #   `userName` varchar(50) NOT NULL,
+    #   `numPlaylists` int(11) NOT NULL,
+    #   `totalTracks` int(11) NOT NULL,
     #   `visitCounter` int(11) NOT NULL,
     #   `lastVisit` DATETIME  NOT NULL,
     #   PRIMARY KEY (`userId`)
-    # ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8;
+    # ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
-    # this is only time we update the db so it is ok if the db connection time outs
+    # see notes in waSpotifyFinderApp about db connections...when the request (route) finishes the db connection will be automatically closed
     cursor = None
     try:
 
@@ -358,18 +360,23 @@ class SpfLoader():
 
       userId = session['mUserId']
       userName = session['mUserName']
+      numPlaylists = len(session['mPlDict'])
+      totalTracks = session['mTotalTrackCnt']
       sqlDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
       cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
       # cursor.execute('LOCK TABLE uniqueUsers WRITE')
       cursor.execute('SELECT * FROM uniqueUsers WHERE userid = % s FOR UPDATE', (userId,))
       user = cursor.fetchone()
       if user:
         cnt = user['visitCounter'] + 1
-        cursor.execute("UPDATE uniqueUsers SET visitCounter=%s, lastVisit=%s WHERE userId=%s", (cnt, sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET numPlaylists=%s, totalTracks=%s, visitCounter=%s, lastVisit=%s WHERE userId=%s",
+                       (numPlaylists, totalTracks, cnt, sqlDate, userId))
         # print('>>loader.loadUniqueSpotifyInfo - inc existing user')
       else:
         cnt = 1
-        cursor.execute('INSERT INTO uniqueUsers VALUES (% s, % s, % s, % s )', (userId, userName, cnt, sqlDate))
+        cursor.execute('INSERT INTO uniqueUsers VALUES (% s, % s, % s, % s, % s, % s )',
+                       (userId, userName, numPlaylists, totalTracks, cnt, sqlDate))
         # print('>>loader.loadUniqueSpotifyInfo - add new user')
 
       mysql.connection.commit()
