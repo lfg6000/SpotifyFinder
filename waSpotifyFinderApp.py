@@ -218,8 +218,8 @@ def Tabs():
 
       if (key == 'getArtistDict'):
         # print('>>/Tabs getArtistDict()')
-        retVal, artistDict = oLoader.getArtistDict()
-        return jsonify({ 'errRsp': retVal, 'artistDict': artistDict})
+        retVal, artistDict, plSelectedDict = oLoader.getArtistDict()
+        return jsonify({ 'errRsp': retVal, 'artistDict': artistDict, 'plSelectedDict': plSelectedDict})
 
       if (key == 'loadArtistTrackList'):
         artistId = rqJson['artistId']
@@ -289,6 +289,17 @@ def Tabs():
         retVal = oLoader.removeTracks(rmTracksList)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Rm')
+        return jsonify({ 'errRsp': retVal })
+
+      if (key == 'moveTracks'):
+        print('>>/Tabs moveTracks()')
+        destPlId = rqJson['destPlId']
+        mvTracksList = rqJson['mvTracksList']
+        pprint.pprint(destPlId)
+        pprint.pprint(mvTracksList)  # pprint sorts on key
+        retVal = oLoader.moveTracks(destPlId, mvTracksList)
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Mv')
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getErrLog'):

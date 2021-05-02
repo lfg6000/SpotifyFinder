@@ -51,7 +51,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight,
+      "scrollY":         tableHeight - 18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
@@ -105,7 +105,7 @@
       },
 
       "dom":            "rt",
-      "scrollY":         tableHeight,
+      "scrollY":         tableHeight - 18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,   // background color of sorted column does not change
@@ -168,12 +168,16 @@
         // we are reloading both tables so we empty them out
         vPlNamesTable.clear().draw();
         vPlTracksTable.clear().draw();
+        $('#tracksTab_cbMvDest').empty();
+
 
         // this will start a chain of async calls
         //   1) loadPlTracks -> loadPlTracks, 2) loadPlNames -> getPlSelectedDict, 3) loadPlTracks -> getTrackList
         // console.log('__SF__tracksTab_afActivate() - start loading');
         tabs_set2Labels('tracksTab_info1', 'Loading', 'tracksTab_info2', 'Loading');
         tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...', showStrImmed=true);
+
+        $('#tracksTab_cbMvDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
 
         await tracksTab_afLoadPlTracks();
         await tracksTab_afLoadPlNameTable();
@@ -190,9 +194,9 @@
     finally
     {
       // console.log('__SF__tracksTab_afActivate() finally.');
-      vTracksTabLoading = false;
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
+      vTracksTabLoading = false;
     }
   }
 
@@ -241,10 +245,27 @@
       vPlNamesTable.draw();
 
       if (Object.keys(plSelectedDict).length === 0)
-        console.log('__SF__tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
-      else
-        vPlNamesTable.cell(':eq(0)').focus();
-        // vPlNamesTable.row(':eq(0)').select();
+      {
+        // console.log('__SF__tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
+        return;
+      }
+
+      vPlNamesTable.cell(':eq(0)').focus();
+      // vPlNamesTable.row(':eq(0)').select();
+
+      // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + JSON.stringify(plSelectedDict, null, 4));
+      $.each(plSelectedDict, function (key, item)
+      {
+        if (item['Playlist Owners Id'] == vUserId)
+        {
+          idNm = key + '::::' + item['Playlist Name']
+          // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
+          plNm = item['Playlist Name']
+          if (plNm.length > 44)
+            plNm = plNm.slice(0, 44) + '...'
+          $('#tracksTab_cbMvDest').append($('<option>', {value: idNm, text: plNm}));
+        }
+      });
     }
   }
 
@@ -295,18 +316,15 @@
     finally
     {
       // console.log('__SF__tracksTab_afLoadTracksTableSeq() finally.');
-      vTracksTabLoading = false;
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
+      vTracksTabLoading = false;
     }
   }
 
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadTracksTable(plId = '')
   {
-    if (plTabs_getSelectedCnt() === 0) // any pl selected on plTab?
-      return
-
     if (plId === '')
     {
       plId = vPlNamesTable.row(0).data()[1];
@@ -337,19 +355,38 @@
       vPlTracksTable.draw();
 
       tracksTab_updateSelectedCnt();
-      let infoStr2 = trackList[0]['Playlist Name'] + ', &nbsp ' + trackList.length + ' songs, &nbsp ' + reply['plDuration']
+      let infoStr2 = 'Playlist is empty';
+      if (vPlTracksTable.rows().count() != 0)
+        infoStr2 = trackList[0]['Playlist Name'] + ', &nbsp ' + trackList.length + ' songs, &nbsp ' + reply['plDuration']
       tabs_setLabel('tracksTab_info2', infoStr2);
     }
   }
 
   //-----------------------------------------------------------------------------------------------
+  function tracksTab_tracksTableSelect() { /* make function appear in pycharm structure list */ }
+  $('#tracksTable').on( 'select.dt', function ( e, dt, type, indexes )
+  {
+    // console.log('__SF__tracksTab_tracksTab_tracksTableSelect() - tracksTable row select');
+    tracksTab_updateSelectedCnt();
+  });
+
+  //-----------------------------------------------------------------------------------------------
+  function plTabs_tracksTableDeselect() { /* make function appear in pycharm structure list */ }
+  $('#tracksTable').on( 'deselect.dt', function ( e, dt, type, indexes )
+  {
+    tracksTab_updateSelectedCnt();
+  });
+
+  //-----------------------------------------------------------------------------------------------
   function tracksTab_tracksTableRow_onUserSelect() { /* make function appear in pycharm structure list */ }
   $('#tracksTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
   {
-    rowData = vPlTracksTable.row(cell.node()).data()
+    console.log('__SF__tracksTableRow_onUserSelect()');
+
+    let rowData = vPlTracksTable.row(cell.node()).data()
     // let rowData = vPlTracksTable.row(indexes).data();
     // console.log('__SF__tracksTab_tracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
-    if (rowData[10] != vUserId)   // playlistOwnerId != vUserId
+    if (rowData[10] != vUserId)   // playlistOwnerId != vUserId...user is not the owner of the track....
     {
        e.preventDefault();
        $("#tracksTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
@@ -357,15 +394,14 @@
        return;
     }
 
-    tracksTab_updateSelectedCnt();
+    // tracksTab_updateSelectedCnt(); // can not do this here since the select has yet to occur
   });
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_tracksTable_onDeselect() { /* make function appear in pycharm structure list */ }
-  $('#tracksTable').on( 'deselect.dt', function (e, dt, type, indexes)
-  {
-    tracksTab_updateSelectedCnt();
-  });
+  // function tracksTab_tracksTable_onDeselect() { /* make function appear in pycharm structure list */ }
+  // $('#tracksTable').on( 'deselect.dt', function (e, dt, type, indexes)
+  // {
+  // });
 
   //-----------------------------------------------------------------------------------------------
   function tracksTab_btnRemoveTracks()
@@ -409,9 +445,9 @@
     finally
     {
       // console.log('__SF__tracksTab_afRmTracksSeq() finally.');
-      vTracksTabLoading = false;
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
+      vTracksTabLoading = false;
     }
   }
 
@@ -456,8 +492,9 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_updateSelectedCnt()
   {
-    // console.log('__SF__tracksTab_updateSelectedCnt()');
+    console.log('__SF__tracksTab_updateSelectedCnt()');
     let count = vPlTracksTable.rows({ selected: true }).count();
+    console.log('__SF__tracksTab_updateSelectedCnt() cnt = ', count);
     tabs_setLabel('tracksTab_info1', 'Selected Tracks: ' + count);
   }
 
@@ -467,3 +504,75 @@
     vHtmlInfoFn = 'helpTextTabTracks.html';
     $("#btnInfoTab")[0].click();
   }
+
+    //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnMoveTracks()
+  {
+    // console.log('__SF__tracksTab_btnMoveTracks()');
+
+    let idNm = $('#tracksTab_cbMvDest option:selected').val();
+    idNm = idNm.split('::::', 2)
+    // console.log('__SF__tracksTab_cbMvDestOnChange() val = ' + idNm[0]);
+    // console.log('__SF__tracksTab_cbMvDestOnChange() val = ' + idNm[1]);
+
+    let count = vPlTracksTable.rows({ selected: true }).count();
+    if (count == 0)
+    {
+      alert('To move a track(s) you must select a track(s).');
+      return;
+    }
+
+    if (idNm[0] == '0')
+      alert('To move tracks you must  Select A Destination Playlist  from the drop down combo box.');
+    else
+      tracksTab_afMvTracksSeq(idNm[0], idNm[1]);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afMvTracksSeq(destPlId, destPlName)
+  {
+    try
+    {
+      // console.log('__SF__tracksTab_afMvTracksSeq()');
+      vtracksTabLoading = true;
+      vPlNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Moving Tracks...', showStrImmed=true);
+
+      let rmTrackList = [];
+      let mvTrackList = [];
+      let rowData;
+      $.each(vPlTracksTable.rows('.selected').nodes(), function (i, item)
+      {
+        rowData = vPlTracksTable.row(this).data();
+        if (rowData[8] != destPlId)  // if src plid == the dest plid skip the track
+        {
+          rmTrackList.push({'Playlist Id': rowData[8], 'Track Uri': rowData[9], 'Track Position': parseInt(rowData[5])});
+          mvTrackList.push(rowData[7]); // track id
+        }
+      });
+
+      if (Object.keys(rmTrackList).length < 0)
+        return
+
+      vPlTracksTable.clear();//.draw(); draw causes annoying flash
+      // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
+      // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
+      // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      await tabs_afMoveTracks(destPlId, mvTrackList);
+      await tabs_afRemoveTracks(rmTrackList);
+      await tracksTab_afLoadTracksTable(pl=rowData[8]);
+    }
+    catch(err)
+    {
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
+      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
+      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vtracksTabLoading = false;
+    }
+  }
+

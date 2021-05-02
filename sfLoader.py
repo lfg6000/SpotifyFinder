@@ -46,9 +46,12 @@ class SpfLoader():
     # session['mUserCountry'] = '' # needs a user permission
 
     session['mPlDict'] = {}
+    session['mPlaylistCntUsr'] = 0
     session['mPlSelectedDict'] = {}
     session['mPlDictOwnersList'] = []
+
     session['mTotalTrackCnt'] = 0
+    session['mTotalTrackCntUsr'] = 0
 
     session['mPlTracksDict'] = {}
 
@@ -347,11 +350,15 @@ class SpfLoader():
     #   `visitCntDups` int NOT NULL,
     #   `visitCntArt` int NOT NULL,
     #   `visitCntRm` int NOT NULL,
-    #   `numPlaylists` int NOT NULL,
-    #   `totalTracks` int NOT NULL,
+    #   `playlistCnt` int NOT NULL,
+    #   `playlistCntUsr` int NOT NULL,
+    #   `totalTrackCnt` int NOT NULL,
+    #   `totalTrackCntUsr` int NOT NULL,
     #   `lastVisit` DATETIME  NOT NULL,
     #   PRIMARY KEY (`userId`)
     # ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
+
 
 
     # see notes in waSpotifyFinderApp about db connections...when the request (route) finishes the db connection will be automatically closed
@@ -364,8 +371,10 @@ class SpfLoader():
 
       userId = session['mUserId']
       userName = session['mUserName']
-      numPlaylists = len(session['mPlDict'])
-      totalTracks = session['mTotalTrackCnt']
+      playlistCnt = len(session['mPlDict'])
+      playlistCntUsr = session['mPlaylistCntUsr']
+      totalTrackCnt = session['mTotalTrackCnt']
+      totalTrackCntUsr = session['mTotalTrackCntUsr']
       sqlDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
       cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -374,18 +383,19 @@ class SpfLoader():
       user = cursor.fetchone()
       if user:
         visitCnt = user['visitCnt'] + 1
-        cursor.execute("UPDATE uniqueUsers SET visitCnt=%s, numPlaylists=%s, totalTracks=%s, lastVisit=%s WHERE userId=%s",
-                       (int(visitCnt), int(numPlaylists), int(totalTracks), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCnt=%s, playlistCnt=%s, playlistCntUsr=%s, totalTrackCnt=%s, totalTrackCntUsr=%s, lastVisit=%s WHERE userId=%s",
+                       (int(visitCnt), int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr), sqlDate, userId))
         # print('>>loader.updateDbUniqueSpotifyInfo - inc existing user')
       else:
         visitCnt = 1
         visitCntDups = 0
         visitCntArt = 0
         visitCntRm = 0
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )',
+        visitCntMv = 0
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
                        (userId, userName,
-                        int(visitCnt), int(visitCntDups), int(visitCntArt), int(visitCntRm),
-                        int(numPlaylists), int(totalTracks),
+                        int(visitCnt), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv),
+                        int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
                         sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
 
@@ -422,6 +432,7 @@ class SpfLoader():
         visitCntDups = user['visitCntDups']
         visitCntArt = user['visitCntArt']
         visitCntRm = user['visitCntRm']
+        visitCntMv = user['visitCntMv']
 
         if (cntType == 'Dups'):
           visitCntDups = visitCntDups + 1
@@ -429,9 +440,11 @@ class SpfLoader():
           visitCntArt = visitCntArt + 1
         if (cntType == 'Rm'):
           visitCntRm = visitCntRm + 1
+        if (cntType == 'Mv'):
+          visitCntMv = visitCntMv + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, lastVisit=%s WHERE userId=%s",
-                       (int(visitCntDups), int(visitCntArt), int(visitCntRm), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, lastVisit=%s WHERE userId=%s",
+                       (int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()
@@ -584,6 +597,9 @@ class SpfLoader():
                                             'Tracks': str(item['tracks']['total']),
                                             'Duration': '0'}
           session['mTotalTrackCnt'] += item['tracks']['total']
+          if (ownerId == session['mUserId']):
+            session['mPlaylistCntUsr'] += 1
+            session['mTotalTrackCntUsr'] += item['tracks']['total']
           id = ownerNm + ' / ' + ownerId
           if id not in session['mPlDictOwnersList']:
             session['mPlDictOwnersList'].append(id)
@@ -823,6 +839,58 @@ class SpfLoader():
       this.addErrLogEntry(retVal)
       return retVal
 
+  # ---------------------------------------------------------------
+  # ---------------------------------------------------------------
+  # moveTracks
+  # ---------------------------------------------------------------
+  def cleanMvTrackList(this, plIdDest, mvTrackList):
+    # print('>>loader.cleanMvTrackList()')
+
+    # if any of the tracks in the mvTrackList are already in the dest pl they are removed so we are creating dups in the dest pl
+    if plIdDest not in session['mPlTracksDict']:
+      raise Exception('throwning loader.cleanMvTrackList() - requested tracks not found for plId = ' + plId)
+
+    plTrackList = session['mPlTracksDict'].get(plIdDest)
+
+    mvTrackListCleaned = []
+    for mvTrackId in mvTrackList:
+      fnd = False
+      for track in plTrackList:
+        if mvTrackId == track['Track Id']:
+          fnd = True
+      if fnd == False:
+        mvTrackListCleaned.append(mvTrackId)
+
+    return mvTrackListCleaned
+
+  # ---------------------------------------------------------------
+  def moveTracks(this, plIdDest, mvTrackList):
+    # print('>>loader.moveTracks()')
+
+    #  url         = 'https://api.spotify.com/v1/playlists/6rfB2pTNv61ec3LiBV5SaK/tracks'
+    #  method      = Post
+    #  header      ={'Authorization': 'Bearer BQCDSMmq3w5RrX2..............',
+    #                'Content-Type': 'application/json'}
+    #  body (str) = ['spotify:track:4HbaSPG6qPH8PrBch3ojya', 'spotify:track:5dTuEVETmQ15gP2M8E5I45']
+
+    try:
+      # raise Exception('throwing loader.moveTracks()')
+      mvTrackListCleaned = this.cleanMvTrackList(plIdDest, mvTrackList)
+      if (len(mvTrackListCleaned) > 0):
+        newSnapshotId = this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, mvTrackListCleaned)
+        retVal = this.loadPlDict(clean=False)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          return retVal
+        del session['mPlTracksDict'][plIdDest]
+        retVal = this.loadPlTracks()
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          return retVal
+      return [sfConst.errNone]
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errMoveTracks, this.getDateTm(), 'moveTracks()', 'move/add tracks to playlist failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
@@ -1083,7 +1151,7 @@ class SpfLoader():
     try:
       # print('>>loader.getArtistDict()')
       # raise Exception('throwing loader.getArtistDict()')
-      return [sfConst.errNone], session['mArtistDict']
+      return [sfConst.errNone], session['mArtistDict'], session['mPlSelectedDict']
     except Exception:
       tupleExc = sys.exc_info()
       retVal = [sfConst.errGetArtistDict, this.getDateTm(), 'getArtistDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]

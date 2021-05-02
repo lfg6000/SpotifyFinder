@@ -121,6 +121,7 @@
         // note loadPlDict() is called by oLoader:rmTracksFromSpotPlaylist() when removing tracks
         // so we only have to reload the PlTable with the updated number of tracks
         vPlTable.clear().draw();
+        $('#plTabs_cbUsers').empty();
         await plTab_afLoadPlTable();
         await plTab_afRestorePlTableCkboxes();
         // console.log('__SF__plTab_afActivate() - exit');
@@ -369,7 +370,7 @@
     $.each(vPlTable.rows('.selected').nodes(), function(i, item)
     {
       let rowData = vPlTable.row(this).data();
-      newPlSelectedDict[rowData[5]] = { 'Playlist Name': rowData[1] };
+      newPlSelectedDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6] };
     });
 
     // if (Object.keys(newPlSelectedDict).length === 0)  // exit if no playlists are selected
@@ -386,7 +387,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
+      // console.log('__SF__plTab_afUpdatePlSelectedDict() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('plTab_afUpdatePlSelectedDict()', reply['errRsp'], 'tracksTab_errInfo')
     }

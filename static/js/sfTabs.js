@@ -1,11 +1,14 @@
 
   var vUrl;
   var vLastPlSelectionCntr = 0;
-  var vProgressBarTmr = null;
   var vCurPlSelectionCntr = 1;
   var vCurTracksRemovedCntr = 1;
   var vRedrawNeeded = [0,0,0,0];
   var vAborting = 0;
+  var vProgressBarTmr = null;
+  var vProgBar = null;
+  var vLblId = null;
+  const cbMvDestDefault = '     Select A Destination Playlist     ';
 
   //
   // regex search to find await and _af on the same line .*?await.*?_af.*?
@@ -68,6 +71,12 @@
 
       if (tabName !== 'Info') // allow tab switch to info page on err even if loading is true
       {
+        if ((tabName !== 'PlayLists') && (plTabs_getSelectedCnt() == 0))
+        {
+          alert('At least one playlist must be selected on the \'Playlist Tab\' before switching tabs.');
+          return;
+        }
+
         if (vPlTabLoading === true)
         {
           $("#plTab_info2").text("Playlist Tab is loading. Please switch tabs after loading is complete.");
@@ -223,7 +232,7 @@
 
     console.log('__SF__tabs_afRemoveTracks() - vUrl - removeTracks');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ removeTracks: 'loadPlTracks', rmTracksList: rmTracksList }), });
+                                       body: JSON.stringify({ removeTracks: 'removeTracks', rmTracksList: rmTracksList }), });
     if (!response.ok)
       tabs_throwErrHttp('tabs_afRemoveTracks()', response.status, 'tracksTab_errInfo');
     else
@@ -232,6 +241,27 @@
       // console.log('__SF__tabs_afRemoveTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tabs_afRemoveTracks()', reply['errRsp'], 'tracksTab_errInfo')
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afMoveTracks(destPlId, mvTracksList)
+  {
+    // console.log('__SF__tabs_afMoveTracks()');
+    vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
+    vCurTracksRemovedCntr = vCurTracksRemovedCntr + 1;
+
+    console.log('__SF__tabs_afMoveTracks() - vUrl - moveTracks');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ moveTracks: 'moveTracks', destPlId: destPlId, mvTracksList: mvTracksList }), });
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afMoveTracks()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tabs_afMoveTracks() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tabs_afMoveTracks()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 
@@ -248,6 +278,13 @@
     if (showStrImmed)
       $("#" + lblId).text(lblStr);
 
+    // on the tracks and artists tabs it was possible for the prog bar to keep spinning if
+    // the user clicks or cursors very quickly in the playlistName/artistName column
+    if ((vProgressBarTmr != null) && (vProgBar != null) && (vLblId != null))
+        tabs_progBarStop(vProgBar, vLblId, '')
+
+    vProgBar = progBar;
+    vLblId = lblId;
     vProgressBarTmr = setInterval(scene, 1000);
     function scene()
     {
@@ -274,6 +311,9 @@
      element.style.width = 0;
      element.innerHTML = '';
      clearInterval(vProgressBarTmr);
+     vProgressBarTmr = null;
+     vProgBar = null;
+     vLblId = null;
      $("#" + lblId).text(lblStr);
   }
 
