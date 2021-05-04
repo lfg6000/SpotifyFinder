@@ -170,10 +170,13 @@
   {
     // foo.bar();
     // console.log('__SF__plTab_afloadSpotifyInfo()');
+    winWidth = document.documentElement.clientWidth;
+    winHeight = document.documentElement.clientHeight;
+
     rVal = 1;
     console.log('__SF__plTab_afloadSpotifyInfo() - vUrl - loadSpotifyInfo');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ loadSpotifyInfo: 'loadSpotifyInfo' }), });
+                                       body: JSON.stringify({ loadSpotifyInfo: 'loadSpotifyInfo', winWidth: winWidth, winHeight: winHeight }), });
     if (!response.ok)
       tabs_throwErrHttp('plTab_afloadSpotifyInfo()', response.status, 'plTab_errInfo');
     else

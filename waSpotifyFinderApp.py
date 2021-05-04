@@ -235,6 +235,8 @@ def Tabs():
       if (key == 'loadPlTracks'):
         # print('>>/Tabs loadPlTracks()')
         retVal = oLoader.loadPlTracks()
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Tracks')
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getPlSelectedDict'):
@@ -256,7 +258,9 @@ def Tabs():
 
       if (key == 'loadSpotifyInfo'):
         # print('>>/Tabs loadSpotifyInfo')
-        retVal, userId, userName, sid = oLoader.loadSpotifyInfo()
+        winWidth = rqJson['winWidth']
+        winHeight = rqJson['winHeight']
+        retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight)
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie(), 'sid': sid})
 
       if (key == 'loadPlDict'):
@@ -303,6 +307,8 @@ def Tabs():
         fnRq = rqJson['infoRq']
         retVal, htmlStr = oLoader.getInfoHtml(fnRq);
         # jsonStr = json.dumps(htmlStr)
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Help')
         return jsonify({ 'errRsp': retVal, 'htmlInfo': htmlStr })
 
     return;

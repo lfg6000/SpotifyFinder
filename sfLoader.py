@@ -304,14 +304,14 @@ class SpfLoader():
     #   return None
 
   # ---------------------------------------------------------------
-  def loadSpotifyInfo(this):
+  def loadSpotifyInfo(this, winWidth, winHeight):
     # print('>>loader.loadSpotifyInfo()')
     try:
       # raise Exception('throwing loader.loadSpotifyInfo()')
       results = this.oAuthGetSpotifyObj().current_user()
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
-      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'])
+      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
       return [sfConst.errNone], session['mUserId'], session['mUserName'], session.sid
     except Exception:
       tupleExc = sys.exc_info()
@@ -386,14 +386,17 @@ class SpfLoader():
         # print('>>loader.updateDbUniqueSpotifyInfo - inc existing user')
       else:
         visitCnt = 1
+        visitCntTracks = 0
         visitCntDups = 0
         visitCntArt = 0
         visitCntRm = 0
         visitCntMv = 0
         visitCntCp = 0
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+        visitCntHelp = 0
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
                        (userId, userName,
-                        int(visitCnt), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp),
+                        int(visitCnt), int(visitCntTracks), int(visitCntDups), int(visitCntArt),
+                        int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntHelp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
                         sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
@@ -428,12 +431,16 @@ class SpfLoader():
       if user:
         # print('>>loader.updateDbVisitCnt - inc existing user')
 
+        visitCntTracks = user['visitCntTracks']
         visitCntDups = user['visitCntDups']
         visitCntArt = user['visitCntArt']
         visitCntRm = user['visitCntRm']
         visitCntMv = user['visitCntMv']
         visitCntCp = user['visitCntCp']
+        visitCntHelp = user['visitCntHelp']
 
+        if (cntType == 'Tracks'):
+          visitCntTracks = visitCntTracks + 1
         if (cntType == 'Dups'):
           visitCntDups = visitCntDups + 1
         if (cntType == 'Art'):
@@ -444,9 +451,11 @@ class SpfLoader():
           visitCntMv = visitCntMv + 1  # every mv also does a rm
         if (cntType == 'Cp'):
           visitCntCp = visitCntCp + 1
+        if (cntType == 'Help'):
+          visitCntHelp = visitCntHelp + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, lastVisit=%s WHERE userId=%s",
-                       (int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
+                       (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntHelp), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()
