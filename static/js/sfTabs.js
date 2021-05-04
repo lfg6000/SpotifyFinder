@@ -2,7 +2,7 @@
   var vUrl;
   var vLastPlSelectionCntr = 0;
   var vCurPlSelectionCntr = 1;
-  var vCurTracksRemovedCntr = 1;
+  var vCurTracksRmMvCpCntr = 1;
   var vRedrawNeeded = [0,0,0,0];
   var vAborting = 0;
   var vProgressBarTmr = null;
@@ -138,9 +138,9 @@
       // var cookies = document.cookie; // only works if SESSION_COOKIE_HTTPONLY is false
       // console.log('__SF__cookies = ', cookies)
 
-      // await tabs_afGetCntrs();  // get vCurPlSelectionCntr and vCurTracksRemovedCntr from server
+      // await tabs_afGetCntrs();  // get vCurPlSelectionCntr and vCurTracksRmMvCpCntr from server
       // console.log('__SF__tabs_afSwitchTabs() -   \n vCurPlSelectionCntr ='    + vCurPlSelectionCntr +
-      //                                    ',\n vCurTracksRemovedCntr = ' + vCurTracksRemovedCntr);
+      //                                    ',\n vCurTracksRmMvCpCntr = ' + vCurTracksRmMvCpCntr);
 
       if (vLastPlSelectionCntr !== vCurPlSelectionCntr)
       {
@@ -151,7 +151,7 @@
 
       if (tabName === 'PlayLists')
       {
-        await plTab_afActivate(vCurTracksRemovedCntr);
+        await plTab_afActivate(vCurTracksRmMvCpCntr);
         if (vRedrawNeeded[0] === 1)
         {
           plTab_redraw();
@@ -219,7 +219,7 @@
   //       tabs_throwSvrErr('tabs_afGetCntrs()', reply['errRsp'], 'tracksTab_errInfo')
   //
   //     vCurPlSelectionCntr = reply['plSelectionCntr'];
-  //     vCurTracksRemovedCntr = reply['tracksRemovedCntr'];
+  //     vCurTracksRmMvCpCntr = reply['TracksRmMvCpCntr'];
   //   }
   // }
 
@@ -228,7 +228,7 @@
   {
     // console.log('__SF__tabs_afRemoveTracks()');
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
-    vCurTracksRemovedCntr = vCurTracksRemovedCntr + 1;
+    vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
     console.log('__SF__tabs_afRemoveTracks() - vUrl - removeTracks');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
@@ -245,23 +245,23 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function tabs_afMoveTracks(destPlId, mvTracksList)
+  async function tabs_afMoveCopyTracks(destPlId, trackList, type)
   {
-    // console.log('__SF__tabs_afMoveTracks()');
+    // console.log('__SF__tabs_afMoveCopyTracks()');
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
-    vCurTracksRemovedCntr = vCurTracksRemovedCntr + 1;
+    vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
-    console.log('__SF__tabs_afMoveTracks() - vUrl - moveTracks');
+    console.log('__SF__tabs_afMoveCopyTracks() - vUrl - mvcpTracks');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ moveTracks: 'moveTracks', destPlId: destPlId, mvTracksList: mvTracksList }), });
+                                       body: JSON.stringify({ mvcpTracks: 'mvcpTracks', destPlId: destPlId, trackList: trackList, type: type }), });
     if (!response.ok)
-      tabs_throwErrHttp('tabs_afMoveTracks()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tabs_afMoveCopyTracks()', response.status, 'tracksTab_errInfo');
     else
     {
       let reply = await response.json();
-      // console.log('__SF__tabs_afMoveTracks() reply = ', reply);
+      // console.log('__SF__tabs_afMoveCopyTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tabs_afMoveTracks()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tabs_afMoveCopyTracks()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 

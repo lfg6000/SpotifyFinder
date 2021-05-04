@@ -1,6 +1,6 @@
 
   var vPlTable;
-  var vLastTracksRemovedCntr = 0;
+  var vLastTracksRmMvCpCntr = 0;
   var vPlTabActivated = 0;
   var vPlTabLoading = false;
   var vPlTableLastSearchCol = '';
@@ -81,7 +81,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function plTab_afActivate(curTracksRemovedCntr)
+  async function plTab_afActivate(curTracksRmMvCpCntr)
   {
     try
     {
@@ -90,7 +90,7 @@
       if (vPlTabActivated === 0)
       {
         vPlTabActivated = 1;
-        vLastTracksRemovedCntr = 1;
+        vLastTracksRmMvCpCntr = 1;
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
@@ -109,11 +109,11 @@
         return;
       }
 
-      if (vLastTracksRemovedCntr !== curTracksRemovedCntr)
+      if (vLastTracksRmMvCpCntr !== curTracksRmMvCpCntr)
       {
         // console.log("plTab_afActivate() - last and cur removed cntrs are different");
 
-        vLastTracksRemovedCntr = curTracksRemovedCntr;
+        vLastTracksRmMvCpCntr = curTracksRmMvCpCntr;
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);

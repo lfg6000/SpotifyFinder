@@ -29,7 +29,7 @@ errGetArtistTrackList = -21
 errFindDups = -22
 errGetDupsTrackList = -23
 errSqlErr = -24
-errMoveTracks = -25
+errMvCpTracks = -25
 
 
 # ---------------------------------------------------------------

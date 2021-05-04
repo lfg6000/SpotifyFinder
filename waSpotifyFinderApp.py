@@ -256,8 +256,8 @@ def Tabs():
 
       # if (key == 'getCntrs'):
       #   print('>>/Tabs getCntrs')
-      #   retVal, plSelectionCntr, tracksRemovedCntr = oLoader.getCntrs()
-      #   return jsonify({ 'errRsp': retVal, 'plSelectionCntr': plSelectionCntr, 'tracksRemovedCntr': tracksRemovedCntr })
+      #   retVal, plSelectionCntr, TracksRmMvCpCntr = oLoader.getCntrs()
+      #   return jsonify({ 'errRsp': retVal, 'plSelectionCntr': plSelectionCntr, 'TracksRmMvCpCntr': TracksRmMvCpCntr })
 
       if (key == 'loadSpotifyInfo'):
         # print('>>/Tabs loadSpotifyInfo')
@@ -291,15 +291,16 @@ def Tabs():
           oLoader.updateDbVisitCnt(mysql, 'Rm')
         return jsonify({ 'errRsp': retVal })
 
-      if (key == 'moveTracks'):
-        print('>>/Tabs moveTracks()')
+      if (key == 'mvcpTracks'):
+        # print('>>/Tabs mvcpTracks()')
         destPlId = rqJson['destPlId']
-        mvTracksList = rqJson['mvTracksList']
-        pprint.pprint(destPlId)
-        pprint.pprint(mvTracksList)  # pprint sorts on key
-        retVal = oLoader.moveTracks(destPlId, mvTracksList)
+        trackList = rqJson['trackList']
+        type = rqJson['type']
+        # pprint.pprint(destPlId)
+        # pprint.pprint(trackList)  # pprint sorts on key
+        retVal = oLoader.mvcpTracks(destPlId, trackList)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-          oLoader.updateDbVisitCnt(mysql, 'Mv')
+          oLoader.updateDbVisitCnt(mysql, type)
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getErrLog'):

@@ -62,7 +62,7 @@ class SpfLoader():
     session['mArtistTrackList'] = []
 
     # session['mPlSelectionCntr'] = 1
-    # session['mTracksRemovedCntr'] = 1
+    # session['mTracksRmMvCpCntr'] = 1
     session['mErrLog'] = []
 
     # errDesc = []
@@ -392,9 +392,10 @@ class SpfLoader():
         visitCntArt = 0
         visitCntRm = 0
         visitCntMv = 0
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+        visitCntCp = 0
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
                        (userId, userName,
-                        int(visitCnt), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv),
+                        int(visitCnt), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
                         sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
@@ -433,6 +434,7 @@ class SpfLoader():
         visitCntArt = user['visitCntArt']
         visitCntRm = user['visitCntRm']
         visitCntMv = user['visitCntMv']
+        visitCntCp = user['visitCntCp']
 
         if (cntType == 'Dups'):
           visitCntDups = visitCntDups + 1
@@ -441,10 +443,12 @@ class SpfLoader():
         if (cntType == 'Rm'):
           visitCntRm = visitCntRm + 1
         if (cntType == 'Mv'):
-          visitCntMv = visitCntMv + 1
+          visitCntMv = visitCntMv + 1  # every mv also does a rm
+        if (cntType == 'Cp'):
+          visitCntCp = visitCntCp + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, lastVisit=%s WHERE userId=%s",
-                       (int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, lastVisit=%s WHERE userId=%s",
+                       (int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()
@@ -466,9 +470,9 @@ class SpfLoader():
     return datetime.datetime.now().strftime("%Y/%m/%d   %I:%M:%S  %f")
 
   # # ---------------------------------------------------------------
-  # def incTracksRemovedCntr(this):
-  #   # print('>>loader.incTracksRemovedCntr()')
-  #   session['mTracksRemovedCntr'] += 1
+  # def incTracksRmMvCpCntr(this):
+  #   # print('>>loader.incTracksRmMvCpCntr()')
+  #   session['mTracksRmMvCpCntr'] += 1
   #
   # # ---------------------------------------------------------------
   # def incPlSelectionCntr(this):
@@ -489,7 +493,7 @@ class SpfLoader():
   #   try:
   #     print('>>loader.getCntrs()')
   #     # raise Exception('throwing loader.getCntrs()')
-  #     return [sfConst.errNone], session['mPlSelectionCntr'], session['mTracksRemovedCntr']
+  #     return [sfConst.errNone], session['mPlSelectionCntr'], session['mTracksRmMvCpCntr']
   #   except Exception:
   #     tupleExc = sys.exc_info()
   #     retVal = [sfConst.errGetCntrs, this.getDateTm(), 'getCntrs()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
@@ -658,7 +662,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def loadPlTracks(this):
-    print('>>loader.loadPlTracks()')
+    # print('>>loader.loadPlTracks()')
     # mPlTracksDict['plId'] = trackList[]
     #   - one trackList[] for each playlist
     # trackList[] = each list entry is dict of track values
@@ -767,7 +771,7 @@ class SpfLoader():
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
   def rmTracksFromSpotPlaylist(this, plId, spotRmTrackList):
-    print('>>loader.rmTracksFromSpotPlaylist()')
+    # print('>>loader.rmTracksFromSpotPlaylist()')
     # spotRmTrackList uses spotify key names
 
     #  url         = 'https://api.spotify.com/v1/playlists/6llbMlPvjrSSy8NTLfBltc/tracks'
@@ -813,7 +817,7 @@ class SpfLoader():
       plIdsCompleted = []
       spotRmTrackList = []
       # this.incPlSelectionCntr()    # trigger for reloading tracks, dups, artist
-      # this.incTracksRemovedCntr()  # trigger for reloading playlists
+      # this.incTracksRmMvCpCntr()  # trigger for reloading playlists
       # raise Exception('throwing loader.removeTracks()')
       for item1 in rmTrackList:  # for each unique plId in the list
         spotRmTrackList.clear()
@@ -841,31 +845,31 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
-  # moveTracks
+  # move copy Tracks
   # ---------------------------------------------------------------
-  def cleanMvTrackList(this, plIdDest, mvTrackList):
+  def cleanMvCpTrackList(this, plIdDest, trackList):
     # print('>>loader.cleanMvTrackList()')
 
     # if any of the tracks in the mvTrackList are already in the dest pl they are removed so we are creating dups in the dest pl
     if plIdDest not in session['mPlTracksDict']:
-      raise Exception('throwning loader.cleanMvTrackList() - requested tracks not found for plId = ' + plId)
+      raise Exception('throwning loader.cleanMvCpTrackList() - requested tracks not found for plId = ' + plId)
 
     plTrackList = session['mPlTracksDict'].get(plIdDest)
 
-    mvTrackListCleaned = []
-    for mvTrackId in mvTrackList:
+    trackListCleaned = []
+    for trackId in trackList:
       fnd = False
       for track in plTrackList:
-        if mvTrackId == track['Track Id']:
+        if trackId == track['Track Id']:
           fnd = True
       if fnd == False:
-        mvTrackListCleaned.append(mvTrackId)
+        trackListCleaned.append(trackId)
 
-    return mvTrackListCleaned
+    return trackListCleaned
 
   # ---------------------------------------------------------------
-  def moveTracks(this, plIdDest, mvTrackList):
-    # print('>>loader.moveTracks()')
+  def mvcpTracks(this, plIdDest, trackList):
+    # print('>>loader.mvcpTracks()')
 
     #  url         = 'https://api.spotify.com/v1/playlists/6rfB2pTNv61ec3LiBV5SaK/tracks'
     #  method      = Post
@@ -875,9 +879,9 @@ class SpfLoader():
 
     try:
       # raise Exception('throwing loader.moveTracks()')
-      mvTrackListCleaned = this.cleanMvTrackList(plIdDest, mvTrackList)
-      if (len(mvTrackListCleaned) > 0):
-        newSnapshotId = this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, mvTrackListCleaned)
+      trackListCleaned = this.cleanMvCpTrackList(plIdDest, trackList)
+      if (len(trackListCleaned) > 0):
+        newSnapshotId = this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, trackListCleaned)
         retVal = this.loadPlDict(clean=False)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
@@ -888,7 +892,7 @@ class SpfLoader():
       return [sfConst.errNone]
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errMoveTracks, this.getDateTm(), 'moveTracks()', 'move/add tracks to playlist failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errMvCpTracks, this.getDateTm(), 'mvcpTracks()', 'move/copy tracks to playlist failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -901,7 +905,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def findDups(this, modePlaylist, modeSearch):
-    print('>>loader.findDups()')
+    # print('>>loader.findDups()')
 
     try:
       # raise Exception('throwing loader.findDups()')
@@ -1172,7 +1176,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def loadArtistDict(this):
-    print('>>loader.loadArtistDict()')
+    # print('>>loader.loadArtistDict()')
 
     try:
       # raise Exception('throwing loader.loadArtistDict()')
