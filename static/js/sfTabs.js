@@ -138,10 +138,6 @@
       // var cookies = document.cookie; // only works if SESSION_COOKIE_HTTPONLY is false
       // console.log('__SF__cookies = ', cookies)
 
-      // await tabs_afGetCntrs();  // get vCurPlSelectionCntr and vCurTracksRmMvCpCntr from server
-      // console.log('__SF__tabs_afSwitchTabs() -   \n vCurPlSelectionCntr ='    + vCurPlSelectionCntr +
-      //                                    ',\n vCurTracksRmMvCpCntr = ' + vCurTracksRmMvCpCntr);
-
       if (vLastPlSelectionCntr !== vCurPlSelectionCntr)
       {
         // console.log('__SF__tabs_afSwitchTabs() - pl list selection cnt has changed - updating plSelectedDict');
@@ -201,27 +197,6 @@
     //   console.log('__SF__tabs_afSwitchTabs() - finally');
     // }
   }
-
-  // //-----------------------------------------------------------------------------------------------
-  // async function tabs_afGetCntrs()
-  // {
-  //   // console.log('__SF__tabs_afGetCntrs()');
-  //   console.log('__SF__tabs_afGetCntrs() - vUrl - getCntrs');
-  //   let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-  //                                      body: JSON.stringify({ getCntrs: 'getCntrs' }), });
-  //   if (!response.ok)
-  //     tabs_throwErrHttp('tabs_afGetCntrs()', response.status, 'tracksTab_errInfo');
-  //   else
-  //   {
-  //     let reply = await response.json();
-  //     console.log('__SF__tabs_afGetCntrs() reply = ', reply);
-  //     if (reply['errRsp'][0] !== 1)
-  //       tabs_throwSvrErr('tabs_afGetCntrs()', reply['errRsp'], 'tracksTab_errInfo')
-  //
-  //     vCurPlSelectionCntr = reply['plSelectionCntr'];
-  //     vCurTracksRmMvCpCntr = reply['TracksRmMvCpCntr'];
-  //   }
-  // }
 
   //-----------------------------------------------------------------------------------------------
   async function tabs_afRemoveTracks(rmTracksList)

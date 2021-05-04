@@ -397,35 +397,6 @@
   async function plTab_afIncPlSelectionCntr()
   {
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
-    // try
-    // {
-    //   // console.log('__SF__plTab_afIncPlSelectionCntr()');
-    //   console.log('__SF__plTab_afIncPlSelectionCntr() - vUrl - incPlSelectionCntr');
-    //   let response = await fetch(vUrl, {
-    //     method: 'POST', headers: {'Content-Type': 'application/json',},
-    //     body: JSON.stringify({incPlSelectionCntr: 'incPlSelectionCntr'}),
-    //   });
-    //   if (!response.ok)
-    //     tabs_throwErrHttp('plTab_afIncPlSelectionCntr()', response.status, 'plTab_errInfo');
-    //   else
-    //   {
-    //     let reply = await response.json();
-    //     // console.log('__SF__plTab_afIncPlSelectionCntr() reply = ', reply);
-    //     if (reply['errRsp'][0] !== 1)
-    //       tabs_throwSvrErr('plTab_afIncPlSelectionCntr()', reply['errRsp'], 'plTab_errInfo')
-    //   }
-    // }
-    // catch(err)
-    // {
-    //   // console.log('__SF__plTab_afActivate() caught error: ', err);
-    //   tabs_errHandler(err);
-    // }
-    // finally
-    // {
-    //   console.log('__SF__plTab_afIncPlSelectionCntr() finally.');
-    //   tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
-    // }
-
   }
 
   //-----------------------------------------------------------------------------------------------

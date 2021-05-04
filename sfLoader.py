@@ -61,8 +61,6 @@ class SpfLoader():
     session['mArtistDict'] = {}
     session['mArtistTrackList'] = []
 
-    # session['mPlSelectionCntr'] = 1
-    # session['mTracksRmMvCpCntr'] = 1
     session['mErrLog'] = []
 
     # errDesc = []
@@ -469,38 +467,6 @@ class SpfLoader():
   def getDateTm(this):
     return datetime.datetime.now().strftime("%Y/%m/%d   %I:%M:%S  %f")
 
-  # # ---------------------------------------------------------------
-  # def incTracksRmMvCpCntr(this):
-  #   # print('>>loader.incTracksRmMvCpCntr()')
-  #   session['mTracksRmMvCpCntr'] += 1
-  #
-  # # ---------------------------------------------------------------
-  # def incPlSelectionCntr(this):
-  #   try:
-  #     # print('>>loader.incPlSelectionCntr()')
-  #     # raise Exception('throwing loader.incPlSelectionCntr()')
-  #     session['mPlSelectionCntr'] += 1
-  #     return  [sfConst.errNone]
-  #   except Exception:
-  #     tupleExc = sys.exc_info()
-  #     retVal = [sfConst.errIncPlSelectionCntr, this.getDateTm(), 'incPlSelectionCntr()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
-  #     # pprint.pprint(retVal) #pprint sorts on key
-  #     this.addErrLogEntry(retVal)
-  #     return retVal
-  #
-  # # ---------------------------------------------------------------
-  # def getCntrs(this):
-  #   try:
-  #     print('>>loader.getCntrs()')
-  #     # raise Exception('throwing loader.getCntrs()')
-  #     return [sfConst.errNone], session['mPlSelectionCntr'], session['mTracksRmMvCpCntr']
-  #   except Exception:
-  #     tupleExc = sys.exc_info()
-  #     retVal = [sfConst.errGetCntrs, this.getDateTm(), 'getCntrs()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
-  #     # pprint.pprint(retVal) #pprint sorts on key
-  #     this.addErrLogEntry(retVal)
-  #     return retVal, 0, 0
-
   # ---------------------------------------------------------------
   def getErrLog(this):
     try:
@@ -816,8 +782,6 @@ class SpfLoader():
       # raise Exception('throwing loader.removeTracks()')
       plIdsCompleted = []
       spotRmTrackList = []
-      # this.incPlSelectionCntr()    # trigger for reloading tracks, dups, artist
-      # this.incTracksRmMvCpCntr()  # trigger for reloading playlists
       # raise Exception('throwing loader.removeTracks()')
       for item1 in rmTrackList:  # for each unique plId in the list
         spotRmTrackList.clear()

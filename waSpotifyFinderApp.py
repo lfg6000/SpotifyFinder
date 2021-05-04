@@ -254,11 +254,6 @@ def Tabs():
         retVal = oLoader.setPlSelectedDict(newPlSelectedDict)
         return jsonify({ 'errRsp': retVal })
 
-      # if (key == 'getCntrs'):
-      #   print('>>/Tabs getCntrs')
-      #   retVal, plSelectionCntr, TracksRmMvCpCntr = oLoader.getCntrs()
-      #   return jsonify({ 'errRsp': retVal, 'plSelectionCntr': plSelectionCntr, 'TracksRmMvCpCntr': TracksRmMvCpCntr })
-
       if (key == 'loadSpotifyInfo'):
         # print('>>/Tabs loadSpotifyInfo')
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo()
@@ -276,11 +271,6 @@ def Tabs():
         # print('>>/Tabs getPlDict')
         retVal, plDict, nPlaylists, nTracks, userList = oLoader.getPlDict()
         return jsonify({ 'errRsp': retVal, 'plDict': plDict , 'NPlaylists': nPlaylists, 'NTracks': nTracks, 'userList': userList })
-
-      # if (key == 'incPlSelectionCntr'):
-      #   print('>>/Tabs incPlSelectionCntr')
-      #   retVal = oLoader.incPlSelectionCntr()
-      #   return jsonify({ 'errRsp': retVal })
 
       if (key == 'removeTracks'):
         # print('>>/Tabs removeTracks()')
