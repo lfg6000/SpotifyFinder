@@ -235,8 +235,8 @@ def Tabs():
       if (key == 'loadPlTracks'):
         # print('>>/Tabs loadPlTracks()')
         retVal = oLoader.loadPlTracks()
-        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-          oLoader.updateDbVisitCnt(mysql, 'Tracks')
+        # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):  # ;loadPlTracks() is called too often to log
+        #   oLoader.updateDbVisitCnt(mysql, 'Tracks')
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getPlSelectedDict'):
