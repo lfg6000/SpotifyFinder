@@ -3,13 +3,13 @@
 /.idea/
 /build/
 /dist/
-/WA_SpotifyFinder_GitDb_PreGitHub/
-/templates/helper.txt
+/table_exports/
 /.lfg_work_dir/
 /flask_session/
-/flask_session_old/
+/WA_SpotifyFinder_GitDb_PreGitHub/
 
 .cache
+/templates/helper.txt
 lfgDbCmds.txt
 lfgReadMe.txt
 lfgReadMePa.txt
