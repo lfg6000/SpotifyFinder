@@ -30,6 +30,7 @@ errFindDups = -22
 errGetDupsTrackList = -23
 errSqlErr = -24
 errMvCpTracks = -25
+errLoadPlTracks1x = -26
 
 
 # ---------------------------------------------------------------

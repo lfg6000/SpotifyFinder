@@ -160,6 +160,7 @@
 
       if (vLastPlSelectionCntrArtistsTab !== curPlSelectionCntr)
       {
+        vArtistNamesTable.keys.disable();
         vLastPlSelectionCntrArtistsTab = curPlSelectionCntr;
         vArtistNameTableLastSelectedRow = 0;
         vArtistsTabLoading = true;
@@ -174,7 +175,7 @@
         //   1) loadPlTracks -> loadPlTracks, 2) loadPlNames -> getPlSelectedDict, 3) loadPlTracks -> getTrackList
         // console.log('__SF__artistsTab_afActivate() - loading started');
 
-        tabs_set2Labels('artistsTab_info1', 'Loading', 'artistsTab_info2', 'Loading');
+        tabs_set2Labels('artistsTab_info1', 'Loading...', 'artistsTab_info2', 'Loading...');
         tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Loading Artists...', showStrImmed=true);
 
         $('#artistsTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
@@ -276,6 +277,12 @@
   function artistsTab_plNameTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistNamesTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
+    if (vArtistsTabLoading === true) // needed when doing a initial load or reload of both tables
+    {
+      // console.log('artistsTab_plNameTableSelect() - exiting - loading is true');
+      return;
+    }
+
     // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - artistNamesTable row select indexes = ', indexes);
     let rowData = $('#artistNamesTable').DataTable().row(indexes).data();
     artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[1]);
@@ -485,6 +492,8 @@
   function artistsTab_btnRefresh()
   {
     // console.log('__SF__artistsTab_btnRefresh()');
+    artistsTab_btnClearSearchArtistNameOnClick();
+    artistsTab_btnClearSearchTracksOnClick();
     let rowData = vArtistTracksTable.row(0).data();
     // console.log('__SF__artistsTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
     vArtistTracksTable.order([2, 'asc']); // go back to default, sort on playlist name

@@ -148,10 +148,12 @@
       tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
       tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
+      await plTab_afUpdatePlSelectedDict();
       vPlTable.order([]); // remove sorting
       vPlTable.clear().draw();
       await plTab_afLoadPlTable();
       await plTab_afRestorePlTableCkboxes();
+      plTabs_updateSelectedCntInfo();
     }
     catch(err)
     {
@@ -266,21 +268,40 @@
     if (vUrl.search("127.0.0.1") > 0)
     {
       // for testing on a local host we only select the first 6 playlists
-      setCkCnt = 6;
+      setCkCnt = 10;
     }
 
+    let plListNotAutoSelected = false;
     vPlTable.rows().every(function ()
     {
       // console.log(this.data());
       let rowData = this.data()
       if (rowData[6] === vUserId) // ownerId === vUserId
-        if (cnt < setCkCnt)
+      {
+        if (rowData[2] <= 1000) // number of tracks in playlist
         {
-          // vPlTable.row(idx).select();
-          this.select();
-          cnt += 1;
+          if (cnt < setCkCnt)
+          {
+            // vPlTable.row(idx).select();
+            this.select();
+            cnt += 1;
+          }
         }
+        else
+        {
+          plListNotAutoSelected = true;
+        }
+      }
     });
+
+    if (plListNotAutoSelected == true)
+    {
+      $("#plTab_info3").text("Playlists that you own with > 1000 tracks are not autmatically selected.");
+      setTimeout(function ()
+      {
+        $("#plTab_info3").text('');
+      }, 3000);
+    }
     vPlTabLoading = false;
   }
 
@@ -336,6 +357,7 @@
   function plTabs_btnRefresh()
   {
     // console.log('__SF__plTabs_btnRefresh()');
+    plTabs_btnClearSearchPlOnClick();
     plTab_afRefresh();
   }
 

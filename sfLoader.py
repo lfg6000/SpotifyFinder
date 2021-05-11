@@ -583,6 +583,8 @@ class SpfLoader():
           if id not in session['mPlDictOwnersList']:
             session['mPlDictOwnersList'].append(id)
         idx += 50
+        if (idx > 699):
+          break;
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlDict.json', 'w') as f:
       #   json.dump(session['mPlDict'], f)
@@ -603,6 +605,23 @@ class SpfLoader():
       # print('>>loader.getPlSelectedDict()')
       # raise Exception('throwing loader.getPlSelectedDict()')
       return [sfConst.errNone], session['mPlSelectedDict']
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errGetPlSelectedDict, this.getDateTm(), 'getPlSelectedDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal, []
+
+  # ---------------------------------------------------------------
+  def getPlSelectedDictNotLoaded(this):
+    try:
+      # print('>>loader.getPlSelectedDictNotLoaded()')
+      # raise Exception('throwing loader.getPlSelectedDictNotLoaded()')
+      plSelectedDictNotLoaded = {}
+      for plSelectedId, plSelectedDictVals in session['mPlSelectedDict'].items():
+        if plSelectedId not in session['mPlTracksDict']:  # did we already loaded the tracks for the pl
+          plSelectedDictNotLoaded[plSelectedId] = plSelectedDictVals
+
+      return [sfConst.errNone], plSelectedDictNotLoaded
     except Exception:
       tupleExc = sys.exc_info()
       retVal = [sfConst.errGetPlSelectedDict, this.getDateTm(), 'getPlSelectedDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
@@ -636,8 +655,8 @@ class SpfLoader():
     return session['mPlTracksDict']
 
   # ---------------------------------------------------------------
-  def loadPlTracks(this):
-    # print('>>loader.loadPlTracks()')
+  def loadPlTracks1x(this, plId):
+    # print('>>loader.loadPlTracks1x()')
     # mPlTracksDict['plId'] = trackList[]
     #   - one trackList[] for each playlist
     # trackList[] = each list entry is dict of track values
@@ -645,80 +664,168 @@ class SpfLoader():
     #   - we are using a list because because a single playlist can have duplicates
 
     try:
-      # raise Exception('throwing loader.loadPlTracks()')
-      plTracksAlreadyLoaded = 0
-      for plSelectedId, plSelectedDictVals in session['mPlSelectedDict'].items():
-        if plSelectedId in session['mPlTracksDict']:  # did we already loaded the tracks for the pl
-          # print('>>loader.loadPlTracks() - skipping tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
-          plTracksAlreadyLoaded += 1
-          continue
+      # raise Exception('throwing loader.loadPlTracks1x()')
 
-        # print('>>loader.loadPlTracks() - fetching tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
+      if plId in session['mPlTracksDict']:  # did we already load the tracks for the pl
+        return [sfConst.errNone]
 
-        idx = 0
-        dur = 0
-        done = False
-        tracksList = []
+      idx = 0
+      dur = 0
+      done = False
+      tracksList = []
 
-        # lots of tracks have an available_markets list with 0 entries but not all
-        # maybe we need to pass a market param (country code) in the .playlist_items() call and get back track linking info
-        # you need the 'user-read-private ' scope to get the country code
-        # countryCode = session['mUserCountry']
+      # lots of tracks have an available_markets list with 0 entries but not all
+      # maybe we need to pass a market param (country code) in the .playlist_items() call and get back track linking info
+      # you need the 'user-read-private ' scope to get the country code
+      # countryCode = session['mUserCountry']
 
-        plValues = session['mPlDict'].get(plSelectedId)  # need the ownerName and ownerId
-        trackCnt = 0
-        while (False == done):
-          # spotify only returns 100 tracks at a time so we loop until we have them all
-          # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
-          # tracks = this.oAuthGetSpotifyObj().user_playlist_tracks(playlist_id=plId)
-          # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
+      plValues = session['mPlDict'].get(plId)  # need the ownerName and ownerId
+      trackCnt = 0
+      while (False == done):
+        # spotify only returns 100 tracks at a time so we loop until we have them all
+        # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
+        # tracks = this.oAuthGetSpotifyObj().user_playlist_tracks(playlist_id=plId)
+        # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
 
-          tracks = this.oAuthGetSpotifyObj().playlist_items(plSelectedId, limit=100, offset=idx)
-          if (len(tracks['items']) < 100):
-            done = True
+        tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx)
+        if (len(tracks['items']) < 100):
+          done = True
 
-          for item in tracks['items']:
-            track = item['track']
-            # we do not have the users countryCode because we do not ask for that permission
-            # if countryCode not in track['available_markets']:
-            #   continue
+        for item in tracks['items']:
+          if (item['track'] == None):
+            continue;
 
-            # a daily wellness playlist from spotify had a podcast episode in the middle of a bunch of songs
-            # we are ignoring podcast episodes.  track['type'] can be 'track' or 'episode'
-            if (track['type'] != 'track'):  # a daily wellness playlist from spotify had a
-              continue
-            tracksList.append({'Track Id': track['id'],
-                               'Playlist Id': plSelectedId,
-                               'Playlist Name': plValues['Playlist Name'],
-                               'Track Name': track['name'],
-                               'Track Position': (str(trackCnt)).zfill(4),
-                               'Album Name': track['album']['name'],
-                               'Album Id': track['album']['id'],
-                               'Artist Name': track['artists'][0]['name'],
-                               'Artist Id': track['artists'][0]['id'],
-                               'Duration': track['duration_ms'],
-                               'Duration Hms': this.msToHms(track['duration_ms'], 0),
-                               'Track Uri': track['uri'],
-                               'Playlist Owners Name': plValues['Playlist Owners Name'],
-                               'Playlist Owners Id': plValues['Playlist Owners Id']
-                               })
+          track = item['track']
+          # we do not have the users countryCode because we do not ask for that permission
+          # if countryCode not in track['available_markets']:
+          #   continue
 
-            trackCnt += 1
-            dur += item['track']['duration_ms']
-          idx += 100
+          # a daily wellness playlist from spotify had a podcast episode in the middle of a bunch of songs
+          # we are ignoring podcast episodes.  track['type'] can be 'track' or 'episode'
+          if (track['type'] != 'track'):  # a daily wellness playlist from spotify had a
+            continue
+          tracksList.append({'Track Id': track['id'],
+                             'Playlist Id': plId,
+                             'Playlist Name': plValues['Playlist Name'],
+                             'Track Name': track['name'],
+                             'Track Position': (str(trackCnt)).zfill(4),
+                             'Album Name': track['album']['name'],
+                             'Album Id': track['album']['id'],
+                             'Artist Name': track['artists'][0]['name'],
+                             'Artist Id': track['artists'][0]['id'],
+                             'Duration': track['duration_ms'],
+                             'Duration Hms': this.msToHms(track['duration_ms'], 0),
+                             'Track Uri': track['uri'],
+                             'Playlist Owners Name': plValues['Playlist Owners Name'],
+                             'Playlist Owners Id': plValues['Playlist Owners Id']
+                             })
 
-        plValues['Duration'] = this.msToHms(dur, 1)
-        session['mPlTracksDict'][plSelectedId] = tracksList
-      # print('>>loader.loadPlTracks() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
+          trackCnt += 1
+          dur += item['track']['duration_ms']
+        idx += 100
+        # print('track fetch loop idx = ', idx)
+
+      plValues['Duration'] = this.msToHms(dur, 1)
+      session['mPlTracksDict'][plId] = tracksList
+      # print('>>loader.loadPlTracks1x() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlTracksDict.json', 'w') as f:
       #   json.dump(session['mPlTracksDict'], f)
       return [sfConst.errNone]
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errLoadPlTracks, this.getDateTm(), 'loadPlTracks()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errLoadPlTracks1x, this.getDateTm(), 'loadPlTracks1x()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal
+
+  # # ---------------------------------------------------------------
+  # def loadPlTracks(this):
+  #   # print('>>loader.loadPlTracks()')
+  #   # mPlTracksDict['plId'] = trackList[]
+  #   #   - one trackList[] for each playlist
+  #   # trackList[] = each list entry is dict of track values
+  #   #   - one track dict in the list for each track in the playlist
+  #   #   - we are using a list because because a single playlist can have duplicates
+  #
+  #   try:
+  #     # raise Exception('throwing loader.loadPlTracks()')
+  #     plTracksAlreadyLoaded = 0
+  #     for plSelectedId, plSelectedDictVals in session['mPlSelectedDict'].items():
+  #       if plSelectedId in session['mPlTracksDict']:  # did we already loaded the tracks for the pl
+  #         # print('>>loader.loadPlTracks() - skipping tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
+  #         plTracksAlreadyLoaded += 1
+  #         continue
+  #
+  #       # print('>>loader.loadPlTracks() - fetching tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
+  #
+  #       idx = 0
+  #       dur = 0
+  #       done = False
+  #       tracksList = []
+  #
+  #       # lots of tracks have an available_markets list with 0 entries but not all
+  #       # maybe we need to pass a market param (country code) in the .playlist_items() call and get back track linking info
+  #       # you need the 'user-read-private ' scope to get the country code
+  #       # countryCode = session['mUserCountry']
+  #
+  #       plValues = session['mPlDict'].get(plSelectedId)  # need the ownerName and ownerId
+  #       trackCnt = 0
+  #       while (False == done):
+  #         # spotify only returns 100 tracks at a time so we loop until we have them all
+  #         # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
+  #         # tracks = this.oAuthGetSpotifyObj().user_playlist_tracks(playlist_id=plId)
+  #         # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
+  #
+  #         tracks = this.oAuthGetSpotifyObj().playlist_items(plSelectedId, limit=100, offset=idx)
+  #         if (len(tracks['items']) < 100):
+  #           done = True
+  #
+  #         for item in tracks['items']:
+  #           if (item['track'] == None):
+  #             continue;
+  #
+  #           track = item['track']
+  #           # we do not have the users countryCode because we do not ask for that permission
+  #           # if countryCode not in track['available_markets']:
+  #           #   continue
+  #
+  #           # a daily wellness playlist from spotify had a podcast episode in the middle of a bunch of songs
+  #           # we are ignoring podcast episodes.  track['type'] can be 'track' or 'episode'
+  #           if (track['type'] != 'track'):  # a daily wellness playlist from spotify had a
+  #             continue
+  #           tracksList.append({'Track Id': track['id'],
+  #                              'Playlist Id': plSelectedId,
+  #                              'Playlist Name': plValues['Playlist Name'],
+  #                              'Track Name': track['name'],
+  #                              'Track Position': (str(trackCnt)).zfill(4),
+  #                              'Album Name': track['album']['name'],
+  #                              'Album Id': track['album']['id'],
+  #                              'Artist Name': track['artists'][0]['name'],
+  #                              'Artist Id': track['artists'][0]['id'],
+  #                              'Duration': track['duration_ms'],
+  #                              'Duration Hms': this.msToHms(track['duration_ms'], 0),
+  #                              'Track Uri': track['uri'],
+  #                              'Playlist Owners Name': plValues['Playlist Owners Name'],
+  #                              'Playlist Owners Id': plValues['Playlist Owners Id']
+  #                              })
+  #
+  #           trackCnt += 1
+  #           dur += item['track']['duration_ms']
+  #         idx += 100
+  #         # print('track fetch loop idx = ', idx)
+  #
+  #       plValues['Duration'] = this.msToHms(dur, 1)
+  #       session['mPlTracksDict'][plSelectedId] = tracksList
+  #     # print('>>loader.loadPlTracks() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
+  #
+  #     # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlTracksDict.json', 'w') as f:
+  #     #   json.dump(session['mPlTracksDict'], f)
+  #     return [sfConst.errNone]
+  #   except Exception:
+  #     tupleExc = sys.exc_info()
+  #     retVal = [sfConst.errLoadPlTracks, this.getDateTm(), 'loadPlTracks()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+  #     this.addErrLogEntry(retVal)
+  #     return retVal
 
   # ---------------------------------------------------------------
   def getTrackList(this, plId):
@@ -764,7 +871,7 @@ class SpfLoader():
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
       del session['mPlTracksDict'][plId]
-      retVal = this.loadPlTracks()
+      retVal = this.loadPlTracks1x(plId)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
       return [sfConst.errNone]
@@ -859,7 +966,7 @@ class SpfLoader():
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
         del session['mPlTracksDict'][plIdDest]
-        retVal = this.loadPlTracks()
+        retVal = this.loadPlTracks1x(plIdDest)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
       return [sfConst.errNone]

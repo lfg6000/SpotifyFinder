@@ -232,17 +232,28 @@ def Tabs():
         retVal, artistTrackList = oLoader.getArtistTrackList()
         return jsonify({ 'errRsp': retVal, 'artistTrackList': artistTrackList})
 
-      if (key == 'loadPlTracks'):
-        # print('>>/Tabs loadPlTracks()')
-        retVal = oLoader.loadPlTracks()
-        # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):  # ;loadPlTracks() is called too often to log
-        #   oLoader.updateDbVisitCnt(mysql, 'Tracks')
+      # if (key == 'loadPlTracks'):
+      #   # print('>>/Tabs loadPlTracks()')
+      #   retVal = oLoader.loadPlTracks()
+      #   # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):  # ;loadPlTracks() is called too often to log
+      #   #   oLoader.updateDbVisitCnt(mysql, 'Tracks')
+      #   return jsonify({ 'errRsp': retVal})
+
+      if (key == 'loadPlTracks1x'):
+        # print('>>/Tabs loadPlTracks1x()')
+        plId = rqJson['plId']
+        retVal = oLoader.loadPlTracks1x(plId)
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getPlSelectedDict'):
         # print('>>/Tabs getPlSelectedDict')
         retVal, plSelectedDict = oLoader.getPlSelectedDict()
         return jsonify({ 'errRsp': retVal, 'plSelectedDict': plSelectedDict })
+
+      if (key == 'getPlSelectedDictNotLoaded'):
+        # print('>>/Tabs getPlSelectedDictNotLoaded')
+        retVal, plSelectedDictNotLoaded = oLoader.getPlSelectedDictNotLoaded()
+        return jsonify({ 'errRsp': retVal, 'plSelectedDictNotLoaded': plSelectedDictNotLoaded })
 
       if (key == 'getTrackList'):
         plId = rqJson['plId']

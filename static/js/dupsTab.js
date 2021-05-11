@@ -96,7 +96,7 @@
         vDupsTable.clear().draw();
 
         // console.log('__SF__dupsTab_afActivate() - start loading');
-        tabs_set2Labels('dupsTab_info1', 'Loading', 'dupsTab_info2', 'Loading');
+        tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
         tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
         await tracksTab_afLoadPlTracks();
@@ -170,7 +170,7 @@
       vDupsTable.clear().draw();
 
       // console.log('__SF__dupsTab_afFindDupsSeq() - start loading');
-      tabs_set2Labels('dupsTab_info1', 'Loading', 'dupsTab_info2', 'Loading');
+      tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
       await dupsTab_afFindDups();
@@ -360,6 +360,7 @@
   function dupsTab_btnRefresh()
   {
     // console.log('__SF__dupsTab_btnRefresh()');
+    dupsTab_btnClearSearchPlOnClick();
     dupsTab_afLoadDupsTableSeq();
   }
 

@@ -129,7 +129,7 @@
   //-----------------------------------------------------------------------------------------------
   function tracksTab_selectRow()
   {
-    //console.log('__SF__tracksTab_selectRow()');
+    // console.log('__SF__tracksTab_selectRow()');
     // issue:
     //  - when clicking on a name row the selection is not remembered when switching back to this tab
     //  - when arrow up/dn on a name row the selection is remembered when switching back to this tab
@@ -160,6 +160,7 @@
 
       if (vLastPlSelectionCntrTracksTab !== curPlSelectionCntr)
       {
+        vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
         vLastPlSelectionCntrTracksTab = curPlSelectionCntr;
         vPlNameTableLastSelectedRow = 0;
         vTracksTabLoading = true;
@@ -174,15 +175,14 @@
         // this will start a chain of async calls
         //   1) loadPlTracks -> loadPlTracks, 2) loadPlNames -> getPlSelectedDict, 3) loadPlTracks -> getTrackList
         // console.log('__SF__tracksTab_afActivate() - start loading');
-        tabs_set2Labels('tracksTab_info1', 'Loading', 'tracksTab_info2', 'Loading');
+        tabs_set2Labels('tracksTab_info1', 'Loading...', 'tracksTab_info2', 'Loading...');
         tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...', showStrImmed=true);
 
         $('#tracksTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
 
-        await tracksTab_afLoadPlTracks();
         await tracksTab_afLoadPlNameTable();
-        await tracksTab_afLoadTracksTable(plId = '');
-
+        await tracksTab_afLoadPlTracks();
+        await tracksTab_afLoadTracksTable(plId='');
         // console.log('__SF__tracksTab_afActivate() - loading done - exit');
       }
     }
@@ -200,21 +200,51 @@
     }
   }
 
+  // //-----------------------------------------------------------------------------------------------
+  // async function tracksTab_afLoadPlTracks()
+  // {
+  //   // console.log('__SF__tracksTab_afLoadPlTracks()');
+  //   console.log('__SF__tracksTab_afLoadPlTracks() - vUrl - loadPlTracks');
+  //   let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+  //                                      body: JSON.stringify({ loadPlTracks: 'loadPlTracks' }), });
+  //   if (!response.ok)
+  //     tabs_throwErrHttp('tracksTab_afLoadPlTracks()', response.status, 'tracksTab_errInfo');
+  //   else
+  //   {
+  //     let reply = await response.json();
+  //     // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
+  //     if (reply['errRsp'][0] !== 1)
+  //       tabs_throwSvrErr('tracksTab_afLoadPlTracks()', reply['errRsp'], 'tracksTab_errInfo')
+  //   }
+  // }
+
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadPlTracks()
   {
-    // console.log('__SF__tracksTab_afLoadPlTracks()');
-    console.log('__SF__tracksTab_afLoadPlTracks() - vUrl - loadPlTracks');
+    console.log('__SF__tracksTab_afLoadPlTracks()');
+    let plSelectedDictNotLoaded = await tracksTab_afGetPlSelectedDictNotLoaded();
+    // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDictNotLoaded = \n' + JSON.stringify(plSelectedDictNotLoaded, null, 4));
+    // for (let plId in plSelectedDictNotLoaded)
+    for (const [plId, value] of Object.entries(plSelectedDictNotLoaded))
+      await tracksTab_afLoadPlTracks1x(plId, value['Playlist Name']);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afLoadPlTracks1x(plId, plName)
+  {
+    // console.log('__SF__tracksTab_afLoadPlTracks1x()');
+    // console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x plId = ' + plId + ', playlistName = ' + plName);
+    // console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ loadPlTracks: 'loadPlTracks' }), });
+                                       body: JSON.stringify({ loadPlTracks1x: 'loadPlTracks1x', plId: plId }), });
     if (!response.ok)
-      tabs_throwErrHttp('tracksTab_afLoadPlTracks()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tracksTab_afLoadPlTracks1x()', response.status, 'tracksTab_errInfo');
     else
     {
       let reply = await response.json();
-      // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
+      // console.log('__SF__tracksTab_afLoadPlTracks1x() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tracksTab_afLoadPlTracks()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tracksTab_afLoadPlTracks1x()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 
@@ -224,49 +254,37 @@
     // console.log('__SF__tracksTab_afLoadPlNameTable()');
     // vPlNamesTable.clear().draw(); // this does not work well here
 
-    console.log('__SF__tracksTab_afLoadPlNameTable() - vUrl - getPlSelectedDict');
-    let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
-                                      body: JSON.stringify({getPlSelectedDict: 'getPlSelectedDict'}),});
-    if (!response.ok)
-      tabs_throwErrHttp('tracksTab_afLoadPlNameTable()', response.status, 'tracksTab_errInfo');
-    else
+    let plSelectedDict = await tracksTab_afLoadPlSelectedDict();
+
+    // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDict = \n' + JSON.stringify(plSelectedDict, null, 4));
+    $.each(plSelectedDict, function (key, values)
     {
-      let reply = await response.json();
-      // console.log('__SF__tracksTab_afLoadPlNameTable() reply = ', reply);
-      if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tracksTab_afLoadPlNameTable()', reply['errRsp'], 'tracksTab_errInfo')
+      vPlNamesTable.row.add([values['Playlist Name'], key]);
+    })
+    vPlNamesTable.draw();
 
-      let plSelectedDict = reply['plSelectedDict']
-      // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDict = \n' + JSON.stringify(plSelectedDict, null, 4));
-      $.each(plSelectedDict, function (key, values)
-      {
-        vPlNamesTable.row.add([values['Playlist Name'], key]);
-      })
-      vPlNamesTable.draw();
-
-      if (Object.keys(plSelectedDict).length === 0)
-      {
-        // console.log('__SF__tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
-        return;
-      }
-
-      vPlNamesTable.cell(':eq(0)').focus();
-      // vPlNamesTable.row(':eq(0)').select();
-
-      // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + JSON.stringify(plSelectedDict, null, 4));
-      $.each(plSelectedDict, function (key, item)
-      {
-        if (item['Playlist Owners Id'] == vUserId)
-        {
-          idNm = key + '::::' + item['Playlist Name']
-          // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
-          plNm = item['Playlist Name']
-          if (plNm.length > 44)
-            plNm = plNm.slice(0, 44) + '...'
-          $('#tracksTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
-        }
-      });
+    if (Object.keys(plSelectedDict).length === 0)
+    {
+      // console.log('__SF__tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
+      return;
     }
+
+    vPlNamesTable.cell(':eq(0)').focus();
+    // vPlNamesTable.row(':eq(0)').select();
+
+    // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + JSON.stringify(plSelectedDict, null, 4));
+    $.each(plSelectedDict, function (key, item)
+    {
+      if (item['Playlist Owners Id'] == vUserId)
+      {
+        idNm = key + '::::' + item['Playlist Name']
+        // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
+        plNm = item['Playlist Name']
+        if (plNm.length > 44)
+          plNm = plNm.slice(0, 44) + '...'
+        $('#tracksTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
+      }
+    });
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -274,8 +292,13 @@
   $('#plNamesTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__tracksTab_plNameTableRow_onSelect() - plNamesTable row select indexes = ', indexes);
+    if (vTracksTabLoading === true) // needed when doing a initial load or reload of both tables
+    {
+      // console.log('__SF__tracksTab_plNameTableRow_onSelect() - exiting - loading is true');
+      return;
+    }
     let rowData = $('#plNamesTable').DataTable().row(indexes).data();
-    tracksTab_afLoadTracksTableSeq(plId = rowData[1]);
+    tracksTab_afLoadTracksTableSeq(plId = rowData[1], plName = rowData[0]);
   });
 
   //-----------------------------------------------------------------------------------------------
@@ -295,18 +318,18 @@
   });
 
   // //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afLoadTracksTableSeq(plId)
+  async function tracksTab_afLoadTracksTableSeq(plId, plName)
   {
     try
     {
-      // console.log('__SF__tracksTab_afLoadTracksTableSeq() - plId = ' + plId');
+      // console.log('__SF__tracksTab_afLoadTracksTableSeq() - plId = ' + plId);
       vTracksTabLoading = true;
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks for selected playlist...', showStrImmed=false);
 
       // tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...');
-      await tracksTab_afLoadTracksTable(plId)
+      await tracksTab_afLoadTracksTable(plId, plName)
     }
     catch(err)
     {
@@ -323,15 +346,21 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afLoadTracksTable(plId = '')
+  async function tracksTab_afLoadTracksTable(plId = '', plName = '')
   {
     if (plId === '')
     {
       plId = vPlNamesTable.row(0).data()[1];
+      plName = vPlNamesTable.row(0).data()[0];
       // console.log('__SF__tracksTab_afLoadTracksTable() - using first row plId = ' + plId);
     }
 
+    infoStr2 = plName;
+    tabs_setLabel('tracksTab_info2', infoStr2);
+
+
     // vPlTracksTable.clear().draw();// this does not work well here
+    // console.log('__SF__tracksTab_afLoadTracksTable() - vUrl - getTrackList, plName = ', plName);
     console.log('__SF__tracksTab_afLoadTracksTable() - vUrl - getTrackList');
     let response = await fetch(vUrl, {  method: 'POST', headers: {'Content-Type': 'application/json',},
                                         body: JSON.stringify({getTrackList: 'getTrackList', plId: plId}),});
@@ -341,7 +370,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
+      // console.log('__SF__tracksTab_afLoadTracksTable() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afLoadTracksTable()', reply['errRsp'], 'tracksTab_errInfo')
 
@@ -462,6 +491,8 @@
   function tracksTab_btnRefresh()
   {
     // console.log('__SF__tracksTab_btnRefresh()');
+    tracksTab_btnClearSearchPlNameOnClick();
+    tracksTab_btnClearSearchTracksOnClick();
     let rowData = vPlTracksTable.row(0).data();
     // console.log('__SF__tracksTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
     vPlTracksTable.order([]); // remove sorting
@@ -655,5 +686,49 @@
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vtracksTabLoading = false;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afLoadPlSelectedDict()
+  {
+    // console.log('__SF__tracksTab_afLoadPlSelectedDict()');
+    // vPlNamesTable.clear().draw(); // this does not work well here
+
+    console.log('__SF__tracksTab_afLoadPlSelectedDict() - vUrl - getPlSelectedDict');
+    let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
+                                      body: JSON.stringify({getPlSelectedDict: 'getPlSelectedDict'}),});
+    if (!response.ok)
+      tabs_throwErrHttp('__SF__tracksTab_afLoadPlSelectedDict()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tracksTab_afLoadPlSelectedDict() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('__SF__tracksTab_afLoadPlSelectedDict()', reply['errRsp'], 'tracksTab_errInfo')
+
+      return reply['plSelectedDict']
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afGetPlSelectedDictNotLoaded()
+  {
+    // console.log('__SF__tracksTab_afGetPlSelectedDictNotLoaded()');
+    // vPlNamesTable.clear().draw(); // this does not work well here
+
+    console.log('__SF__tracksTab_afGetPlSelectedDictNotLoaded() - vUrl - getPlSelectedDictNotLoaded');
+    let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
+                                      body: JSON.stringify({getPlSelectedDictNotLoaded: 'getPlSelectedDictNotLoaded'}),});
+    if (!response.ok)
+      tabs_throwErrHttp('__SF__tracksTab_afGetPlSelectedDictNotLoaded()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tracksTab_afGetPlSelectedDictNotLoaded() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('__SF__tracksTab_afGetPlSelectedDictNotLoaded()', reply['errRsp'], 'tracksTab_errInfo')
+
+      return reply['plSelectedDictNotLoaded']
     }
   }
