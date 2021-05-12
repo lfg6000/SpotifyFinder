@@ -252,6 +252,7 @@ class SpfLoader():
       retVal = [sfConst.errSpotiyLogin, this.getDateTm(), 'oAuthCallback()', 'oAuthCallback failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       pprint.pprint(retVal) #pprint sorts on key
       # this.addErrLogEntry(retVal) # session not available yet
+      return
 
   # ---------------------------------------------------------------
   def oAuthGetToken(this, session):
@@ -340,28 +341,11 @@ class SpfLoader():
     # these are the sql cmds to create the database and it's one table with four columns
     # CREATE DATABASE IF NOT EXISTS `spotifyFinderDb` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
     # USE `spotifyFinderDb`;
-    #
-    # CREATE TABLE IF NOT EXISTS `uniqueUsers` (
-    #   `userId` varchar(30) NOT NULL,
-    #   `userName` varchar(30) NOT NULL,
-    #   `visitCnt` int NOT NULL,
-    #   `visitCntDups` int NOT NULL,
-    #   `visitCntArt` int NOT NULL,
-    #   `visitCntRm` int NOT NULL,
-    #   `playlistCnt` int NOT NULL,
-    #   `playlistCntUsr` int NOT NULL,
-    #   `totalTrackCnt` int NOT NULL,
-    #   `totalTrackCntUsr` int NOT NULL,
-    #   `lastVisit` DATETIME  NOT NULL,
-    #   PRIMARY KEY (`userId`)
-    # ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
-
-
-
 
     # see notes in waSpotifyFinderApp about db connections...when the request (route) finishes the db connection will be automatically closed
     cursor = None
     try:
+      # raise Exception('throwing loader.updateDbUniqueSpotifyInfo()')
 
       # if sMySqlDbName is empty we are not configure to use a db
       if (this.sMySqlDbName == ''):
@@ -408,15 +392,20 @@ class SpfLoader():
     except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
       retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbUniqueSpotifyInfo()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
       this.addErrLogEntry(retVal)
+      return
     except:
       retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbUniqueSpotifyInfo()', 'Failed to set unique spotify info.', 'updateDbUniqueSpotifyInfo - unknown error ', ' ', ' ']
       this.addErrLogEntry(retVal)
+      return
 
   # ---------------------------------------------------------------
   def updateDbVisitCnt(this, mysql, cntType):
     # print('>>loader.updateDbVisitCnt()')
+
     cursor = None
     try:
+      # raise Exception('throwing loader.updateDbVisitCnt()')
+
       # if sMySqlDbName is empty we are not configure to use a db
       if (this.sMySqlDbName == ''):
         return
@@ -464,9 +453,11 @@ class SpfLoader():
     except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
       retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
       this.addErrLogEntry(retVal)
+      return
     except:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', 'updateDbUniqueSpotifyInfo - unknown error ', ' ', ' ']
+      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', 'updateDbVisitCnt - unknown error ', ' ', ' ']
       this.addErrLogEntry(retVal)
+      return
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
@@ -519,6 +510,9 @@ class SpfLoader():
     # [5] = string or None, tupleExc[1] from sys.exc_info()
     # [6] = string or None, tupleExc[2] from sys.exc_info()
     # entry[1] = datetime.datetime.now().strftime("%Y/%m/%d   %H:%M:%S  %f")
+    entry.insert(2, session['mUserName'])
+    entry.insert(3, session['mUserId'])
+    entry.insert(4, session.sid)
     pprint.pprint(entry)  # pprint sorts on key,  this will show up in pythonAnywhere server log file
     session['mErrLog'].append(entry)
 
@@ -539,61 +533,108 @@ class SpfLoader():
       return retVal, [], 0, 0, []
 
   # ---------------------------------------------------------------
-  def loadPlDict(this, clean=True):
+  # def loadPlDict(this, clean=True):
+  #   # print('>>loader.loadPlDict()')
+  #
+  #   try:
+  #     # raise Exception('throwing loader.loadPlDict() - playlist dict load error')
+  #
+  #     # clear dict if this a reload
+  #     session['mPlDict'].clear()
+  #     session['mTotalTrackCnt'] = 0
+  #
+  #     if clean == True:
+  #       session['mPlSelectedDict'].clear()
+  #       session['mPlTracksDict'].clear()
+  #
+  #     idx = 0
+  #     done = False
+  #     while (done == False):
+  #       # spotify only returns 50 playlists at a time so we loop until we have them all
+  #       # 'https://api.spotify.com/v1/me/playlists'
+  #       results = this.oAuthGetSpotifyObj().current_user_playlists(limit=50, offset=idx)
+  #       # print('>>num playlist fetched = ' + str(len(results['items'])))
+  #       if (len(results['items']) < 50):
+  #         done = True
+  #
+  #       for i, item in enumerate(results['items']):
+  #         pub = 'Public' if item['public'] == True else 'Private'
+  #         ownerId = item['owner']['id']
+  #         ownerNm = item['owner']['display_name']
+  #         session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
+  #                                           'Playlist Name': item['name'],
+  #                                           'Playlist Owners Name': ownerNm,
+  #                                           'Playlist Owners Id': ownerId,
+  #                                           'Public': pub,
+  #                                           'Snapshot Id': item['snapshot_id'],
+  #                                           'Tracks': str(item['tracks']['total']),
+  #                                           'Duration': '0'}
+  #         session['mTotalTrackCnt'] += item['tracks']['total']
+  #         if (ownerId == session['mUserId']):
+  #           session['mPlaylistCntUsr'] += 1
+  #           session['mTotalTrackCntUsr'] += item['tracks']['total']
+  #         id = ownerNm + ' / ' + ownerId
+  #         if id not in session['mPlDictOwnersList']:
+  #           session['mPlDictOwnersList'].append(id)
+  #       idx += 50
+  #       if (idx > 699):
+  #         break;
+  #
+  #     # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlDict.json', 'w') as f:
+  #     #   json.dump(session['mPlDict'], f)
+  #     return [sfConst.errNone]
+  #   except Exception:
+  #     tupleExc = sys.exc_info()
+  #     retVal = [sfConst.errLoadPlDict, this.getDateTm(), 'loadPlDict()', 'Loading Playlists Failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+  #     this.addErrLogEntry(retVal)
+  #     return retVal
+
+  # ---------------------------------------------------------------
+  def loadPlDictBatch(this, idx):
     # print('>>loader.loadPlDict()')
 
     try:
       # raise Exception('throwing loader.loadPlDict() - playlist dict load error')
 
       # clear dict if this a reload
-      session['mPlDict'].clear()
-      session['mTotalTrackCnt'] = 0
+      if (idx == 0):
+        session['mPlDict'].clear()
+        session['mTotalTrackCnt'] = 0
 
-      if clean == True:
-        session['mPlSelectedDict'].clear()
-        session['mPlTracksDict'].clear()
+      # spotify only returns 50 playlists at a time so we loop until we have them all
+      # 'https://api.spotify.com/v1/me/playlists'
+      results = this.oAuthGetSpotifyObj().current_user_playlists(limit=50, offset=idx)
+      # print('>>num playlist fetched = ' + str(len(results['items'])))
+      nPlRxd = len(results['items'])
 
-      idx = 0
-      done = False
-      while (done == False):
-        # spotify only returns 50 playlists at a time so we loop until we have them all
-        # 'https://api.spotify.com/v1/me/playlists'
-        results = this.oAuthGetSpotifyObj().current_user_playlists(limit=50, offset=idx)
-        # print('>>num playlist fetched = ' + str(len(results['items'])))
-        if (len(results['items']) < 50):
-          done = True
-
-        for i, item in enumerate(results['items']):
-          pub = 'Public' if item['public'] == True else 'Private'
-          ownerId = item['owner']['id']
-          ownerNm = item['owner']['display_name']
-          session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
-                                            'Playlist Name': item['name'],
-                                            'Playlist Owners Name': ownerNm,
-                                            'Playlist Owners Id': ownerId,
-                                            'Public': pub,
-                                            'Snapshot Id': item['snapshot_id'],
-                                            'Tracks': str(item['tracks']['total']),
-                                            'Duration': '0'}
-          session['mTotalTrackCnt'] += item['tracks']['total']
-          if (ownerId == session['mUserId']):
-            session['mPlaylistCntUsr'] += 1
-            session['mTotalTrackCntUsr'] += item['tracks']['total']
-          id = ownerNm + ' / ' + ownerId
-          if id not in session['mPlDictOwnersList']:
-            session['mPlDictOwnersList'].append(id)
-        idx += 50
-        if (idx > 699):
-          break;
+      for i, item in enumerate(results['items']):
+        pub = 'Public' if item['public'] == True else 'Private'
+        ownerId = item['owner']['id']
+        ownerNm = item['owner']['display_name']
+        session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
+                                          'Playlist Name': item['name'],
+                                          'Playlist Owners Name': ownerNm,
+                                          'Playlist Owners Id': ownerId,
+                                          'Public': pub,
+                                          'Snapshot Id': item['snapshot_id'],
+                                          'Tracks': str(item['tracks']['total']),
+                                          'Duration': '0'}
+        session['mTotalTrackCnt'] += item['tracks']['total']
+        if (ownerId == session['mUserId']):
+          session['mPlaylistCntUsr'] += 1
+          session['mTotalTrackCntUsr'] += item['tracks']['total']
+        id = ownerNm + ' / ' + ownerId
+        if id not in session['mPlDictOwnersList']:
+          session['mPlDictOwnersList'].append(id)
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlDict.json', 'w') as f:
       #   json.dump(session['mPlDict'], f)
-      return [sfConst.errNone]
+      return [sfConst.errNone], nPlRxd
     except Exception:
       tupleExc = sys.exc_info()
       retVal = [sfConst.errLoadPlDict, this.getDateTm(), 'loadPlDict()', 'Loading Playlists Failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
-      return retVal
+      return retVal, 0
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
@@ -655,7 +696,7 @@ class SpfLoader():
     return session['mPlTracksDict']
 
   # ---------------------------------------------------------------
-  def loadPlTracks1x(this, plId):
+  def loadPlTracks1x(this, plId, updateTrackCnt=0):
     # print('>>loader.loadPlTracks1x()')
     # mPlTracksDict['plId'] = trackList[]
     #   - one trackList[] for each playlist
@@ -725,7 +766,15 @@ class SpfLoader():
         idx += 100
         # print('track fetch loop idx = ', idx)
 
+      # updateTrackCnt is non zero during a Rm, Mp, Cp operation
+      if (updateTrackCnt != 0):
+        nTracks = int(plValues['Tracks'])
+        nTracks += updateTrackCnt;
+        plValues['Tracks'] = str(nTracks)
+
+      # i am thinking we have to create this pl duration ourselves because spotify does not provide a total pl duration?
       plValues['Duration'] = this.msToHms(dur, 1)
+
       session['mPlTracksDict'][plId] = tracksList
       # print('>>loader.loadPlTracks1x() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
 
@@ -865,13 +914,17 @@ class SpfLoader():
 
     try:
       # raise Exception('throwing loader.rmTracksFromSpotPlaylist()')
-      snapshotId = session['mPlDict'][plId]['Snapshot Id']
-      newSnapshotId = this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList, snapshot_id=snapshotId)
-      retVal = this.loadPlDict(clean=False)
-      if retVal[sfConst.errIdxCode] != sfConst.errNone:
-        return retVal
+      # since we are no longer reloading the playlists after a remove we can nolonger use snapshot id
+      # if you do a rm with the orginal id , you do not refetch the pl, and a second rm the id is no longer valid
+      # we do reload the tracklist after each delete
+      this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
+      # snapshotId = session['mPlDict'][plId]['Snapshot Id']
+      # newSnapshotId = this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList, snapshot_id=snapshotId)
+      # retVal = this.loadPlDict(clean=False)
+      # if retVal[sfConst.errIdxCode] != sfConst.errNone:
+      #   return retVal
       del session['mPlTracksDict'][plId]
-      retVal = this.loadPlTracks1x(plId)
+      retVal = this.loadPlTracks1x(plId, -(len(spotRmTrackList)))
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
       return [sfConst.errNone]
@@ -962,11 +1015,11 @@ class SpfLoader():
       trackListCleaned = this.cleanMvCpTrackList(plIdDest, trackList)
       if (len(trackListCleaned) > 0):
         newSnapshotId = this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, trackListCleaned)
-        retVal = this.loadPlDict(clean=False)
-        if retVal[sfConst.errIdxCode] != sfConst.errNone:
-          return retVal
+        # retVal = this.loadPlDict(clean=False)
+        # if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        #   return retVal
         del session['mPlTracksDict'][plIdDest]
-        retVal = this.loadPlTracks1x(plIdDest)
+        retVal = this.loadPlTracks1x(plIdDest, len(trackListCleaned))
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
       return [sfConst.errNone]

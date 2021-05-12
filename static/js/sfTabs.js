@@ -330,11 +330,11 @@
                   ', clientMethod:  '     + methodName +
                   ', errCode: '           + errArr[0].toString() +
                   ', dateTime: '          + errArr[1] +
-                  ', serverMethod: '      + errArr[2] +
-                  ', description: '       + errArr[3] +
-                  ', svrSysStr1: '        + errArr[4] +
-                  ', svrSysStr2: '        + errArr[5] +
-                  ', svrSysStr3: '        + errArr[6];
+                  ', serverMethod: '      + errArr[5] +
+                  ', description: '       + errArr[6] +
+                  ', svrSysStr1: '        + errArr[7] +
+                  ', svrSysStr2: '        + errArr[8] +
+                  ', svrSysStr3: '        + errArr[9];
 
     throw new Error(errMsg);
   }

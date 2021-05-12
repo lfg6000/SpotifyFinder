@@ -197,21 +197,60 @@
     }
   }
 
+  // //-----------------------------------------------------------------------------------------------
+  // async function plTab_afLoadPlDict()
+  // {
+  //   // console.log('__SF__plTab_afLoadPlDict()');
+  //   console.log('__SF__plTab_afLoadPlDict() - vUrl - loadPlDict');
+  //   let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+  //                                      body: JSON.stringify({ loadPlDict: 'loadPlDict' }), });
+  //   if (!response.ok)
+  //     tabs_throwErrHttp('plTab_afLoadPlDict()', response.status, 'plTab_errInfo');
+  //   else
+  //   {
+  //     let reply = await response.json();
+  //     // console.log('__SF__plTab_afLoadPlDict() reply = ', reply);
+  //     if (reply['errRsp'][0] !== 1)
+  //       tabs_throwSvrErr('plTab_afLoadPlDict()', reply['errRsp'], 'plTab_errInfo')
+  //   }
+  // }
+
   //-----------------------------------------------------------------------------------------------
   async function plTab_afLoadPlDict()
   {
-    // console.log('__SF__plTab_afLoadPlDict()');
-    console.log('__SF__plTab_afLoadPlDict() - vUrl - loadPlDict');
+    console.log('__SF__plTab_afLoadPlDict()');
+    let idx = 0;
+    let done = false;
+    let nPlRxd = 0;
+    while (done == false)
+    {
+      nPlRxd = await plTab_afLoadPlDictBatch(idx);
+      idx += nPlRxd;
+      if (nPlRxd < 50) // when fetch less then the batchSize we are done
+        done = true
+      console.log('__SF__plTab_afLoadPlDict() idx =' + idx + ', nPlRxd = ' + nPlRxd + ', done = ' + done);
+      if (idx >= 700)
+        done = true
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afLoadPlDictBatch(idx)
+  {
+    // console.log('__SF__plTab_afLoadPlDictBatch()');
+    console.log('__SF__plTab_afLoadPlDictBatch() - vUrl - loadPlDictBatch');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ loadPlDict: 'loadPlDict' }), });
+                                       body: JSON.stringify({ loadPlDictBatch: 'loadPlDictBatch', idx: idx }), });
     if (!response.ok)
-      tabs_throwErrHttp('plTab_afLoadPlDict()', response.status, 'plTab_errInfo');
+      tabs_throwErrHttp('plTab_afLoadPlDictBatch()', response.status, 'plTab_errInfo');
     else
     {
       let reply = await response.json();
-      // console.log('__SF__plTab_afLoadPlDict() reply = ', reply);
+      // console.log('__SF__plTab_afLoadPlDictBatch() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('plTab_afLoadPlDict()', reply['errRsp'], 'plTab_errInfo')
+        tabs_throwSvrErr('plTab_afLoadPlDictBatch()', reply['errRsp'], 'plTab_errInfo')
+
+      return reply['nPlRxd']
     }
   }
 
@@ -234,11 +273,13 @@
       let plDict = reply['plDict'];
       $.each(plDict, function(key, val)
       {
+        // if (val['Playlist Owners Id'] === 'd821vfpc7iz90kbxig72n533l')
         if (val['Playlist Owners Id'] === vUserId)
           vPlTable.row.add(['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id']]);
       });
       $.each(plDict, function(key, val)
       {
+        // if (val['Playlist Owners Id'] !== 'd821vfpc7iz90kbxig72n533l')
         if (val['Playlist Owners Id'] !== vUserId)
           vPlTable.row.add(['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id']]);
       });
@@ -256,52 +297,77 @@
     }
   }
 
+  // //-----------------------------------------------------------------------------------------------
+  // function plTab_initPlTableCkboxes()
+  // {
+  //   // on the initial load we select all the playlists for the current user
+  //   let cnt = 0;
+  //   // console.log('__SF__user id = ' + vUserId)
+  //   vPlTabLoading = true;
+  //
+  //   let setCkCnt = 100000;
+  //   if (vUrl.search("127.0.0.1") > 0)
+  //   {
+  //     // for testing on a local host we only select the first 6 playlists
+  //     setCkCnt = 10;
+  //   }
+  //
+  //   let plListNotAutoSelected = false;
+  //   vPlTable.rows().every(function ()
+  //   {
+  //     // console.log(this.data());
+  //     let rowData = this.data()
+  //     if (rowData[6] === vUserId) // ownerId === vUserId
+  //     {
+  //       if (rowData[2] <= 1000) // number of tracks in playlist
+  //       {
+  //         if (cnt < setCkCnt)
+  //         {
+  //           // vPlTable.row(idx).select();
+  //           this.select();
+  //           cnt += 1;
+  //         }
+  //       }
+  //       else
+  //       {
+  //         plListNotAutoSelected = true;
+  //       }
+  //     }
+  //   });
+  //
+  //   if (plListNotAutoSelected == true)
+  //   {
+  //     $("#plTab_info3").text("Playlists that you own with > 1000 tracks are not autmatically selected.");
+  //     setTimeout(function ()
+  //     {
+  //       $("#plTab_info3").text('');
+  //     }, 4500);
+  //   }
+  //   vPlTabLoading = false;
+  // }
+
   //-----------------------------------------------------------------------------------------------
   function plTab_initPlTableCkboxes()
   {
     // on the initial load we select all the playlists for the current user
-    let cnt = 0;
     // console.log('__SF__user id = ' + vUserId)
+
     vPlTabLoading = true;
-
-    let setCkCnt = 100000;
-    if (vUrl.search("127.0.0.1") > 0)
-    {
-      // for testing on a local host we only select the first 6 playlists
-      setCkCnt = 10;
-    }
-
-    let plListNotAutoSelected = false;
+    let cnt = 0;
+    let setCkCnt = 4;
     vPlTable.rows().every(function ()
     {
-      // console.log(this.data());
       let rowData = this.data()
+      // if (rowData[6] === 'd821vfpc7iz90kbxig72n533l') // ownerId === vUserId
       if (rowData[6] === vUserId) // ownerId === vUserId
       {
-        if (rowData[2] <= 1000) // number of tracks in playlist
-        {
           if (cnt < setCkCnt)
           {
-            // vPlTable.row(idx).select();
             this.select();
             cnt += 1;
           }
-        }
-        else
-        {
-          plListNotAutoSelected = true;
-        }
       }
     });
-
-    if (plListNotAutoSelected == true)
-    {
-      $("#plTab_info3").text("Playlists that you own with > 1000 tracks are not autmatically selected.");
-      setTimeout(function ()
-      {
-        $("#plTab_info3").text('');
-      }, 3000);
-    }
     vPlTabLoading = false;
   }
 

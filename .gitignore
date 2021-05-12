@@ -3,7 +3,7 @@
 /.idea/
 /build/
 /dist/
-/table_exports/
+/.table_exports/
 /.lfg_work_dir/
 /flask_session/
 /WA_SpotifyFinder_GitDb_PreGitHub/

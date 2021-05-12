@@ -77,10 +77,10 @@ app.config['SESSION_FILE_THRESHOLD'] = 500 # defaults to 500
 # if 'SESSION_PERMANENT'=True then the session timeouts in 'PERMANENT_SESSION_LIFETIME' seconds even if the browser remains open
 app.config['SESSION_PERMANENT'] = True  # defaults to true
 
-# 1800 = .5 hr, 3600 = 1 hr, 5400 = 1.5 hrs, 7200 = 2 hrs, 9000 = 2.5 hrs, 10800 = 3 hrs,
+# 1800 = .5 hr, 3600 = 1 hr, 5400 = 1.5 hrs, 7200 = 2 hrs, 9000 = 2.5 hrs, 10800 = 3 hrs, 21600 = 6hrs
 # 14400 = 4 hrs, 28800 = 8hrs, 57600 = 16hrs, 86400 = 24hrs
 # - rmOldSessionFileAge used in rmOldSessionFiles() must be greater than 'PERMANENT_SESSION_LIFETIME' to aviod deleting active session files
-app.config['PERMANENT_SESSION_LIFETIME'] = 5400
+app.config['PERMANENT_SESSION_LIFETIME'] = 21600
 
 # firefox ok with this true and 127.0.0.1
 # firefox not ok with this true and 192.168.2.10
@@ -274,13 +274,23 @@ def Tabs():
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight)
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie(), 'sid': sid})
 
-      if (key == 'loadPlDict'):
-        # print('>>/Tabs loadPlDict()')
-        retVal = oLoader.loadPlDict()
+      # if (key == 'loadPlDict'):
+      #   # print('>>/Tabs loadPlDict()')
+      #   retVal = oLoader.loadPlDict()
+      #   # the mysql server is optional if db name is not set skip the one and only db read/write
+      #   if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+      #     oLoader.updateDbUniqueSpotifyInfo(mysql)
+      #   return jsonify({ 'errRsp': retVal })
+
+      if (key == 'loadPlDictBatch'):
+        # print('>>/Tabs loadPlDictBatch()')
+        idx = rqJson['idx']
+        retVal, nPlRxd = oLoader.loadPlDictBatch(idx)
+        # print('>>/Tabs loadPlDictBatch() idx = ' + str(idx) + ', nPlRxd = ' + str(nPlRxd))
         # the mysql server is optional if db name is not set skip the one and only db read/write
-        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '') and (idx == 0)):
           oLoader.updateDbUniqueSpotifyInfo(mysql)
-        return jsonify({ 'errRsp': retVal })
+        return jsonify({ 'errRsp': retVal, 'nPlRxd': nPlRxd })
 
       if (key == 'getPlDict'):
         # print('>>/Tabs getPlDict')
