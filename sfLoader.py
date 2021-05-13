@@ -600,6 +600,8 @@ class SpfLoader():
       if (idx == 0):
         session['mPlDict'].clear()
         session['mTotalTrackCnt'] = 0
+        session['mPlSelectedDict'].clear()
+        session['mPlTracksDict'].clear()
 
       # spotify only returns 50 playlists at a time so we loop until we have them all
       # 'https://api.spotify.com/v1/me/playlists'

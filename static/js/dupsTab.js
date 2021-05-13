@@ -6,6 +6,8 @@
   var vModePlaylist = 'Same'  // 'Across' or 'Same'
   var vModeSearch = 'Track Id'  // 'Track Id' or 'Nad' = TrackName/ArtistName/Duration
 
+  const cbAutoSel = 'Auto Select Dups';
+
   //-----------------------------------------------------------------------------------------------
   function dupsTab_initPlTab(tableHeight=300)
   {
@@ -98,6 +100,8 @@
         // console.log('__SF__dupsTab_afActivate() - start loading');
         tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
         tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
+
+        $('#dupsTab_cbAutoSel').append($('<option>', { value: 0, text : cbAutoSel }));
 
         await tracksTab_afLoadPlTracks();
         await dupsTab_afFindDups();
@@ -236,14 +240,27 @@
       let idx = 0;
       let dupsTrackList = reply['dupsTrackList'];
       let dupsClrList = reply['dupsClrList'];
+      let plIdList = [];
       $.each(dupsTrackList, function(key, tvals)
       {
         vDupsTable.row.add(['', tvals['Track Name'], tvals['Playlist Name'], tvals['Track Position'], tvals['Artist Name'],
                                 tvals['Album Name'], tvals['Duration Hms'], tvals['Playlist Owners Name'], tvals['Track Id'],
                                 tvals['Playlist Id'], tvals['Track Uri'], dupsClrList[idx], tvals['Playlist Owners Id'] ]);
+        if (plIdList.includes(tvals['Playlist Id']) === false)
+          plIdList.push(tvals['Playlist Id']);
         idx++;
       });
       vDupsTable.draw();
+
+      let cbAuto = $('#dupsTab_cbAutoSel')
+      cbAuto.empty();
+      cbAuto.append($('<option>', { value: 0, text : cbAutoSel }));
+      cbAuto.append($('<option>', { value: 1, text : 'Set' }));
+      cbAuto.append($('<option>', { value: 2, text : 'Clear' }));
+      if (plIdList.length > 2)
+        cbAuto.prop("disabled", true);
+      else
+        cbAuto.prop("disabled", false);
 
       dupsTab_updateSelectedCnt();
       let infoStr2 = 'Duplicates in Selected Playlists: ' + reply['numDupsMatch'];
@@ -372,3 +389,52 @@
     $("#btnInfoTab")[0].click();
   }
 
+  //-----------------------------------------------------------------------------------------------
+  function dupsTab_cbAutoSelOnChange()
+  {
+    // console.log('__SF__dupsTab_cbAutoSelOnChange()')
+    let curSel = $('#dupsTab_cbAutoSel option:selected').text();
+    // console.log('__SF__dupsTab_cbAutoSelOnChange() selected = ' + curSel);
+    if (curSel === cbAutoSel)
+      return;
+
+    // [''0, tvals['Track Name']1, tvals['Playlist Name']2, tvals['Track Position']3, tvals['Artist Name']4,
+    //      tvals['Album Name']5, tvals['Duration Hms']6, tvals['Playlist Owners Name']7, tvals['Track Id']8,
+    //      tvals['Playlist Id']9, tvals['Track Uri']10, dupsClrList[idx]11, tvals['Playlist Owners Id']12 ]);
+
+    let idx = 0;
+    let skipOneOnClrChange = 1;
+    let lastColor = ~vDupsTable.row(0).data()[11];
+    vDupsTabLoading = true;
+    if (curSel === 'Set')
+    {
+      vDupsTable.rows().every(function ()
+      {
+        let rowData = this.data();
+        // console.log('dups row idx = ' + idx + ', clr = ' + rowData[11]);
+        idx += 1;
+
+        if (lastColor != rowData[11])
+          skipOneOnClrChange = 1;
+        else
+          skipOneOnClrChange = 0;
+
+        if (skipOneOnClrChange == 0)
+          this.select();
+
+        lastColor = rowData[11];
+      });
+    }
+
+    if (curSel === 'Clear')
+    {
+      vDupsTable.rows().every(function ()
+      {
+          this.deselect();
+      });
+    }
+    vDupsTabLoading = false;
+
+    $('#dupsTab_cbAutoSel').val(0);
+    dupsTab_updateSelectedCnt();
+  }

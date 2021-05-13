@@ -95,6 +95,7 @@
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
+        $('#plTabs_cbUsers').append($('<option>', { value: 0, text : cbOwnerDefault }));
         await plTab_afloadSpotifyInfo();
         await plTab_afLoadPlDict();
         await plTab_afLoadPlTable();
@@ -148,6 +149,7 @@
       tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
       tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
+      // await plTab_afPostCmdTestErrPath();
       await plTab_afUpdatePlSelectedDict();
       vPlTable.order([]); // remove sorting
       vPlTable.clear().draw();
@@ -224,13 +226,14 @@
     let nPlRxd = 0;
     while (done == false)
     {
+      sIdx = idx;
       nPlRxd = await plTab_afLoadPlDictBatch(idx);
       idx += nPlRxd;
       if (nPlRxd < 50) // when fetch less then the batchSize we are done
         done = true
-      console.log('__SF__plTab_afLoadPlDict() idx =' + idx + ', nPlRxd = ' + nPlRxd + ', done = ' + done);
-      if (idx >= 700)
-        done = true
+      // console.log('__SF__plTab_afLoadPlDict() idx =' + sIdx + ', nPlRxd = ' + nPlRxd + ', nTotal = ' + idx + ', done = ' + done);
+      // if (idx >= 700)
+      //   done = true
     }
   }
 
@@ -602,3 +605,23 @@
     $("#btnInfoTab")[0].click();
   }
 
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afPostCmdTestErrPath()
+  {
+    // console.log('plTab_afPostCmdTestBogus()');
+    // console.log('plTab_afPostCmdTestBogus() - vUrl - bogus');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ bogus: 'bogus' }), });
+    if (!response.ok)
+      tabs_throwErrHttp('plTab_afPostCmdTestBogus()', response.status, 'plTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('plTab_afPostCmdTestBogus() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('plTab_afPostCmdTestBogus()', reply['errRsp'], 'plTab_errInfo')
+
+      return reply['nPlRxd']
+    }
+  }

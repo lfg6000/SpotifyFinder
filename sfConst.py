@@ -31,7 +31,8 @@ errGetDupsTrackList = -23
 errSqlErr = -24
 errMvCpTracks = -25
 errLoadPlTracks1x = -26
-
+errUnknownPost = -27
+errUnknownPostCmd = -28
 
 # ---------------------------------------------------------------
 # err log entry values

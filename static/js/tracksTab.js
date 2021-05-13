@@ -221,8 +221,9 @@
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadPlTracks()
   {
-    console.log('__SF__tracksTab_afLoadPlTracks()');
+    // console.log('__SF__tracksTab_afLoadPlTracks()');
     let plSelectedDictNotLoaded = await tracksTab_afGetPlSelectedDictNotLoaded();
+    console.log('__SF__tracksTab_afLoadPlTracks() not loaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
     // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDictNotLoaded = \n' + JSON.stringify(plSelectedDictNotLoaded, null, 4));
     // for (let plId in plSelectedDictNotLoaded)
     for (const [plId, value] of Object.entries(plSelectedDictNotLoaded))

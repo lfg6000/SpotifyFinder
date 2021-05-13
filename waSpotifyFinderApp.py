@@ -332,7 +332,23 @@ def Tabs():
           oLoader.updateDbVisitCnt(mysql, 'Help')
         return jsonify({ 'errRsp': retVal, 'htmlInfo': htmlStr })
 
-    return;
+
+      # - this is the error in the logs when a route return nothing....
+      #   File "C:\Users\lfg70\.aa\LFG_Code\Python\WA_SpotifyFinder\venv\Lib\site-packages\flask\app.py", line 2097, in make_response
+      #     raise TypeError(
+      # TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
+
+      # we should not ever get here...the key from a post cmd should always recognized
+      if (key == None):
+        key = 'unknown post cmd: key = None'
+      retVal = [sfConst.errUnknownPostCmd, oLoader.getDateTm(), '@app.route Tabs post', 'Post Cmd not recognized key = ', str(key), ' ', ' ']
+      oLoader.addErrLogEntry(retVal)
+      return jsonify({ 'errRsp': retVal })  # always return something
+
+    # we should not ever get here...post cmd is completely invalid
+    retVal = [sfConst.errUnknownPost, oLoader.getDateTm(), '@app.route Tabs post', 'Post missing cmd', 'request.get_json() returns nothing', ' ', ' ']
+    oLoader.addErrLogEntry(retVal)
+    return '200';  # always return something
 
   # print('>>/Tabs render_template sfTabs.html')
   # oLoader.initLoader()
