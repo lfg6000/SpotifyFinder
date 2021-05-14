@@ -230,7 +230,9 @@
       nPlRxd = await plTab_afLoadPlDictBatch(idx);
       idx += nPlRxd;
       if (nPlRxd < 50) // when fetch less then the batchSize we are done
-        done = true
+      {
+        done = true;
+      }
       // console.log('__SF__plTab_afLoadPlDict() idx =' + sIdx + ', nPlRxd = ' + nPlRxd + ', nTotal = ' + idx + ', done = ' + done);
       // if (idx >= 700)
       //   done = true
@@ -241,7 +243,7 @@
   async function plTab_afLoadPlDictBatch(idx)
   {
     // console.log('__SF__plTab_afLoadPlDictBatch()');
-    console.log('__SF__plTab_afLoadPlDictBatch() - vUrl - loadPlDictBatch');
+    // console.log('__SF__plTab_afLoadPlDictBatch() - vUrl - loadPlDictBatch');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadPlDictBatch: 'loadPlDictBatch', idx: idx }), });
     if (!response.ok)

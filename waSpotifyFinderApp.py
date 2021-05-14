@@ -288,7 +288,7 @@ def Tabs():
         retVal, nPlRxd = oLoader.loadPlDictBatch(idx)
         # print('>>/Tabs loadPlDictBatch() idx = ' + str(idx) + ', nPlRxd = ' + str(nPlRxd))
         # the mysql server is optional if db name is not set skip the one and only db read/write
-        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '') and (idx == 0)):
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '') and (nPlRxd < 50)):
           oLoader.updateDbUniqueSpotifyInfo(mysql)
         return jsonify({ 'errRsp': retVal, 'nPlRxd': nPlRxd })
 
