@@ -4,6 +4,8 @@
   var vPlTabActivated = 0;
   var vPlTabLoading = false;
   var vPlTableLastSearchCol = '';
+  var vPlNumTracksInSelectedPl = 0;
+  var vPlTmExe = 0;
 
   var vUserId = '';
   var vUserName = '';
@@ -85,12 +87,14 @@
   {
     try
     {
-      // console.log("plTab_afActivate() vPlTabActivated = " + vPlTabActivated);
+       // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
+      let t0 = Date.now(); // on this tab we always collect ExeTm because vShowExeTm is always 0 on the initial load of the playlists
 
+      // console.log("plTab_afActivate() vPlTabActivated = " + vPlTabActivated);
       if (vPlTabActivated === 0)
       {
-        vPlTabActivated = 1;
         vLastTracksRmMvCpCntr = 1;
+        vPlNumTracksInSelectedPl = 0;
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
@@ -115,6 +119,7 @@
         // console.log("plTab_afActivate() - last and cur removed cntrs are different");
 
         vLastTracksRmMvCpCntr = curTracksRmMvCpCntr;
+        vPlNumTracksInSelectedPl = 0;
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
@@ -125,8 +130,11 @@
         $('#plTabs_cbUsers').empty();
         await plTab_afLoadPlTable();
         await plTab_afRestorePlTableCkboxes();
-        // console.log('__SF__plTab_afActivate() - exit');
+        plTabs_updateSelectedCntInfo();
       }
+
+      // console.log('__SF__plTab_afActivate() - exit');
+      vPlTmExe = Math.floor((Date.now() - t0) / 1000);
     }
     catch(err)
     {
@@ -137,6 +145,7 @@
     {
       // console.log('__SF__plTab_afActivate() finally.');
       tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
+      vPlTabActivated = 1;
     }
   }
 
@@ -146,6 +155,8 @@
     try
     {
       // console.log("plTab_afRefresh()");
+      vPlNumTracksInSelectedPl = 0;
+
       tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
       tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
@@ -195,7 +206,7 @@
       vCookie = reply['cookie']
       vSid = reply['sid']
       // console.log('__SF__plTabs_loadSpotifyInfo() - \n   userId = ' + vUserId + ',\n   userName = ' + vUserName + ',\n   cookie = ' + vCookie + ',\n   sid = ' + vSid);
-      infoTab_addClientLogMsg(['sid = '+ vSid ]);
+      infoTab_addClientLogMsg([vSid]);
     }
   }
 
@@ -436,11 +447,18 @@
   function plTabs_plTableSelect() { /* make function appear in pycharm structure list */ }
   $('#plTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
+    // console.log('__SF__plTabs_plTableSelect()');
+
+    // ['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id']]
+    if (indexes.length == 1) // not select all
+    {
+      let rowData = $('#plTable').DataTable().row(indexes).data();
+      vPlNumTracksInSelectedPl = vPlNumTracksInSelectedPl + parseInt(rowData[2], 10);
+      // console.log('__SF__plTabs_plTableSelect() - You clicked on ' + rowData[1] + ', vPlNumTracksInSelectedPl = ' + vPlNumTracksInSelectedPl);
+    }
     if (vPlTabLoading === true)
       return;
 
-    // let rowData = $('#plTable').DataTable().row(indexes).data();
-    // console.log( 'plTab - You clicked on ' + rowData[1]);
     plTab_afIncPlSelectionCntr();
     plTabs_updateSelectedCntInfo();
   });
@@ -449,6 +467,15 @@
   function plTabs_plTableDeselect() { /* make function appear in pycharm structure list */ }
   $('#plTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
+    // console.log('__SF__plTabs_plTableDeselect()');
+
+    if (indexes.length == 1) // not deselect all, update vPlNumTracksInSelectedPl
+    {
+      let rowData = $('#plTable').DataTable().row(indexes).data();
+      vPlNumTracksInSelectedPl = vPlNumTracksInSelectedPl - parseInt(rowData[2], 10);
+      // console.log('__SF__plTabs_plTableDeselect() - You clicked on ' + rowData[1] + ', vPlNumTracksInSelectedPl = ' + vPlNumTracksInSelectedPl);
+    }
+
     if (vPlTabLoading === true)
       return;
 
@@ -457,7 +484,7 @@
     plTab_afIncPlSelectionCntr();
     plTabs_updateSelectedCntInfo();
   });
-
+  
   //-----------------------------------------------------------------------------------------------
   async function plTab_afUpdatePlSelectedDict()
   {
@@ -509,7 +536,7 @@
   {
     //console.log('__SF__plTabs_updateSelectedCntInfo()');
     let count = vPlTable.rows({ selected: true }).count();
-    tabs_setLabel('plTab_info1', 'Selected Playlists: ' + count);
+    tabs_setLabel('plTab_info1', 'Selected Playlists: ' + count + '&nbsp &nbsp &nbsp &nbsp &nbsp' + ' Selected Tracks: '+ vPlNumTracksInSelectedPl);
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -534,6 +561,8 @@
   {
     // console.log('__SF__plTabs_btnSelectAll()')
     vPlTabLoading = true;
+    vPlTable.rows().deselect();
+    vPlNumTracksInSelectedPl = 0;
     vPlTable.rows().every(function()
     {
       this.select();
@@ -549,10 +578,8 @@
   {
     // console.log('__SF__plTabs_btnClearAll()')
     vPlTabLoading = true;
-    vPlTable.rows().every(function()
-    {
-      this.deselect();
-    });
+    vPlTable.rows().deselect();
+    vPlNumTracksInSelectedPl = 0;
     vPlTabLoading = false;
 
     plTab_afIncPlSelectionCntr();
@@ -570,6 +597,8 @@
 
     let selectRowData = '';
     vPlTabLoading = true;
+    vPlTable.rows().deselect();
+    vPlNumTracksInSelectedPl = 0;
     vPlTable.rows().every(function()
     {
       rowData = this.data();
@@ -579,8 +608,6 @@
         if (selectRowData === '')  // recreate the unique class name assigned to row during init
           selectRowData = "c" + rowData[1].replace(/\W/g, '') + rowData[5].replace(/\W/g, '') // use playlist Name and Id
       }
-      else
-        this.deselect();
     });
     vPlTabLoading = false;
 
@@ -607,6 +634,14 @@
     $("#btnInfoTab")[0].click();
   }
 
+    //-----------------------------------------------------------------------------------------------
+  function plTab_onClickExeTm()
+  {
+    // if you click "Playlists selected on this tab determines..." at the bottom of theplTab load times for each tab will be displayed
+    vShowExeTm = 1;
+    $("#plTab_ExeTm").text(vPlTmExe);
+    // console.log("plTab_onClickExeTm = ", vShowExeTm);
+  }
 
   //-----------------------------------------------------------------------------------------------
   async function plTab_afPostCmdTestErrPath()

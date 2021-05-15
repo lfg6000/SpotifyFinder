@@ -38,8 +38,9 @@
     <div class="borderGreen"></div>
     <div id="plTabs_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="plTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="plTab_ExeTm" style="font-size: 11px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="plTab_progStat1" style="color: red;"></label></div>
-      <div class="innerRowRight rowMargin3"><label id="plTab_hint" style="font-size: 13px;">Playlists selected on this tab determines what playlists are examined by the Tracks, Duplicates and Artists Tabs.</label></div>
+      <div class="innerRowRight rowMargin3"><label id="plTab_hint" style="font-size: 13px;" onClick="plTab_onClickExeTm()">Playlists selected on this tab determines what playlists are examined by the Tracks, Duplicates and Artists Tabs.</label></div>
     </div>
   </div>
 
@@ -56,6 +57,7 @@
     <div class="borderGreen"></div>
     <div id="tracksTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="tracksTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="tracksTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="tracksTab_progStat1" style="color: red;">lblStatus</label></div>
     </div>
   </div>
@@ -73,6 +75,7 @@
     <div class="borderGreen"></div>
     <div id="dupsTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="dupsTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="dupsTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="dupsTab_progStat1" style="color: red;">lblStatus</label></div>
     </div>
   </div>
@@ -90,6 +93,7 @@
     <div class="borderGreen"></div>
     <div id="artistsTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="artistsTab_progBar" class="progressBar"></div> </div>
+      <div class="innerRowLeft rowMargin3"><label id="artistsTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="artistsTab_progStat1" style="color: red;">lblStatus</label></div>
     </div>
   </div>

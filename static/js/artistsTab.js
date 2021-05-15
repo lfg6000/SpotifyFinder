@@ -158,6 +158,14 @@
       // console.log('__SF__artistsTab_activate()');
       // console.log('__SF__artistsTab_activate() - lastCnt = ' + vLastPlSelectionCntrArtistsTab + ', curCnt = ' + curPlSelectionCntr);
 
+      // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
+      let t0;
+      if (vShowExeTm == 1)
+      {
+        $("#artistsTab_ExeTm").text(0);
+        t0 = Date.now();
+      }
+
       if (vLastPlSelectionCntrArtistsTab !== curPlSelectionCntr)
       {
         vArtistNamesTable.keys.disable();
@@ -186,6 +194,11 @@
         await artistsTab_afLoadArtistTracks(artistId = '')
         await artistsTab_afLoadArtistTracksTable();
 
+        if (vShowExeTm == 1)
+        {
+          exeTm = Math.floor((Date.now() - t0) / 1000);
+          $("#artistsTab_ExeTm").text(exeTm);
+        }
         // console.log('__SF__artistsTab_afActivate() - loading done - exit');
       }
     }

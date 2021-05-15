@@ -158,6 +158,14 @@
       // console.log('__SF__tracksTab_activate()');
       // console.log('__SF__tracksTab_activate() - lastCnt = ' + vLastPlSelectionCntrTracksTab + ', curCnt = ' + curPlSelectionCntr);
 
+      // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
+      let t0;
+      if (vShowExeTm == 1)
+      {
+        $("#tracksTab_ExeTm").text(0);
+        t0 = Date.now();
+      }
+
       if (vLastPlSelectionCntrTracksTab !== curPlSelectionCntr)
       {
         vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
@@ -183,6 +191,11 @@
         await tracksTab_afLoadPlNameTable();
         await tracksTab_afLoadPlTracks();
         await tracksTab_afLoadTracksTable(plId='');
+        if (vShowExeTm == 1)
+        {
+          exeTm = Math.floor((Date.now() - t0) / 1000);
+          $("#tracksTab_ExeTm").text(exeTm);
+        }
         // console.log('__SF__tracksTab_afActivate() - loading done - exit');
       }
     }
@@ -223,7 +236,7 @@
   {
     // console.log('__SF__tracksTab_afLoadPlTracks()');
     let plSelectedDictNotLoaded = await tracksTab_afGetPlSelectedDictNotLoaded();
-    console.log('__SF__tracksTab_afLoadPlTracks() not loaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
+    // console.log('__SF__tracksTab_afLoadPlTracks() plSelectedDictNotLoaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
     // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDictNotLoaded = \n' + JSON.stringify(plSelectedDictNotLoaded, null, 4));
     // for (let plId in plSelectedDictNotLoaded)
     for (const [plId, value] of Object.entries(plSelectedDictNotLoaded))
@@ -235,7 +248,7 @@
   {
     // console.log('__SF__tracksTab_afLoadPlTracks1x()');
     // console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x plId = ' + plId + ', playlistName = ' + plName);
-    // console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x');
+    console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadPlTracks1x: 'loadPlTracks1x', plId: plId }), });
     if (!response.ok)

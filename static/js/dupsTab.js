@@ -88,6 +88,15 @@
     {
       // console.log('__SF__dupsTab_activate()');
       // console.log('__SF__dupsTab_activate() - lastCnt = ' + vLastPlSelectionCntrDupsTab + ', curCnt = ' + curPlSelectionCntr);
+
+      // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
+      let t0;
+      if (vShowExeTm == 1)
+      {
+        $("#dupsTab_ExeTm").text(0);
+        t0 = Date.now();
+      }
+
       if (vLastPlSelectionCntrDupsTab !== curPlSelectionCntr)
       {
         vLastPlSelectionCntrDupsTab = curPlSelectionCntr;
@@ -107,6 +116,11 @@
         await dupsTab_afFindDups();
         await dupsTab_afLoadDupsTable();
 
+        if (vShowExeTm == 1)
+        {
+          exeTm = Math.floor((Date.now() - t0) / 1000);
+          $("#dupsTab_ExeTm").text(exeTm);
+        }
         // console.log('__SF__dupsTab_afActivate() - loading done - exit');
       }
     }
