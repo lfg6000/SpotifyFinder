@@ -190,7 +190,17 @@
 
         await tracksTab_afLoadPlNameTable();
         await tracksTab_afLoadPlTracks();
-        await tracksTab_afLoadTracksTable(plId='');
+
+        // 2x getTrackList()
+        // - on tab switch we call tracksTab_selectRow()
+        // - this invokes tracksTab_afLoadTracksTable() via chained events
+        //   --> tracksTab_selectRow()
+        //     --> tracksTab_plNameTableKeyFocus()
+        //       --> tracksTab_plNameTableSelect()
+        //         --> tracksTab_afLoadTracksTableSeq(plId, plName)
+        //           --> tracksTab_afLoadTracksTable(plId, plName) this is vUrl getTrackList
+
+        // await tracksTab_afLoadTracksTable(plId='');
         if (vShowExeTm == 1)
         {
           exeTm = Math.floor((Date.now() - t0) / 1000);
@@ -236,7 +246,7 @@
   {
     // console.log('__SF__tracksTab_afLoadPlTracks()');
     let plSelectedDictNotLoaded = await tracksTab_afGetPlSelectedDictNotLoaded();
-    // console.log('__SF__tracksTab_afLoadPlTracks() plSelectedDictNotLoaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
+    console.log('__SF__tracksTab_afLoadPlTracks() plSelectedDictNotLoaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
     // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDictNotLoaded = \n' + JSON.stringify(plSelectedDictNotLoaded, null, 4));
     // for (let plId in plSelectedDictNotLoaded)
     for (const [plId, value] of Object.entries(plSelectedDictNotLoaded))
@@ -248,7 +258,7 @@
   {
     // console.log('__SF__tracksTab_afLoadPlTracks1x()');
     // console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x plId = ' + plId + ', playlistName = ' + plName);
-    console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x');
+    // console.log('tracksTab_afLoadPlTracks1x() - vUrl - loadPlTracks1x');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ loadPlTracks1x: 'loadPlTracks1x', plId: plId }), });
     if (!response.ok)

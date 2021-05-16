@@ -106,7 +106,13 @@
         // we are reloading both tables so we empty them out
         vDupsTable.clear().draw();
 
+        // after a browser reset ensure vars match radio btns...but why are the radio btns not in default state?
+        vModePlaylist = $("input[name='rPlMode']:checked").val();
+        vModeSearch = $("input[name='rPlSearch']:checked").val();
+        // console.log('__SF__dupsTab_activate() - radio btn values vModePlaylist = ' + vModePlaylist + ', vModeSearch = ' + vModeSearch)
+
         // console.log('__SF__dupsTab_afActivate() - start loading');
+        $("#dupsTab_info3").text('');
         tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
         tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
@@ -188,6 +194,7 @@
       vDupsTable.clear().draw();
 
       // console.log('__SF__dupsTab_afFindDupsSeq() - start loading');
+      $("#dupsTab_info3").text('');
       tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
@@ -271,7 +278,7 @@
       cbAuto.append($('<option>', { value: 0, text : cbAutoSel }));
       cbAuto.append($('<option>', { value: 1, text : 'Set' }));
       cbAuto.append($('<option>', { value: 2, text : 'Clear' }));
-      if (plIdList.length > 2)
+      if (plTabs_getSelectedCnt() > 2)  // more than 2 playlists selected on plTab?
         cbAuto.prop("disabled", true);
       else
         cbAuto.prop("disabled", false);
@@ -279,6 +286,27 @@
       dupsTab_updateSelectedCnt();
       let infoStr2 = 'Duplicates in Selected Playlists: ' + reply['numDupsMatch'];
       tabs_setLabel('dupsTab_info2', infoStr2);
+
+      if (reply['numDupsMatch'] == 0)
+      {
+        // var vModePlaylist = 'Same'  // 'Across' or 'Same'
+        // var vModeSearch = 'Track Id'  // 'Track Id' or 'Nad' = TrackName/ArtistName/Duration
+        mode = 'not set';
+        if (vModePlaylist == 'Same')
+          mode = 'using: In Same Playlist';
+        else
+          mode = 'using: Across Playlists';
+
+        search = 'not set';
+        if (vModeSearch == 'Track Id')
+          search = ' / Exact Match';
+        else
+          search = ' / Very Close Match';
+
+        msg = 'No Duplicates found in selected playlists, ' + mode + search;
+
+        $("#dupsTab_info3").text(msg);
+      }
     }
   }
 

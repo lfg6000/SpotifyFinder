@@ -129,7 +129,7 @@
   //-----------------------------------------------------------------------------------------------
   function artistsTab_selectRow()
   {
-    //console.log('__SF__artistsTab_selectRow()');
+    // console.log('__SF__artistsTab_selectRow()');
     // issue:
     //  - when clicking on a name row the selection is not remembered when switching back to this tab
     //  - when arrow up/dn on a name row the selection is remembered when switching back to this tab
@@ -191,8 +191,20 @@
         await tracksTab_afLoadPlTracks();
         await artistsTab_afLoadArtistNames();
         await artistsTab_afLoadArtistNameTable();
-        await artistsTab_afLoadArtistTracks(artistId = '')
-        await artistsTab_afLoadArtistTracksTable();
+
+        // 2x loadArtistTrackList() and getArtistTrackList()
+        // - on tab switch we call artistsTab_selectRow()
+        // - this invokes artistsTab_afLoadArtistTracks() and artistsTab_afLoadArtistTracksTable() via chained events
+        //   --> artistsTab_selectRow()
+        //     --> artistsTab_plNameTableKeyFocus()
+        //       --> artistsTab_plNameTableSelect()
+        //         --> artistsTab_afLoadArtistTracksTableSeq(plId, plName)
+        //           --> await artistsTab_afLoadArtistTracks(artistId = artistId)
+        //           --> artistsTab_afLoadArtistTracksTable(plId, plName) this is vUrl getArtistTrackList
+        // - so we do not have to call artistsTab_afLoadArtistTracksTable() here
+        // - so we do not have to call artistsTab_afLoadArtistTracksTable() here
+        // await artistsTab_afLoadArtistTracks(artistId = '')
+        // await artistsTab_afLoadArtistTracksTable();
 
         if (vShowExeTm == 1)
         {
@@ -290,9 +302,10 @@
   function artistsTab_plNameTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistNamesTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
+    // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - artistNamesTable row select indexes = ', indexes);
     if (vArtistsTabLoading === true) // needed when doing a initial load or reload of both tables
     {
-      // console.log('artistsTab_plNameTableSelect() - exiting - loading is true');
+      // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - exiting - loading is true');
       return;
     }
 

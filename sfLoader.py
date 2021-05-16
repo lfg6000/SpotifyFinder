@@ -291,12 +291,26 @@ class SpfLoader():
     # try:
     #   raise Exception('throwing loader.oAuthGetToken() returned Not Authorized')
     #   print('>>loader.oAuthGetSpotifyObj()')
-      session['tokenInfo'], tokenValid = this.oAuthGetToken(session)
-      session.modified = True
-      if not tokenValid:
-         raise Exception('loader.oAuthGetToken() token is not valid, session expired.')
-      sp = spotipy.Spotify(auth=session.get('tokenInfo').get('access_token'))
-      return sp
+
+    # https: // developer.spotify.com / documentation / web - api /  # rate-limiting
+    #  - If Web API returns status code 429, it means that you have sent too many requests.
+    #    When this happens, check the Retry-After header, where you will see a number displayed.
+    #    This is the number of seconds that you need to wait, before you try your request again.
+
+    # error: HTTPSConnectionPool(host='api.spotify.com', port=443): Read timed out. (read 'timeout=5)
+    #  - loadPlTracks1x() could increase the timeout,  could catch and retry the call
+    #  - sp = spotipy.Spotify(requests_timeout=10, auth=session.get('tokenInfo').get('access_token'))
+
+    # when creating the Spotify object you can set a requests_timeout param
+    #  - see \venv\Lib\site-packages\spotipy\client.py __init__() for list of config params
+
+    session['tokenInfo'], tokenValid = this.oAuthGetToken(session)
+    session.modified = True
+    if not tokenValid:
+      raise Exception('loader.oAuthGetToken() token is not valid, session expired.')
+    sp = spotipy.Spotify(auth=session.get('tokenInfo').get('access_token'))
+    return sp
+
     # except Exception:
     #   tupleExc = sys.exc_info()
     #   retVal = [spfConst.errSpotiyLogin, this.getDateTm(), 'oAuthGetSpotifyObj()', 'Failed to acquire spotify object.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
@@ -784,6 +798,7 @@ class SpfLoader():
       #   json.dump(session['mPlTracksDict'], f)
       return [sfConst.errNone]
     except Exception:
+      # error: HTTPSConnectionPool(host='api.spotify.com', port=443): Read timed out. (read 'timeout=5) see notes in: oAuthGetSpotifyObj()
       tupleExc = sys.exc_info()
       retVal = [sfConst.errLoadPlTracks1x, this.getDateTm(), 'loadPlTracks1x()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)

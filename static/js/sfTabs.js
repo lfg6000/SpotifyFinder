@@ -71,52 +71,55 @@
     {
       // console.log('__SF__tabs_afSwitchTabs() - enter', evt, tabName);
 
-      if ((tabName !== 'PlayLists') && (vPlTabActivated === 0))
+      if (tabName !== 'Info') // allow tab switch to info page on err even if loading is true
       {
-        // let the initial load of the plTab complete before allowing a switch to another tab
-        return;
-      }
-      if (vPlTabLoading === true)
-      {
-        $("#plTab_info2").text("Playlist Tab is loading. Please switch tabs after loading is complete.");
-        setTimeout(function ()
+        if ((tabName !== 'PlayLists') && (vPlTabActivated === 0))
         {
-          $("#plTab_info3").text('');
-        }, 4500);
-        return;
-      }
-      if ((tabName !== 'PlayLists') && (plTabs_getSelectedCnt() == 0))
-      {
-        alert('At least one playlist must be selected on the \'Playlist Tab\' before switching tabs.');
-        return;
-      }
+          // let the initial load of the plTab complete before allowing a switch to another tab
+          return;
+        }
+        if (vPlTabLoading === true)
+        {
+          $("#plTab_info2").text("Playlist Tab is loading. Please switch tabs after loading is complete.");
+          setTimeout(function ()
+          {
+            $("#plTab_info3").text('');
+          }, 4500);
+          return;
+        }
+        if ((tabName !== 'PlayLists') && (plTabs_getSelectedCnt() == 0))
+        {
+          alert('At least one playlist must be selected on the \'Playlist Tab\' before switching tabs.');
+          return;
+        }
 
-      if (vTracksTabLoading === true)
-      {
-        $("#tracksTab_info3").text("Tracks Tab is loading. Please switch tabs after loading is complete.");
-        setTimeout(function ()
+        if (vTracksTabLoading === true)
         {
-          $("#tracksTab_info3").text('');
-        }, 4500);
-        return;
-      }
-      if (vDupsTabLoading === true)
-      {
-        $("#dupsTab_info3").text("Duplicates Tab is loading. Please switch tabs after loading is complete.");
-        setTimeout(function ()
+          $("#tracksTab_info3").text("Tracks Tab is loading. Please switch tabs after loading is complete.");
+          setTimeout(function ()
+          {
+            $("#tracksTab_info3").text('');
+          }, 4500);
+          return;
+        }
+        if (vDupsTabLoading === true)
         {
-          $("#dupsTab_info3").text('');
-        }, 4500);
-        return;
-      }
-      if (vArtistsTabLoading === true)
-      {
-        $("#artistsTab_info3").text("Artists Tab is loading. Please switch tabs after loading is complete.");
-        setTimeout(function ()
+          $("#dupsTab_info3").text("Duplicates Tab is loading. Please switch tabs after loading is complete.");
+          setTimeout(function ()
+          {
+            $("#dupsTab_info3").text('');
+          }, 4500);
+          return;
+        }
+        if (vArtistsTabLoading === true)
         {
-          $("#artistsTab_info3").text('');
-        }, 4500);
-        return;
+          $("#artistsTab_info3").text("Artists Tab is loading. Please switch tabs after loading is complete.");
+          setTimeout(function ()
+          {
+            $("#artistsTab_info3").text('');
+          }, 4500);
+          return;
+        }
       }
 
       let i, tabcontent, tablinks;
@@ -389,4 +392,3 @@
       $("#btnInfoTab")[0].click();
     }
   }
-  
