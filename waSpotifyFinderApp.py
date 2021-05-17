@@ -182,11 +182,15 @@ def Tabs():
   # cookieDump('/Tabs')
 
   # if this throws than the session has expired, the user will be sent to the home page
+  # normal scenario - spotifyfinder.com/tabs page is open and the session expires so user gets an alert box saying session expired
+  #                   and pressess ok and is sent to spotifyfinder.com
+  # goofy  scenario - usr presses a spotifyfinder.com/tab shortcut and the page is not open or is expired....users sees the retval
+  #                   strings as plain txt.  shortcuts should always be www.spotifyfinder.com
   try:
     id = session['mUserId']
   except Exception:
-    retVal = [sfConst.errSessionTimeOut, oLoader.getDateTm(), 'Tabs()', 'Session has expired.', '', '', '']
-    return jsonify({ 'errRsp': retVal })
+    retVal = [sfConst.errSessionTimeOut, oLoader.getDateTm(), 'Tabs()', 'Your session has expired.', 'To restart your session goto:', 'www.SpotifyFinder.com', '']
+    return jsonify({ 'errRsp': retVal }) # errSessionTimeOut = -742
 
   if request.method == 'POST':
     rqJson = request.get_json()

@@ -9,9 +9,13 @@
   const cbAutoSel = 'Auto Select Dups';
 
   //-----------------------------------------------------------------------------------------------
-  function dupsTab_initPlTab(tableHeight=300)
+  function dupsTab_init(tableHeight=300)
   {
     // console.log("dupsTab_initPlTab() - dupsTable ready()");
+    
+    // after a refresh put the radio btns back into the initial state (needed for firefox)
+    $(rPlModeAcross).prop('checked',true);
+    $(rPlSearchId).prop('checked',true);
 
     // must be before table creation
     // add search input boxes to the dom at the bottom of the desired columns
@@ -105,11 +109,6 @@
         // this works better if the clear tables are here instead of being inside async calls
         // we are reloading both tables so we empty them out
         vDupsTable.clear().draw();
-
-        // after a browser reset ensure vars match radio btns...but why are the radio btns not in default state?
-        vModePlaylist = $("input[name='rPlMode']:checked").val();
-        vModeSearch = $("input[name='rPlSearch']:checked").val();
-        // console.log('__SF__dupsTab_activate() - radio btn values vModePlaylist = ' + vModePlaylist + ', vModeSearch = ' + vModeSearch)
 
         // console.log('__SF__dupsTab_afActivate() - start loading');
         $("#dupsTab_info3").text('');
@@ -293,17 +292,17 @@
         // var vModeSearch = 'Track Id'  // 'Track Id' or 'Nad' = TrackName/ArtistName/Duration
         mode = 'not set';
         if (vModePlaylist == 'Same')
-          mode = 'using: In Same Playlist';
+          mode = 'using: [In Same Playlist]';
         else
-          mode = 'using: Across Playlists';
+          mode = 'using: [Across Playlists]';
 
         search = 'not set';
         if (vModeSearch == 'Track Id')
-          search = ' / Exact Match';
+          search = ' & [Exact Match]';
         else
-          search = ' / Very Close Match';
+          search = ' & [Very Close Match]';
 
-        msg = 'No Duplicates found in selected playlists, ' + mode + search;
+        msg = 'No Duplicates found in selected playlists ' + mode + search;
 
         $("#dupsTab_info3").text(msg);
       }

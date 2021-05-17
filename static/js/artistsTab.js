@@ -7,7 +7,7 @@
   var vArtistNameTableLastSelectedRow = 0;
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_initArtistTab(tableHeight=300)
+  function artistsTab_init(tableHeight=300)
   {
     // console.log("artistsTab_initTracksTab()  artistNamesTable ready()");
 

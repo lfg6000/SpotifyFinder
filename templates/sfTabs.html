@@ -22,14 +22,14 @@
     <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Duplicates')" id="btnDupsTab">Duplicates</button>
     <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Artists')" id="btnArtistsTab">Artists</button>
     <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Info')" id="btnInfoTab">Help</button>
-<!--    <button class="tablinks tabRight" style="pointer-events: none;" id="cookieDisp">Info</button>-->
+    <button class="tablinks tabRight" style="pointer-events: none;  display: none;" id="cookieDisp">UUID</button>
   </div>
 
   <div id="PlayLists" class="tabcontent">
     {% include "plTab.html" %}
     <hr class="sep1px">
     <div id="plTabs_outerRow2" class="clearfix">
-      <div class="innerRowLeft rowMargin2"><label id="plTab_info1" class="spaceRight"></label></div>
+      <div class="innerRowLeft rowMargin2"><label id="plTab_info1" class="spaceRight"  ondblclick="plTab_onDblClickExeTm()"></label></div>
       <div class="innerRowLeft rowMargin2"><label id="plTab_info2"></label></div>
 <!--      <div class="innerRowRight rowMargin2"><button onclick="plTab_btnCoffee()" title="Support the project" class="spaceTopBot">Coffee</button></div>-->
       <div class="innerRowRight rowMargin2"><button onclick="window.open('https://www.buymeacoffee.com/SpotifyFinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Buy me a coffee</button></div>
@@ -40,7 +40,7 @@
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="plTab_progBar" class="progressBar"></div> </div>
       <div class="innerRowLeft rowMargin3"><label id="plTab_ExeTm" style="font-size: 11px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="plTab_progStat1" style="color: red;"></label></div>
-      <div class="innerRowRight rowMargin3"><label id="plTab_hint" style="font-size: 13px;" onClick="plTab_onClickExeTm()">Playlists selected on this tab determines what playlists are examined by the Tracks, Duplicates and Artists Tabs.</label></div>
+      <div class="innerRowRight rowMargin3"><label id="plTab_hint" style="font-size: 13px;">Playlists selected on this tab determines what playlists are examined by the Tracks, Duplicates and Artists Tabs.</label></div>
     </div>
   </div>
 

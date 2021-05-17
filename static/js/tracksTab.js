@@ -7,7 +7,7 @@
   var vPlNameTableLastSelectedRow = 0;
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_initTracksTab(tableHeight=300)
+  function tracksTab_init(tableHeight=300)
   {
     // console.log("tracksTab_initTracksTab()  plNamesTable ready()");
 

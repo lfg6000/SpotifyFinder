@@ -44,16 +44,16 @@
 
     infoTab_addClientLogMsg(['SpotifyFinder', 'Started']);
 
-    plTab_initPlTab(tableHeight);
+    plTab_init(tableHeight);
     plTab_redraw();
 
     // simulate a playlist tab click to load the tab calls tabs_afSwitchTabs()
     $("#btnPlTab")[0].click(); // document.getElementById("btnPlTab").click();
 
-    tracksTab_initTracksTab(tableHeight);
-    dupsTab_initPlTab(tableHeight);
-    artistsTab_initArtistTab(tableHeight);
-    infoTab_initInfoTab(tableHeight+125);
+    tracksTab_init(tableHeight);
+    dupsTab_init(tableHeight);
+    artistsTab_init(tableHeight);
+    infoTab_init(tableHeight+125);
 
     $(window).resize(function()
     {

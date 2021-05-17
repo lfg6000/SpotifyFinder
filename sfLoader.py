@@ -326,7 +326,7 @@ class SpfLoader():
       results = this.oAuthGetSpotifyObj().current_user()
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
-      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
+      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', ' + session.sid + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
       return [sfConst.errNone], session['mUserId'], session['mUserName'], session.sid
     except Exception:
       tupleExc = sys.exc_info()

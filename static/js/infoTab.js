@@ -4,7 +4,7 @@
   var vClientLog = [];
 
     //-----------------------------------------------------------------------------------------------
-  function infoTab_initInfoTab(tableHeight=300)
+  function infoTab_init(tableHeight=300)
   {
     // the area for the help text tracks the browser client height
     $(".innerInfoTextPanel").height(tableHeight-8);

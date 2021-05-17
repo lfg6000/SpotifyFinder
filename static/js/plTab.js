@@ -15,7 +15,7 @@
   const cbOwnerDefault = '     Select Playlists By Owners Name / Owners Id     ';
 
   //-----------------------------------------------------------------------------------------------
-  function plTab_initPlTab(tableHeight=300)
+  function plTab_init(tableHeight=300)
   {
     // console.log("plTab_initPlTab() - plTable ready()");
 
@@ -105,16 +105,9 @@
         await plTab_afLoadPlTable();
         plTab_initPlTableCkboxes();
         await plTab_afUpdatePlSelectedDict();
-
         plTabs_updateSelectedCntInfo();
-
-        // $('#cookieDisp').text(vCookie);
-
-        // console.log('__SF__plTab_afActivate() - exit');
-        return;
       }
-
-      if (vLastTracksRmMvCpCntr !== curTracksRmMvCpCntr)
+      else if (vLastTracksRmMvCpCntr !== curTracksRmMvCpCntr)
       {
         // console.log("plTab_afActivate() - last and cur removed cntrs are different");
 
@@ -635,12 +628,24 @@
   }
 
     //-----------------------------------------------------------------------------------------------
-  function plTab_onClickExeTm()
+  function plTab_onDblClickExeTm()
   {
+    // console.log("__SF__plTab_onDblClickExeTm = ", vShowExeTm);
+
     // if you click "Playlists selected on this tab determines..." at the bottom of theplTab load times for each tab will be displayed
-    vShowExeTm = 1;
-    $("#plTab_ExeTm").text(vPlTmExe);
-    // console.log("plTab_onClickExeTm = ", vShowExeTm);
+    if (vShowExeTm == 0)
+    {
+      vShowExeTm = 1;
+      $("#plTab_ExeTm").text(vPlTmExe);
+      $('#cookieDisp').text(vSid);
+      $('#cookieDisp').show();
+    }
+    else
+    {
+      vShowExeTm = 0;
+      $("#plTab_ExeTm").text('');
+      $('#cookieDisp').hide();
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
