@@ -61,6 +61,7 @@ class SpfLoader():
     session['mArtistDict'] = {}
     session['mArtistTrackList'] = []
 
+    session['mLastPlLoaded'] = ''
     session['mErrLog'] = []
 
     # errDesc = []
@@ -627,28 +628,37 @@ class SpfLoader():
         pub = 'Public' if item['public'] == True else 'Private'
         ownerId = item['owner']['id']
         ownerNm = item['owner']['display_name']
+        if (ownerId == None):
+          ownerId='unknownId'
+        if (ownerNm == None):
+          ownerNm = 'unknownNm'
+        nTracks = item['tracks']['total']
+        if (nTracks == None):
+          nTracks = 0
+
         session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
                                           'Playlist Name': item['name'],
                                           'Playlist Owners Name': ownerNm,
                                           'Playlist Owners Id': ownerId,
                                           'Public': pub,
                                           'Snapshot Id': item['snapshot_id'],
-                                          'Tracks': str(item['tracks']['total']),
+                                          'Tracks': str(nTracks),
                                           'Duration': '0'}
-        session['mTotalTrackCnt'] += item['tracks']['total']
+        session['mTotalTrackCnt'] += nTracks
         if (ownerId == session['mUserId']):
           session['mPlaylistCntUsr'] += 1
-          session['mTotalTrackCntUsr'] += item['tracks']['total']
+          session['mTotalTrackCntUsr'] += nTracks
         id = ownerNm + ' / ' + ownerId
         if id not in session['mPlDictOwnersList']:
           session['mPlDictOwnersList'].append(id)
+        session['mLastPlLoaded'] = item['name']
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlDict.json', 'w') as f:
       #   json.dump(session['mPlDict'], f)
       return [sfConst.errNone], nPlRxd
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errLoadPlDict, this.getDateTm(), 'loadPlDict()', 'Loading Playlists Failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errLoadPlDict, this.getDateTm(), 'loadPlDict()', 'Loading Playlists Failed', str(tupleExc[0]), str(tupleExc[1]), 'last playlists successfully loaded = ' + session['mLastPlLoaded']]
       this.addErrLogEntry(retVal)
       return retVal, 0
 

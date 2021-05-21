@@ -11,6 +11,7 @@
 .cache
 /templates/helper.txt
 lfgDbCmds.txt
+lfgDbCmdsWB.sql
 lfgReadMe.txt
 lfgReadMePa.txt
 waSpotifyFinderApp.spec
