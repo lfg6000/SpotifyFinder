@@ -208,11 +208,18 @@
   //-----------------------------------------------------------------------------------------------
   async function tabs_afRemoveTracks(rmTracksList)
   {
-    // console.log('__SF__tabs_afRemoveTracks()');
+    console.log('__SF__tabs_afRemoveTracks() - vUrl - removeTracks');
+
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
-    console.log('__SF__tabs_afRemoveTracks() - vUrl - removeTracks');
+    if (Object.keys(rmTracksList).length > 100)
+    {
+      msg = 'Spotify limits the number of tracks that can be removed at a time to 100. No tracks were removed.\n'
+      alert(msg);
+      return;
+    }
+
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ removeTracks: 'removeTracks', rmTracksList: rmTracksList }), });
     if (!response.ok)
