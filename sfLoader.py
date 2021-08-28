@@ -615,6 +615,9 @@ class SpfLoader():
       if (idx == 0):
         session['mPlDict'].clear()
         session['mTotalTrackCnt'] = 0
+        session['mTotalTrackCntUsr'] = 0
+        session['mPlaylistCnt'] = 0
+        session['mPlaylistCntUsr'] = 0
         session['mPlSelectedDict'].clear()
         session['mPlTracksDict'].clear()
 
