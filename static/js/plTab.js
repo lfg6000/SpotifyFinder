@@ -358,25 +358,46 @@
   //-----------------------------------------------------------------------------------------------
   function plTab_initPlTableCkboxes()
   {
-    // on the initial load we select all the playlists for the current user
     // console.log('__SF__user id = ' + vUserId)
-
     vPlTabLoading = true;
-    let cnt = 0;
-    let setCkCnt = 4;
-    vPlTable.rows().every(function ()
+
+    plDefault = plTab_getCookiePlDefault();
+    if (Object.keys(plDefault).length > 0)
     {
-      let rowData = this.data()
-      // if (rowData[6] === 'd821vfpc7iz90kbxig72n533l') // ownerId === vUserId
-      if (rowData[6] === vUserId) // ownerId === vUserId
+      //console.log('__SF__plTab_afRestorePlTableCkboxes() - reselect rows using plSelectedDict ');
+      let idx = 0;
+      vPlTabLoading = true;
+      vPlTable.rows().every(function ()
       {
+        rowData = this.data();
+        let rowPlId = rowData[5]
+        $.each(plDefault, function (key, values)
+        {
+          //if plTable plId matches plSelectedDict plId than select the row
+          if (rowPlId === key)
+            vPlTable.row(idx).select();
+        });
+        idx += 1;
+      });
+    }
+    else
+    {
+      let cnt = 0;
+      let setCkCnt = 4;
+      vPlTable.rows().every(function ()
+      {
+        let rowData = this.data()
+        // if (rowData[6] === 'd821vfpc7iz90kbxig72n533l') // ownerId === vUserId
+        if (rowData[6] === vUserId) // ownerId === vUserId
+        {
           if (cnt < setCkCnt)
           {
             this.select();
             cnt += 1;
           }
-      }
-    });
+        }
+      });
+    }
     vPlTabLoading = false;
   }
 
@@ -477,7 +498,7 @@
     plTab_afIncPlSelectionCntr();
     plTabs_updateSelectedCntInfo();
   });
-  
+
   //-----------------------------------------------------------------------------------------------
   async function plTab_afUpdatePlSelectedDict()
   {
@@ -667,3 +688,63 @@
       return reply['nPlRxd']
     }
   }
+
+  //-----------------------------------------------------------------------------------------------
+  function plTabs_btnSavePlDefault()
+  {
+    console.log('plTabs_btnSavePlDefault()');
+    plTab_setCookiePlDefault();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function plTab_setCookiePlDefault()
+  {
+    // remember selected playlists.
+    // Each time you visit spotifyFinder.com these playlists will be selected by default
+
+    // console.log('__SF__plTab_setCookiePlDefault()');
+
+    let plDefaultDict = {};
+    $.each(vPlTable.rows('.selected').nodes(), function(i, item)
+    {
+      let rowData = vPlTable.row(this).data();
+      plDefaultDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6] };
+    });
+
+    const d = new Date();
+    d.setTime(d.getTime() + (730 * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    // console.log("plDefault = ", plDefaultDict)
+    document.cookie = "plDefault" + "=" + JSON.stringify(plDefaultDict) + ";" + expires + ";path=/";
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function plTab_getCookiePlDefault()
+  {
+    // console.log('__SF__plTab_getCookiePlDefault()');
+    plDefaultDict = {}
+    let name = "plDefault=";
+    let ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++)
+    {
+      let c = ca[i];
+      while (c.charAt(0) == ' ')
+      {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0)
+      {
+        plDefaultDict = $.parseJSON(c.substring(name.length, c.length));
+        // $.each(plDefaultDict, function(key, values)
+        // {
+        //   console.log("plDefaultDict plId = ", key, ", name", values['Playlist Name'], ", owner", values['Playlist Owners Id']);
+        // });
+
+        return plDefaultDict;
+        // return c.substring(name.length, c.length);
+      }
+    }
+    return plDefaultDict;
+  }
+
+
