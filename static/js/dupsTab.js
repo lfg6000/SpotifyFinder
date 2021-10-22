@@ -260,14 +260,11 @@
       let idx = 0;
       let dupsTrackList = reply['dupsTrackList'];
       let dupsClrList = reply['dupsClrList'];
-      let plIdList = [];
       $.each(dupsTrackList, function(key, tvals)
       {
         vDupsTable.row.add(['', tvals['Track Name'], tvals['Playlist Name'], tvals['Track Position'], tvals['Artist Name'],
                                 tvals['Album Name'], tvals['Duration Hms'], tvals['Playlist Owners Name'], tvals['Track Id'],
                                 tvals['Playlist Id'], tvals['Track Uri'], dupsClrList[idx], tvals['Playlist Owners Id'] ]);
-        if (plIdList.includes(tvals['Playlist Id']) === false)
-          plIdList.push(tvals['Playlist Id']);
         idx++;
       });
       vDupsTable.draw();

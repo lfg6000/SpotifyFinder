@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- use the pycharm editor to change this file...it is much easier than the blue griffon editor i started with -->
+<!-- this html help doc is displayed in qt QTextBrowser window and this qt object has html rendering issues -->
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>SearchTab</title>
+  </head>
+  <body>
+    <h2>Search Tab</h2>
+
+    <h3>Overview</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">displays all duplicate tracks for the selected playlists</span></li>
+      <ul><li><span style="font-size: 11pt;">add/remove selected playlists on the Playlist Tab</span></li></ul>
+      <li><span style="font-size: 11pt;">remove a duplicate track from a specific playlist</span></li>
+    </ul>
+
+    <h3>Finding Dups (radio buttons)</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">there are 4 ways to search for duplicates:</span></li>
+    </ul>
+    <ul>
+      <ol>
+        <li><span style="font-size: 11pt;">find dups across playlists using track id (exact match)</span></li>
+        <li><span style="font-size: 11pt;">find dups across playlists using "track name/artist name/track duration" (a very close match)</span></li>
+        <li><span style="font-size: 11pt;">find dups in the same playlist using track id (exact match)</span></li>
+        <li><span style="font-size: 11pt;">find dups in the same playlist using "track name/artist name/track duration" (a very close match)</span></li>
+      </ol>
+    </ul>
+
+    <h3>When finding dups using "track name/artist name/track duration"</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">the track name will be identical</span></li>
+      <li><span style="font-size: 11pt;">the artist name will be identical</span></li>
+      <li><span style="font-size: 11pt;">the track duration within 30 seconds</span></li>
+    </ul>
+
+    <h3>Why do tracks have the same name but different track ids</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">There are many reasons:</span></li>
+    </ul>
+    <ul>
+      <ol>
+        <li><span style="font-size: 11pt;">The artist has made multiple recordings of the same track</span></li>
+        <li><span style="font-size: 11pt;">The artist releases the same track on multiple albums, original, greatist hits</span></li>
+        <li><span style="font-size: 11pt;">The artist re-releases the same album with improved sound (remastered)</span></li>
+        <li><span style="font-size: 11pt;">It is a long list....</span></li>
+      </ol>
+    </ul>
+
+    <h3>Remove Selected Tracks (button)</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">tracks with a checkmark present will be removed from the associated playlist</span></li>
+      <li><span style="font-size: 11pt;">you can not remove tracks <span class="spul">from</span> a playlist you do not own</span></li>
+    </ul>
+
+    <h3>Finding a Track</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">click in the search box at the bottom of TrackName column and then type the first few letters of the track name</span></li>
+    </ul>
+
+    <h3>Sorting (column headers)</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">you can click on any column header to sort the table</span></li>
+      <li><span style="font-size: 11pt;">to return to the original sort order press refresh at the bottom of the page</span></li>
+    </ul>
+
+    <h3>Refresh (button)</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">refreshing your dups table can be useful if you changed the column sort and want to revert to the original sorting</span></li>
+      <li><span style="font-size: 11pt;">if you changed a playlist in the Spotify App go to the Playlist Tab and press 'Reload Playlists from Spotify'</span></li>
+    </ul>
+
+    <h3>Support</h3>
+    <ul>
+      <li><span style=" font-size: 11pt;"><a onClick="javascript:window.open('mailto:spotifyfinderapp@gmail.com', 'mail');event.preventDefault()" href="mailto:spotifyfinderapp@gmail.com">Send us an e-mail</a>&nbsp; &nbsp; If you have questions, issues, or suggestions.</span></li>
+      <li><span style=" font-size: 11pt;"><a href="https://github.com/lfg6000/SpotifyFinder/issues", target="_blank", rel="noopener noreferrer">Report Issues on GitHub</a>&nbsp; &nbsp; If you are a github user.</span></li>
+    </ul>
+
+    <h3>Support the Project</h3>
+    <span style="font-size: 11pt;"><button onclick="window.open('https://www.buymeacoffee.com/SpotifyFinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Buy me a coffee</button>&nbsp; &nbsp; A small donation will help pay for the web site hosting service.</span>
+    <br>
+    <br>
+    <br>
+
+  </body>
+</html>

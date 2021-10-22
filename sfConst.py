@@ -33,6 +33,8 @@ errMvCpTracks = -25
 errLoadPlTracks1x = -26
 errUnknownPost = -27
 errUnknownPostCmd = -28
+errRunSearch = -29
+errGetSearchTrackList = -30
 
 # ---------------------------------------------------------------
 # err log entry values

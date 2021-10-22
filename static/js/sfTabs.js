@@ -3,7 +3,7 @@
   var vLastPlSelectionCntr = 0;
   var vCurPlSelectionCntr = 1;
   var vCurTracksRmMvCpCntr = 1;
-  var vRedrawNeeded = [0,0,0,0];
+  var vRedrawNeeded = [0,0,0,0,0];
   var vAborting = 0;
   var vProgressBarTmr = null;
   var vProgBar = null;
@@ -53,12 +53,13 @@
     tracksTab_init(tableHeight);
     dupsTab_init(tableHeight);
     artistsTab_init(tableHeight);
+    searchTab_init(tableHeight);
     infoTab_init(tableHeight+125);
 
     $(window).resize(function()
     {
       // console.log('__SF__>>>>>>>>>>>>>>>> reize()')
-      vRedrawNeeded = [1,1,1,1];
+      vRedrawNeeded = [1,1,1,1,1];
     });
 
     // console.log('__SF__tab_document.ready() ***** exit *****')
@@ -117,6 +118,15 @@
           setTimeout(function ()
           {
             $("#artistsTab_info3").text('');
+          }, 4500);
+          return;
+        }
+        if (vSearchTabLoading === true)
+        {
+          $("#searchTab_info3").text("Search Tab is loading. Please switch tabs after loading is complete.");
+          setTimeout(function ()
+          {
+            $("#searchTab_info3").text('');
           }, 4500);
           return;
         }
@@ -193,6 +203,17 @@
         }
         artistsTab_selectRow(); // make sure last selected artist name has focus
       }
+
+      if (tabName === 'Search')
+      {
+        await searchTab_afActivate(vCurPlSelectionCntr);
+        if (vRedrawNeeded[4] === 1)
+        {
+          searchTab_redraw();
+          vRedrawNeeded[4] = 0;
+        }
+      }
+
     }
     catch(err)
     {

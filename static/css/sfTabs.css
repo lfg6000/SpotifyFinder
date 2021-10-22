@@ -396,6 +396,10 @@
   #artistsTab_outerRow2 { width:100%; }
   #artistsTab_outerRow3 { width:100%; }
 
+  #searchTab_outerRow1 { width:100%; }
+  #searchTab_outerRow2 { width:100%; }
+  #searchTab_outerRow3 { width:100%; }
+
   #infoTab_outerRow1 { width:100%; }
 
   .spaceRight { margin-right: 60px; }

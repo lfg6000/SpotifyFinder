@@ -1,0 +1,72 @@
+
+
+
+<div style="width: 100%;">
+  <div style="border:1px solid black; border-bottom: none; border-right: none; border-left: none; padding-top:8px;">
+    <table id="searchTable" class="cell-border compact order-column" style="width:100%;">
+      <thead>
+        <tr>
+          <th></th>
+          <th>TrackName</th>
+          <th>ArtistName</th>
+          <th>AlbumName</th>
+          <th>PlaylistName</th>
+          <th>Duration</th>
+          <th>Track</th>
+          <th>PlaylistOwner</th>
+          <th>TrackId</th>
+          <th>PlaylistId</th>
+          <th>TrackUri</th>
+          <th>PlaylistOwnerId</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <th></th>
+          <th>TrackName</th>
+          <th>ArtistName</th>
+          <th>AlbumName</th>
+          <th>PlaylistName</th>
+          <th>Duration</th>
+          <th>Track</th>
+          <th>PlaylistOwner</th>
+          <th>TrackId</th>
+          <th>PlaylistId</th>
+          <th>TrackUri</th>
+          <th>PlaylistOwnerId</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+
+  <div class="borderGreen2"></div>
+  <div id="outerRow1" class="clearfix">
+    <div class="innerRowLeft" style="margin: 16px 4px 6px 4px;"><button onclick="searchTab_btnRemoveTracks()"  title="Remove selected tracks from Playlist">Remove Dups</button></div>
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin:-2px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Find Dups</legend>
+          <input  style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;" type="radio" name="rPlMode" id="rPlModeAcross" value="Across" checked><label for="rPlModeAcross">Across Playlists</label>
+          <input  style="margin: 0px 6px 0px 10px; padding: 0px 6px 2px 6px;" type="radio" name="rPlMode" id="rPlModeSame" value="Same"><label for="rPlModeSame">In Same Playlist</label>
+        </fieldset>
+      </span>
+    </div>
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin:-2px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Find Dups Using</legend>
+          <input  style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchId" value="Track Id" checked><label for="rPlSearchId">Track Id (Exact Match)</label>
+          <input  style="margin: 0px 6px 0px 10px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchNad" value="Nad"><label for="rPlSearchNad">Track Name/Artist Name/Duration (Very Close Match)</label>
+        </fieldset>
+      </span>
+    </div>
+    <div class="innerRowLeft rowMargin1" style="margin: 16px 4px 6px 4px;"><select id="searchTab_cbAutoSel" onchange="searchTab_cbAutoSelOnChange()" title="Auto Select Duplicates. Only enabled when 1-2 playlists are selected.">Auto Select</select></div>
+    <div class="innerRowLeft" style="margin: 16px 4px 6px 4px;"><button onclick="searchTab_btnRefresh()" title="Clear search boxes and restore original sort">Refresh</button></div>
+    <div class="innerRowLeft" style="margin: 16px 4px 6px 4px;"><button onclick="searchTab_btnHelp()" title="View Duplicates Tab Help Info">?</button></div>
+  </div>
+
+
+
+

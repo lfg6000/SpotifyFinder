@@ -61,6 +61,9 @@ class SpfLoader():
     session['mArtistDict'] = {}
     session['mArtistTrackList'] = []
 
+    session['mSearchTrackList'] = []
+    session['mNumSearchMatches'] = 0
+
     session['mLastPlLoaded'] = ''
     session['mErrLog'] = []
 
@@ -391,11 +394,12 @@ class SpfLoader():
         visitCntRm = 0
         visitCntMv = 0
         visitCntCp = 0
+        visitCntSearch = 0
         visitCntHelp = 0
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
                        (userId, userName,
                         int(visitCnt), int(visitCntTracks), int(visitCntDups), int(visitCntArt),
-                        int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntHelp),
+                        int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntHelp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
                         sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
@@ -441,6 +445,7 @@ class SpfLoader():
         visitCntRm = user['visitCntRm']
         visitCntMv = user['visitCntMv']
         visitCntCp = user['visitCntCp']
+        visitCntSearch = user['visitCntSearch']
         visitCntHelp = user['visitCntHelp']
 
         if (cntType == 'Tracks'):
@@ -455,11 +460,13 @@ class SpfLoader():
           visitCntMv = visitCntMv + 1  # every mv also does a rm
         if (cntType == 'Cp'):
           visitCntCp = visitCntCp + 1
+        if (cntType == 'Search'):
+          visitCntSearch = visitCntSearch + 1
         if (cntType == 'Help'):
           visitCntHelp = visitCntHelp + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
-                       (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntHelp), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
+                                      (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntHelp), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()
@@ -1388,3 +1395,49 @@ class SpfLoader():
       retVal = [sfConst.errLoadArtistTrackList, this.getDateTm(), 'loadArtistTrackList()', 'Failed to create track list for selected artists.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal
+
+  # ---------------------------------------------------------------
+  # ---------------------------------------------------------------
+  # SearchList
+  #  - a list containing dictionaries
+  # ---------------------------------------------------------------
+  # ---------------------------------------------------------------
+
+  # ---------------------------------------------------------------
+  def runSearch(this, modePlaylist, modeSearch):
+    # print('>>loader.findDups()')
+
+    try:
+      artistNameVal = 'farish'
+      # raise Exception('throwing loader.runSearch()')
+      session['mSearchTrackList'].clear()
+      session['mNumSearchMatches'] = 0
+      plTracksDict = this.getPlTracksDict()
+      for plId, plTrackList in plTracksDict.items():
+        if plId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
+          continue
+        for track in plTrackList:
+          if artistNameVal.lower() in track['Artist Name'].lower():
+            session['mSearchTrackList'].append(track)
+            session['mNumSearchMatches'] += 1
+
+      # raise Exception('throwing loader.findDupsId()')
+
+      return [sfConst.errNone]
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errRunSearch, this.getDateTm(), 'runSearch()', 'search failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def getSearchTrackList(this, modePlaylist, modeSearch):
+    # print('>>loader.getDupsTrackList()')
+    try:
+      # raise Exception('throwing loader.getSearchTrackList()')
+      return [sfConst.errNone], session['mSearchTrackList'], session['mNumSearchMatches']
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal, [], 0, []

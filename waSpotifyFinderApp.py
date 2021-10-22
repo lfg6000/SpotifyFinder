@@ -197,6 +197,22 @@ def Tabs():
     if rqJson != None:
       key = next(iter(rqJson))
 
+      if (key == 'runSearch'):
+        modePlaylist = rqJson['modePlaylist']
+        modeSearch = rqJson['modeSearch']
+        # print('>>/Tabs nameSearch() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
+        retVal = oLoader.runSearch(modePlaylist, modeSearch)
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Search')
+        return jsonify({ 'errRsp': retVal })
+
+      if (key == 'getSearchTrackList'):
+        modePlaylist = rqJson['modePlayList']
+        modeSearch = rqJson['modeSearch']
+        # print('>>/Tabs getNameSearchTrackList()')
+        retVal, searchTrackList, numSearchMatches, = oLoader.getSearchTrackList(modePlaylist, modeSearch)
+        return jsonify({ 'errRsp': retVal, 'searchTrackList': searchTrackList, 'numSearchMatches': numSearchMatches})
+
       if (key == 'findDups'):
         modePlaylist = rqJson['modePlaylist']
         modeSearch = rqJson['modeSearch']
