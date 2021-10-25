@@ -3,14 +3,21 @@
   var vSearchTableLastSearchCol = '';
   var vSearchTabLoading = false;
 
-  var vModePlaylist = 'Same'  // 'Across' or 'Same'
-  var vModeSearch = 'Track Id'  // 'Track Id' or 'Nad' = TrackName/ArtistName/Duration
+  var vCbxTrackNameVal = false;
+  var vCbxArtistNameVal = false;
+  var vCbxAlbumNameVal = false;
+  var vCbxPlaylistNameVal = false;
+  var vCbxDurationHmsVal = false;
+  var vCbxTrackIdVal = false;
+
+  var vSearchText = '';
+
 
   //-----------------------------------------------------------------------------------------------
   function searchTab_init(tableHeight=300)
   {
     // console.log("searchTab_initPlTab() - searchTable ready()");
-    
+
     // after a refresh put the radio btns back into the initial state (needed for firefox)
     $(rPlModeAcross).prop('checked',true);
     $(rPlSearchId).prop('checked',true);
@@ -59,7 +66,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 65,  // compensate for extra height for radio btns that the other tabs do not have
+      "scrollY":         tableHeight - 85,  // compensate for extra height for radio btns that the other tabs do not have
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false, // background color of sorted column does not change
@@ -103,13 +110,17 @@
         // this works better if the clear tables are here instead of being inside async calls
         // we are reloading both tables so we empty them out
         vSearchTable.clear().draw();
+        $('#searchTab_cbMvCpDest').empty();
 
         // console.log('__SF__searchTab_afActivate() - start loading');
         $("#searchTab_info3").text('');
         tabs_set2Labels('searchTab_info1', 'Loading...', 'searchTab_info2', 'Loading...');
-        tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Loading...', showStrImmed=true);
+        tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Loading Tracks...', showStrImmed=true);
+
+        $('#searchTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
 
         await tracksTab_afLoadPlTracks();
+        await searchTab_afLoadSearchTable();
 
         if (vShowExeTm == 1)
         {
@@ -140,7 +151,7 @@
       // console.log("searchTab_afLoadSearchTableSeq()");
       vSearchTabLoading = true;
       tabs_set2Labels('searchTab_info1', 'Loading...', 'searchTab_info2', 'Loading...');
-      tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
+      tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Searching...', showStrImmed=true);
 
       vSearchTable.order([]); // remove sorting
       vSearchTable.clear().draw();
@@ -160,17 +171,96 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_radioBtnEventMode() { /* make function appear in pycharm structure list */ }
-  $('input[type=radio][name=rPlMode]').change(function()
+  async function searchTab_afClearSearchTrackListSeq()
   {
-    searchTab_afSearchSeq();
+    try
+    {
+      // console.log("__SF__searchTab_afClearSearchTrackListSeq()");
+      vSearchTabLoading = true;
+      tabs_set2Labels('searchTab_info1', 'Clearing...', 'searchTab_info2', 'Clearing...');
+      tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Clearing...', showStrImmed=true);
+
+      vSearchTable.order([]); // remove sorting
+      vSearchTable.clear().draw();
+      $("#searchTab_info3").text('');
+      await searchTab_afClearSearchTrackList();
+      await searchTab_afLoadSearchTable();
+    }
+    catch(err)
+    {
+      // console.log('__SF__searchTab_afClearSearchTrackListSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__searchTab_afClearSearchTrackListSeq() finally.');
+      vSearchTabLoading = false;
+      tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_LoadSearchParams()
+  {
+    vCbxTrackNameVal = $('#cbxTrackNameId').is(':checked');
+    vCbxArtistNameVal = $('#cbxArtistNameId').is(':checked');
+    vCbxAlbumNameVal = $('#cbxAlbumNameId').is(':checked');
+    vCbxPlaylistNameVal = $('#cbxPlaylistNameId').is(':checked');
+    vCbxDurationHmsVal = $('#cbxDurationHmsId').is(':checked');
+    vCbxTrackIdVal = $('#cbxTrackId').is(':checked');
+
+    vSearchText = $(searchTextInput).val();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function searchTab_afClearSearchTrackList()
+  {
+    // console.log('__SF__searchTab_afClearSearchTrackList()');
+
+    console.log('__SF__searchTab_afClearSearchTrackList() - vUrl - clearSearchTrackList');
+    let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
+                                      body: JSON.stringify({clearSearchTrackList: 'clearSearchTrackList'}),});
+    if (!response.ok)
+      tabs_throwErrHttp('__SF__searchTab_afClearSearchTrackList()', response.status, 'searchTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__searchTab_afClearSearchTrackList() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('__SF__searchTab_afClearSearchTrackList()', reply['errRsp'], 'searchTab_errInfo')
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_cbxEventSearch() { /* make function appear in pycharm structure list */  }
+  $('input[type=checkbox][name=cbxSearchFields]').change(function ()
+  {
+    // clicking on search field cbx will trigger a search
+    searchTab_LoadSearchParams();
+    if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
+        vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+    {
+      searchTab_afClearSearchTrackListSeq();
+      return;
+    }
+
+    if (vSearchText === '')
+      return
+
+    searchTab_afSearchSeq()
   });
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_radioBtnEventSearch() { /* make function appear in pycharm structure list */ }
-  $('input[type=radio][name=rPlSearch]').change(function()
+  function searchTab_searchTextFieldEvent() { /* make function appear in pycharm structure list */ }
+  $("#searchTextInput").on('keyup', function (event)
   {
-    searchTab_afSearchSeq()
+    // do a search when the user hits enter
+    if (event.keyCode === 13)
+    {
+      vSearchText = $(this).val();
+      if (vSearchText != "")
+        searchTab_afSearchSeq();
+    }
   });
 
   //-----------------------------------------------------------------------------------------------
@@ -178,9 +268,27 @@
   {
     try
     {
-      // console.log('__SF__searchTab_afSearchSeq()');
+      console.log('__SF__searchTab_afSearchSeq()');
       vSearchTabLoading = true;
       vSearchTable.clear().draw();
+
+
+      searchTab_LoadSearchParams();
+      if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
+          vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+      {
+        alert('A search field must be selected prior to doing a search.')
+        return;
+      }
+
+      if (vSearchText === '')
+      {
+        alert("A search text string must be entered prior to doing a search.");
+        return
+      }
+
+      // console.log("track = " + vCbxTrackNameVal + ", artist = " + vCbxArtistNameVal + ", album = " + vCbxAlbumNameVal + ", playlist = " + vCbxPlaylistNameVal + ", duration = " + vCbxDurationHmsVal + ", trackId = " + vCbxTrackIdVal);
+      // console.log("search text = " + vSearchText);
 
       // console.log('__SF__searchTab_afSearchSeq() - start loading');
       $("#searchTab_info3").text('');
@@ -207,18 +315,21 @@
   //-----------------------------------------------------------------------------------------------
   async function searchTab_afNameSearch()
   {
-    // var vModePlaylist = 'Across'  // or 'Same'
-    // var vModeSearch = 'Track Id'  // or 'Nad' = TrackName/ArtistName/Duration
-
     // console.log('__SF__searchTab_afNameSearch()');
 
-    vModePlaylist = $("input[name='rPlMode']:checked").val();
-    vModeSearch = $("input[name='rPlSearch']:checked").val();
-    // console.log('__SF__searchTab_afNameSearch() - radio btn values vModePlaylist = ' + vModePlaylist + ', vModeSearch = ' + vModeSearch)
+    searchTab_LoadSearchParams();
 
     console.log('__SF__searchTab_afNameSearch() - vUrl - runSearch');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ runSearch: 'runSearch', modePlaylist: vModePlaylist, modeSearch: vModeSearch }), });
+                                       body: JSON.stringify({ runSearch: 'runSearch',
+                                                              searchText:     vSearchText,
+                                                              ckTrackName:    vCbxTrackNameVal,
+                                                              ckArtistName:   vCbxArtistNameVal,
+                                                              ckAlbumName:    vCbxAlbumNameVal,
+                                                              ckPlaylistName: vCbxPlaylistNameVal,
+                                                              ckDurationHms:  vCbxDurationHmsVal,
+                                                              ckTrackId:      vCbxTrackIdVal }), });
+    vSearchText = ''
     if (!response.ok)
       tabs_throwErrHttp('searchTab_afNameSearch()', response.status, 'searchTab_errInfo');
     else
@@ -254,35 +365,43 @@
       });
       vSearchTable.draw();
 
+      plSelectedDict = reply['plSelectedDict']
+      nSelectedPl = Object.keys(plSelectedDict).length;
+
       searchTab_updateSelectedCnt();
-      let infoStr2 = 'Matches in Selected Playlists: ' + reply['numSearchMatches'];
+      let infoStr2 = 'Tracks Found: ' + reply['numSearchMatches'] + '&nbsp &nbsp &nbsp in ' + nSelectedPl + ' Selected Playlists ' + ' with ' + reply['numTracksInSelectedPl'] + ' Tracks';
       tabs_setLabel('searchTab_info2', infoStr2);
 
-      if (reply['numSearchMatches'] == 0)
+      $.each(plSelectedDict, function (key, item)
+      {
+        if (item['Playlist Owners Id'] === vUserId)
+        {
+          idNm = key + '::::' + item['Playlist Name']
+          // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
+          plNm = item['Playlist Name']
+          if (plNm.length > 44)
+            plNm = plNm.slice(0, 44) + '...'
+          $('#searchTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
+        }
+      });
+
+      vShowNoMatchesFound = true;
+      searchTab_LoadSearchParams();
+      if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
+          vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+        vShowNoMatchesFound = false;
+      else if (vSearchText === '')
+        vShowNoMatchesFound = false;
+      else if (reply['numSearchMatches'] > 0)
+        vShowNoMatchesFound = false;
+
+      if (vShowNoMatchesFound)
       {
         msg = 'No matches found in selected playlists.';
         $("#searchTab_info3").text(msg);
       }
     }
   }
-
-  //-----------------------------------------------------------------------------------------------
-  function searchTab_searchTableRow_onUserSelect() { /* make function appear in pycharm structure list */ }
-  $('#searchTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
-  {
-    rowData = vSearchTable.row(cell.node()).data()
-    // let rowData = vPlTracksTable.row(indexes).data();
-    // console.log('__SF__searchTab_searchTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
-    if (rowData[12] != vUserId)    // playlistOwnerId != vUserId
-    {
-       e.preventDefault();
-       $("#searchTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
-       setTimeout(function() { $("#searchTab_info3").text(''); }, 4500);
-       return;
-    }
-
-    searchTab_updateSelectedCnt();
-  });
 
   //-----------------------------------------------------------------------------------------------
   function searchTab_searchTableSelect() { /* make function appear in pycharm structure list */ }
@@ -341,15 +460,14 @@
         rmTrackList.push({'Playlist Id': rowData[9], 'Track Uri': rowData[10], 'Track Position': parseInt(rowData[3])});
       });
 
-      if (Object.keys(rmTrackList).length < 0)
-        return
+      if (Object.keys(rmTrackList).length === 0)
+        return;
 
       vSearchTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__searchTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afRemoveTracks(rmTrackList);
       vSearchTable.clear();
-      await searchTab_afNameSearch();
-      await searchTab_afLoadSearchTable();
+      await searchTab_afSearchSeq();
     }
     catch(err)
     {
@@ -362,6 +480,20 @@
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
     }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnSearch()
+  {
+    // console.log('__SF__searchTab_btnSearch()');
+    searchTab_afSearchSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnSearchClear()
+  {
+    console.log('__SF__searchTab_btnSearchClear()');
+    vSearchTable.clear().draw();
   }
 
   //-----------------------------------------------------------------------------------------------

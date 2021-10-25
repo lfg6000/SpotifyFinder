@@ -299,7 +299,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_plNameTableSelect() { /* make function appear in pycharm structure list */ }
+  function artistsTab_artistNameTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistNamesTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - artistNamesTable row select indexes = ', indexes);
@@ -315,7 +315,7 @@
   });
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_plNameTableKeyFocus() { /* make function appear in pycharm structure list */ }
+  function artistsTab_artistNameTableKeyFocus() { /* make function appear in pycharm structure list */ }
   $('#artistNamesTable').on('key-focus', function (e, datatable, cell)
   {
     // console.log('__SF__artistsTab_artistNamesTableKeyFocus() - artistNamesTable key focus ');
@@ -420,7 +420,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_artistsTracksTableSelect() { /* make function appear in pycharm structure list */ }
+  function artistsTab_artistsTracksTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistTracksTable').on('select.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__tracksTab_tracksTab_artistTracksTableSelect() - artistTracksTable row select');
@@ -428,7 +428,7 @@
   });
 
   //-----------------------------------------------------------------------------------------------
-  function plTabs_artistTracksTableDeselect() { /* make function appear in pycharm structure list */ }
+  function artistisTab_artistTracksTableDeselect() { /* make function appear in pycharm structure list */ }
   $('#artistTracksTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
     artistsTab_updateSelectedCnt();
@@ -488,8 +488,8 @@
         rmTrackList.push({'Playlist Id': rowData[8], 'Track Uri': rowData[9], 'Track Position': parseInt(rowData[5])});
       });
 
-      if (Object.keys(rmTrackList).length < 0)
-        return
+      if (Object.keys(rmTrackList).length === 0)
+        return;
 
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__artistsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
@@ -621,8 +621,8 @@
         }
       });
 
-      if (Object.keys(rmTrackList).length < 0)
-        return
+      if (Object.keys(rmTrackList).length === 0)
+        return;
 
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
@@ -693,8 +693,8 @@
         }
       });
 
-      if (Object.keys(cpTrackList).length < 0)
-        return
+      if (Object.keys(cpTrackList).length === 0)
+        return;
 
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));

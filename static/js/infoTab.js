@@ -80,7 +80,7 @@
         let reply = await response.json();
         // console.log('__SF__infoTab_afHtmlInfo() reply = ', reply);
         if (reply['errRsp'][0] !== 1)
-          tabs_throwSvrErr('infoTab_afHtmlInfo()', reply['errRsp'], 'plTab_errInfo')
+          tabs_throwSvrErr('infoTab_afHtmlInfo()', reply['errRsp'], 'infoTab_errInfo')
 
         vHtmlInfo = reply['htmlInfo'];
         // console.log('__SF__infoTab_afHtmlInfo() - \n   htmlInfo = ' + vHtmlInfo);
@@ -207,7 +207,7 @@
         let reply = await response.json();
         // console.log('__SF__infoTab_afLoadErrLog() reply = ', reply);
         if (reply['errRsp'][0] !== 1)
-          tabs_throwSvrErr('infoTab_afLoadErrLog()', reply['errRsp'], 'plTab_errInfo')
+          tabs_throwSvrErr('infoTab_afLoadErrLog()', reply['errRsp'], 'infoTab_errInfo')
 
         vHtmlInfo = "<pre>" + JSON.stringify(reply['errLog'], undefined, 2) + "</pre>";
         // console.log('__SF__infoTab_afLoadErrLog() - \n   errLog = ' + vHtmlInfo);

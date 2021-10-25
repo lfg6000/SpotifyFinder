@@ -381,7 +381,7 @@
         rmTrackList.push({'Playlist Id': rowData[9], 'Track Uri': rowData[10], 'Track Position': parseInt(rowData[3])});
       });
 
-      if (Object.keys(rmTrackList).length < 0)
+      if (Object.keys(rmTrackList).length === 0)
         return
 
       vDupsTable.clear();//.draw(); draw causes annoying flash

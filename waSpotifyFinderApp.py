@@ -198,20 +198,28 @@ def Tabs():
       key = next(iter(rqJson))
 
       if (key == 'runSearch'):
-        modePlaylist = rqJson['modePlaylist']
-        modeSearch = rqJson['modeSearch']
-        # print('>>/Tabs nameSearch() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
-        retVal = oLoader.runSearch(modePlaylist, modeSearch)
+        ckTrackName = rqJson['ckTrackName']
+        ckArtistName = rqJson['ckArtistName']
+        ckAlbumName = rqJson['ckAlbumName']
+        ckPlaylistName = rqJson['ckPlaylistName']
+        ckDurationHms = rqJson['ckDurationHms']
+        ckTrackId = rqJson['ckTrackId']
+        searchText = rqJson['searchText']
+        # print('>>/Tabs runSearch()')
+        retVal = oLoader.runSearch(searchText, ckTrackName, ckArtistName, ckAlbumName, ckPlaylistName, ckDurationHms, ckTrackId)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Search')
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getSearchTrackList'):
-        modePlaylist = rqJson['modePlayList']
-        modeSearch = rqJson['modeSearch']
         # print('>>/Tabs getNameSearchTrackList()')
-        retVal, searchTrackList, numSearchMatches, = oLoader.getSearchTrackList(modePlaylist, modeSearch)
-        return jsonify({ 'errRsp': retVal, 'searchTrackList': searchTrackList, 'numSearchMatches': numSearchMatches})
+        retVal, searchTrackList, numSearchMatches, plSelectedDict, numTracksInSelectedPl = oLoader.getSearchTrackList()
+        return jsonify({ 'errRsp': retVal, 'searchTrackList': searchTrackList, 'numSearchMatches': numSearchMatches, 'plSelectedDict': plSelectedDict, 'numTracksInSelectedPl': numTracksInSelectedPl })
+
+      if (key == 'clearSearchTrackList'):
+        # print('>>/Tabs clearSearchTrackList()')
+        retVal = oLoader.clearSearchTrackList()
+        return jsonify({ 'errRsp': retVal })
 
       if (key == 'findDups'):
         modePlaylist = rqJson['modePlaylist']

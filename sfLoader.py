@@ -1402,26 +1402,63 @@ class SpfLoader():
   #  - a list containing dictionaries
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
-
-  # ---------------------------------------------------------------
-  def runSearch(this, modePlaylist, modeSearch):
-    # print('>>loader.findDups()')
-
+  def clearSearchTrackList(this):
+    # print('>>loader.clearSearchTrackList()')
     try:
-      artistNameVal = 'farish'
-      # raise Exception('throwing loader.runSearch()')
+      # raise Exception('throwing loader.clearSearchTrackList()')
       session['mSearchTrackList'].clear()
       session['mNumSearchMatches'] = 0
+      return [sfConst.errNone]
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errClearSearchTrackList, this.getDateTm(), 'clearSearchTrackList()', 'exception', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal, [], [], [], 0,
+
+  # ---------------------------------------------------------------
+  def searchAddTrack(this, trackIdList, track):
+    # print('>>loader.searchAddTrack()')
+
+    trackId = track['Track Id'];
+    if (trackId not in trackIdList):
+      trackIdList.append(trackId)
+      session['mSearchTrackList'].append(track)
+      session['mNumSearchMatches'] += 1
+
+  # ---------------------------------------------------------------
+  def runSearch(this, searchText, ckTrackName, ckArtistName, ckAlbumName, ckPlaylistName, ckDurationHms, ckTrackId):
+    # print('>>loader.runSearch()')
+
+    try:
+      # raise Exception('throwing loader.runSearch()')
+      trackIdList = []
+      session['mSearchTrackList'].clear()
+      session['mNumSearchMatches'] = 0
+      searchText = searchText.lower()
+
       plTracksDict = this.getPlTracksDict()
       for plId, plTrackList in plTracksDict.items():
         if plId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
           continue
         for track in plTrackList:
-          if artistNameVal.lower() in track['Artist Name'].lower():
-            session['mSearchTrackList'].append(track)
-            session['mNumSearchMatches'] += 1
-
-      # raise Exception('throwing loader.findDupsId()')
+          if (ckTrackName):
+            if searchText in track['Track Name'].lower():
+              this.searchAddTrack(trackIdList, track)
+          if (ckArtistName):
+            if searchText in track['Artist Name'].lower():
+              this.searchAddTrack(trackIdList, track)
+          if (ckAlbumName):
+            if searchText in track['Album Name'].lower():
+              this.searchAddTrack(trackIdList, track)
+          if (ckPlaylistName):
+            if searchText in track['Playlist Name'].lower():
+              this.searchAddTrack(trackIdList, track)
+          if (ckDurationHms):
+            if searchText in track['Duration Hms'].lower():
+              this.searchAddTrack(trackIdList, track)
+          if (ckTrackId):
+            if searchText in track['Track Id'].lower():
+              this.searchAddTrack(trackIdList, track)
 
       return [sfConst.errNone]
     except Exception:
@@ -1431,13 +1468,22 @@ class SpfLoader():
       return retVal
 
   # ---------------------------------------------------------------
-  def getSearchTrackList(this, modePlaylist, modeSearch):
-    # print('>>loader.getDupsTrackList()')
+  def getSearchTrackList(this):
+    # print('>>loader.getSearchTrackList()')
     try:
       # raise Exception('throwing loader.getSearchTrackList()')
-      return [sfConst.errNone], session['mSearchTrackList'], session['mNumSearchMatches']
+      numTracksInSelectedPl = 0
+      plTracksDict = this.getPlTracksDict()
+      for plId, plTrackList in plTracksDict.items():
+        if plId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
+          continue
+
+        plValues = session['mPlDict'].get(plId)
+        numTracksInSelectedPl += int(plValues['Tracks'])
+
+      return [sfConst.errNone], session['mSearchTrackList'], session['mNumSearchMatches'], session['mPlSelectedDict'], numTracksInSelectedPl
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'exception', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
-      return retVal, [], 0, []
+      return retVal, [], [], [], 0,

@@ -424,7 +424,7 @@
   });
 
   //-----------------------------------------------------------------------------------------------
-  function plTabs_tracksTableDeselect() { /* make function appear in pycharm structure list */ }
+  function trackTab_tracksTableDeselect() { /* make function appear in pycharm structure list */ }
   $('#tracksTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__tracksTab_tracksTab_tracksTableDeselect() - tracksTable row deselect');
@@ -487,8 +487,8 @@
         rmTrackList.push({'Playlist Id': rowData[8], 'Track Uri': rowData[9], 'Track Position': parseInt(rowData[5])});
       });
 
-      if (Object.keys(rmTrackList).length < 0)
-        return
+      if (Object.keys(rmTrackList).length === 0)
+        return;
 
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__tracksTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
@@ -618,8 +618,8 @@
         }
       });
 
-      if (Object.keys(rmTrackList).length < 0)
-        return
+      if (Object.keys(rmTrackList).length === 0)
+        return;
 
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
@@ -689,8 +689,8 @@
         }
       });
 
-      if (Object.keys(cpTrackList).length < 0)
-        return
+      if (Object.keys(cpTrackList).length === 0)
+        return;
 
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));

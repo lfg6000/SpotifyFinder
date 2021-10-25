@@ -35,6 +35,7 @@ errUnknownPost = -27
 errUnknownPostCmd = -28
 errRunSearch = -29
 errGetSearchTrackList = -30
+errClearSearchTrackList = -31
 
 # ---------------------------------------------------------------
 # err log entry values
