@@ -134,6 +134,7 @@
       // console.log('__SF__searchTab_afActivate() finally.');
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+      searchTab_SetSearchTextFocus();
     }
   }
 
@@ -146,8 +147,13 @@
     vCbxPlaylistNameVal = $('#cbxPlaylistNameId').is(':checked');
     vCbxDurationHmsVal = $('#cbxDurationHmsId').is(':checked');
     vCbxTrackIdVal = $('#cbxTrackId').is(':checked');
+  }
 
-    vSearchText = $(searchTextInput).val();
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_SetSearchTextFocus()
+  {
+    var txtVal = $('#searchTextInput').val();
+    $('#searchTextInput').focus().val('').val(txtVal);
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -187,7 +193,7 @@
   {
     try
     {
-      console.log('__SF__searchTab_afSearchSeq()');
+      // console.log('__SF__searchTab_afSearchSeq()');
       vSearchTabLoading = true;
       vSearchTable.clear().draw();
 
@@ -215,6 +221,7 @@
 
       await searchTab_afRunSearch();
       await searchTab_afLoadSearchTable();
+      searchTab_SetSearchTextFocus();
 
       // console.log('__SF__searchTab_afSearchSeq() - loading done - exit');
     }
@@ -625,7 +632,7 @@
   //-----------------------------------------------------------------------------------------------
   function searchTab_btnSearchClear()
   {
-    console.log('__SF__searchTab_btnSearchClear()');
+    // console.log('__SF__searchTab_btnSearchClear()');
     vSearchTable.clear().draw();
   }
 

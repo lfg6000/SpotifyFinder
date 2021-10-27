@@ -1411,7 +1411,7 @@ class SpfLoader():
       return [sfConst.errNone]
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errClearSearchTrackList, this.getDateTm(), 'clearSearchTrackList()', 'exception', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errClearSearchTrackList, this.getDateTm(), 'clearSearchTrackList()', 'clear search track list failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal, [], [], [], 0,
 
@@ -1467,7 +1467,7 @@ class SpfLoader():
       return [sfConst.errNone]
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errRunSearch, this.getDateTm(), 'runSearch()', 'search failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errRunSearch, this.getDateTm(), 'runSearch()', 'search failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1488,6 +1488,6 @@ class SpfLoader():
       return [sfConst.errNone], session['mSearchTrackList'], session['mNumSearchMatches'], session['mPlSelectedDict'], numTracksInSelectedPl
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'exception', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'get search track list failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal, [], [], [], 0,
