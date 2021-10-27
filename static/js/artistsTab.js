@@ -50,7 +50,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 18,
+      "scrollY":         tableHeight - 28,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
@@ -104,7 +104,7 @@
       },
 
       "dom":            "rt",
-      "scrollY":         tableHeight -18,
+      "scrollY":         tableHeight -28,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,   // background color of sorted column does not change
@@ -679,7 +679,7 @@
     {
       // console.log('__SF__artistsTab_afCpTracksSeq()');
       vArtistsTabLoading = true;
-      vArtistTracksTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Coping Tracks...', showStrImmed=true);
 
       let cpTrackList = [];

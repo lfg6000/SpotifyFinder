@@ -1416,12 +1416,12 @@ class SpfLoader():
       return retVal, [], [], [], 0,
 
   # ---------------------------------------------------------------
-  def searchAddTrack(this, trackIdList, track):
+  def searchAddTrack(this, trackId_plId_List, track):
     # print('>>loader.searchAddTrack()')
 
-    trackId = track['Track Id'];
-    if (trackId not in trackIdList):
-      trackIdList.append(trackId)
+    trackId_plId = track['Track Id'] + '_' + track['Playlist Id']
+    if (trackId_plId not in trackId_plId_List):
+      trackId_plId_List.append(trackId_plId)
       session['mSearchTrackList'].append(track)
       session['mNumSearchMatches'] += 1
 
@@ -1431,7 +1431,7 @@ class SpfLoader():
 
     try:
       # raise Exception('throwing loader.runSearch()')
-      trackIdList = []
+      trackId_plId_List = []
       session['mSearchTrackList'].clear()
       session['mNumSearchMatches'] = 0
       searchText = searchText.lower()
@@ -1443,22 +1443,26 @@ class SpfLoader():
         for track in plTrackList:
           if (ckTrackName):
             if searchText in track['Track Name'].lower():
-              this.searchAddTrack(trackIdList, track)
+              this.searchAddTrack(trackId_plId_List, track)
           if (ckArtistName):
             if searchText in track['Artist Name'].lower():
-              this.searchAddTrack(trackIdList, track)
+              this.searchAddTrack(trackId_plId_List, track)
           if (ckAlbumName):
             if searchText in track['Album Name'].lower():
-              this.searchAddTrack(trackIdList, track)
+              this.searchAddTrack(trackId_plId_List, track)
           if (ckPlaylistName):
             if searchText in track['Playlist Name'].lower():
-              this.searchAddTrack(trackIdList, track)
+              this.searchAddTrack(trackId_plId_List, track)
           if (ckDurationHms):
             if searchText in track['Duration Hms'].lower():
-              this.searchAddTrack(trackIdList, track)
+              this.searchAddTrack(trackId_plId_List, track)
           if (ckTrackId):
             if searchText in track['Track Id'].lower():
-              this.searchAddTrack(trackIdList, track)
+              this.searchAddTrack(trackId_plId_List, track)
+
+      sortedList = sorted(session['mSearchTrackList'], key=itemgetter('Track Id'))
+      session['mSearchTrackList'] = sortedList
+      # pprint.pprint(sortedList)
 
       return [sfConst.errNone]
     except Exception:

@@ -51,7 +51,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 18,
+      "scrollY":         tableHeight - 28,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
@@ -105,7 +105,7 @@
       },
 
       "dom":            "rt",
-      "scrollY":         tableHeight - 18,
+      "scrollY":         tableHeight - 28,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,   // background color of sorted column does not change

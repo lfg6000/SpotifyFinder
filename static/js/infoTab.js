@@ -55,6 +55,9 @@
       case 'helpTextTabArtist.html':
         $('#infoTab_btnArtistInfo').focus();
         break;
+      case 'helpTextTabSearch.html':
+        $('#infoTab_btnSearchInfo').focus();
+        break;
       // case 'helpTextCoffee.html':
       //   $('#infoTab_btnCoffeeInfo').focus();
       //   break;
@@ -129,6 +132,12 @@
   function infoTab_btnArtistInfo()
   {
     infoTab_afLoadInfo('helpTextTabArtist.html');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function infoTab_btnSearchInfo()
+  {
+    infoTab_afLoadInfo('helpTextTabSearch.html');
   }
 
   //-----------------------------------------------------------------------------------------------
