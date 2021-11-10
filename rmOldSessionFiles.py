@@ -2,7 +2,7 @@ import os, sys, time
 
 # this rmOldSessionFiles.py script can be run manually or as a scheduled PA task
 
-rmOldSessionFileAge = 43200 # this value must be greater than app.config['PERMANENT_SESSION_LIFETIME']
+rmOldSessionFileAge = 86400 # this value must be greater than app.config['PERMANENT_SESSION_LIFETIME']
 
 def rmOldSessionFiles():
   try:

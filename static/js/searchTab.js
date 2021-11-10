@@ -139,7 +139,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_LoadSearchParams()
+  function searchTab_LoadSearchFields()
   {
     vCbxTrackNameVal = $('#cbxTrackNameId').is(':checked');
     vCbxArtistNameVal = $('#cbxArtistNameId').is(':checked');
@@ -147,13 +147,23 @@
     vCbxPlaylistNameVal = $('#cbxPlaylistNameId').is(':checked');
     vCbxDurationHmsVal = $('#cbxDurationHmsId').is(':checked');
     vCbxTrackIdVal = $('#cbxTrackId').is(':checked');
+
+    if (vCbxTrackNameVal === false && vCbxArtistNameVal === false && vCbxAlbumNameVal === false &&
+        vCbxPlaylistNameVal === false && vCbxDurationHmsVal === false && vCbxTrackIdVal === false)
+      return false;
+
+    return true;
   }
 
   //-----------------------------------------------------------------------------------------------
   function searchTab_SetSearchTextFocus()
   {
-    var txtVal = $('#searchTextInput').val();
-    $('#searchTextInput').focus().val('').val(txtVal);
+    // put the focus at the end of the search text to make editing easier
+    var sti = $("#searchTextInput")
+    var txtVal = sti.val();
+    sti.val('');
+    sti.val(txtVal)
+    sti.focus();
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -161,18 +171,18 @@
   $('input[type=checkbox][name=cbxSearchFields]').change(function ()
   {
     // clicking on search field cbx will trigger a search
-    searchTab_LoadSearchParams();
-    if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
-        vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+    var cbxFound = searchTab_LoadSearchFields();
+    if (cbxFound === false)
     {
       searchTab_afLoadSearchTableSeq(true); // no cbxs are set so clear the table
       return;
     }
 
+    vSearchText = $("#searchTextInput").val();
     if (vSearchText === '')
       return
 
-    searchTab_afSearchSeq() // run a search
+    searchTab_afRunSearchSeq() // run a search
   });
 
   //-----------------------------------------------------------------------------------------------
@@ -184,27 +194,27 @@
     {
       vSearchText = $(this).val();
       if (vSearchText != "")
-        searchTab_afSearchSeq();
+        searchTab_afRunSearchSeq();
     }
   });
 
   //-----------------------------------------------------------------------------------------------
-  async function searchTab_afSearchSeq()
+  async function searchTab_afRunSearchSeq()
   {
     try
     {
-      // console.log('__SF__searchTab_afSearchSeq()');
+      // console.log('__SF__searchTab_afRunSearchSeq()');
       vSearchTabLoading = true;
       vSearchTable.clear().draw();
 
-      searchTab_LoadSearchParams();
-      if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
-          vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+      var cbxFound = searchTab_LoadSearchFields();
+      if (cbxFound === false)
       {
         alert('A search field must be selected prior to doing a search.')
         return;
       }
 
+      vSearchText = $("#searchTextInput").val();
       if (vSearchText === '')
       {
         alert("A search text string must be entered prior to doing a search.");
@@ -214,7 +224,7 @@
       // console.log("track = " + vCbxTrackNameVal + ", artist = " + vCbxArtistNameVal + ", album = " + vCbxAlbumNameVal + ", playlist = " + vCbxPlaylistNameVal + ", duration = " + vCbxDurationHmsVal + ", trackId = " + vCbxTrackIdVal);
       // console.log("search text = " + vSearchText);
 
-      // console.log('__SF__searchTab_afSearchSeq() - start loading');
+      // console.log('__SF__searchTab_afRunSearchSeq() - start loading');
       $("#searchTab_info3").text('');
       tabs_set2Labels('searchTab_info1', 'Loading...', 'searchTab_info2', 'Loading...');
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Searching...', showStrImmed=true);
@@ -223,7 +233,7 @@
       await searchTab_afLoadSearchTable();
       searchTab_SetSearchTextFocus();
 
-      // console.log('__SF__searchTab_afSearchSeq() - loading done - exit');
+      // console.log('__SF__searchTab_afRunSearchSeq() - loading done - exit');
     }
     catch(err)
     {
@@ -231,7 +241,7 @@
     }
     finally
     {
-      // console.log('__SF__searchTab_afSearchSeq() finally.');
+      // console.log('__SF__searchTab_afRunSearchSeq() finally.');
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
     }
@@ -242,12 +252,12 @@
   {
     // console.log('__SF__searchTab_afRunSearch()');
 
-    searchTab_LoadSearchParams();
-    if (vSearchText === '')
+    var cbxFound = searchTab_LoadSearchFields();
+    if (cbxFound === false)
       return;
 
-    if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
-        vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+    vSearchText = $("#searchTextInput").val();
+    if (vSearchText === '')
       return;
 
     console.log('__SF__searchTab_afRunSearch() - vUrl - runSearch');
@@ -349,9 +359,10 @@
 
       // only show no matches found warning if we did a search and were not clearing the table
       vShowNoMatchesFound = true;
-      searchTab_LoadSearchParams();
-      if (vCbxTrackNameVal === false & vCbxArtistNameVal === false & vCbxAlbumNameVal === false &
-          vCbxPlaylistNameVal === false & vCbxDurationHmsVal === false & vCbxTrackIdVal === false)
+      vSearchText = $("#searchTextInput").val();
+      var cbxFound = searchTab_LoadSearchFields();
+
+      if (cbxFound === false)
         vShowNoMatchesFound = false;
       else if (vSearchText === '')
         vShowNoMatchesFound = false;
@@ -363,6 +374,8 @@
         msg = 'No matches found in selected playlists.';
         $("#searchTab_info3").text(msg);
       }
+      else
+        $("#searchTab_info3").text('');
     }
   }
 
@@ -444,7 +457,7 @@
       // console.log('__SF__searchTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afRemoveTracks(rmTrackList);
       vSearchTable.clear();
-      await searchTab_afSearchSeq();
+      await searchTab_afRunSearchSeq();
     }
     catch(err)
     {
@@ -521,7 +534,7 @@
       // console.log('__SF__searchTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afMoveCopyTracks(destPlId, mvTrackList, 'Mv');
       await tabs_afRemoveTracks(rmTrackList);
-      await searchTab_afSearchSeq()
+      await searchTab_afRunSearchSeq()
     }
     catch(err)
     {
@@ -589,7 +602,7 @@
       // console.log('__SF__searchTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__searchTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
       await tabs_afMoveCopyTracks(destPlId, cpTrackList, 'Cp');
-      await searchTab_afSearchSeq();
+      await searchTab_afRunSearchSeq();
     }
     catch(err)
     {
@@ -626,7 +639,7 @@
   function searchTab_btnSearch()
   {
     // console.log('__SF__searchTab_btnSearch()');
-    searchTab_afSearchSeq();
+    searchTab_afRunSearchSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -651,5 +664,13 @@
     // console.log('__SF__searchTab_btnHelp()');
     vHtmlInfoFn = 'helpTextTabSearch.html';
     $("#btnInfoTab")[0].click();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnClearSearchText()
+  {
+    $("#searchTextInput").val('');
+    searchTab_afLoadSearchTableSeq(true);
+    searchTab_SetSearchTextFocus();
   }
 

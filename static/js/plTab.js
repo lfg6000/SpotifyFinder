@@ -100,6 +100,7 @@
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
         $('#plTabs_cbUsers').append($('<option>', { value: 0, text : cbOwnerDefault }));
+
         await plTab_afloadSpotifyInfo();
         await plTab_afLoadPlDict();
         await plTab_afLoadPlTable();
@@ -120,7 +121,6 @@
         // note loadPlDict() is called by oLoader:rmTracksFromSpotPlaylist() when removing tracks
         // so we only have to reload the PlTable with the updated number of tracks
         vPlTable.clear().draw();
-        $('#plTabs_cbUsers').empty();
         await plTab_afLoadPlTable();
         await plTab_afRestorePlTableCkboxes();
         plTabs_updateSelectedCntInfo();
@@ -297,6 +297,7 @@
       let infoStr2 = 'Total Playlists: ' + reply['NPlaylists'] + '&nbsp &nbsp &nbsp &nbsp &nbsp' + ' Total Tracks: ' + reply['NTracks'];
       tabs_setLabel('plTab_info2', infoStr2);
 
+      $('#plTabs_cbUsers').empty();
       $('#plTabs_cbUsers').append($('<option>', { value: 0, text : cbOwnerDefault }));
       let userList = reply['userList'];
       $.each(userList, function (i, item)

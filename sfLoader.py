@@ -21,10 +21,14 @@ class SpfLoader():
   def __init__(this, **kwargs):
     # print('>>loader.SpfLoader()  __init__ method')
 
-    this.scope = 'playlist-read-private '
-    this.scope += 'playlist-read-collaborative '
-    this.scope += 'playlist-modify-public '
-    this.scope += 'playlist-modify-private '
+    this.sSpotifyScope  = 'playlist-read-private '
+    this.sSpotifyScope += 'playlist-read-collaborative '
+    this.sSpotifyScope += 'playlist-modify-public '
+    this.sSpotifyScope += 'playlist-modify-private '
+
+    # experimental code for a potential play btn feature
+    # this.sSpotifyScope += 'user-read-playback-state '
+    # this.sSpotifyScope += 'user-modify-playback-state '
 
     this.sFlaskAppSecretKey    = ''
     this.sSpotifyClientId        = ''
@@ -39,7 +43,7 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   def initLoader(this):
-    # print('>>loader.initLoader()')
+    # print('>>loader.initLoader()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     # session['mSpotipy'] = None
     session['mUserId'] = ''
     session['mUserName'] = ''
@@ -146,7 +150,7 @@ class SpfLoader():
       if (cfgFnd == 0):
         raise Exception('Cfg file not found. Missing File: ', vPath)
 
-      print('>>loader.loadCfgFile() path to cfg file = ' + vPath)
+      # print('>>loader.loadCfgFile() path to cfg file = ' + vPath)
       fHelper = open(vPath, "r")
       hVal = json.load(fHelper)
       this.sFlaskAppSecretKey     = hVal[grpKey]['sFlaskAppSecretKey']
@@ -187,7 +191,7 @@ class SpfLoader():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
 
     try:
-      # print('>>loader.oAuthLogin()')
+      # print('>>loader.oAuthLogin()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
       # the pythonanywhere error log file is filling up with Spotipy warning: Couldn't read cache at: .cache
       # spotipy oauth2.py logs this warning to the python logger because it can not rd/wr a .cache file on pythonanywhere
@@ -199,15 +203,12 @@ class SpfLoader():
       if (vPath.find('slipstream') != -1):
         logging.getLogger().setLevel('ERROR')
 
-      scope  = 'playlist-read-private '
-      scope += 'playlist-read-collaborative '
-      scope += 'playlist-modify-public '
-      scope += 'playlist-modify-private '
+
 
       spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
                                             client_secret = this.sSpotifyClientSecret,
                                             redirect_uri  = this.sSpotifyRedirectUri,
-                                            scope=scope)
+                                            scope         = this.sSpotifyScope)
 
       authUrl = spoAuth.get_authorize_url()
       # print('>>authUrl = ' + authUrl)
@@ -227,12 +228,7 @@ class SpfLoader():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
 
     try:
-      # print('>>loader.oAuthCallback()')
-
-      scope = 'playlist-read-private '
-      scope += 'playlist-read-collaborative '
-      scope += 'playlist-modify-public '
-      scope += 'playlist-modify-private '
+      # print('>>loader.oAuthCallback()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
       # - on PA the .cache write fails if we do not set the cache_path param
       # - we do not care if the .cache wr fails on PA since we cache the token info in the session dict
@@ -240,12 +236,13 @@ class SpfLoader():
       spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
                                             client_secret = this.sSpotifyClientSecret,
                                             redirect_uri  = this.sSpotifyRedirectUri,
-                                            scope=scope)
+                                            scope         = this.sSpotifyScope)
       session.clear()
       code = request.args.get('code')
 
       # ask spotify for a token
       tokenInfo = spoAuth.get_access_token(code)
+      # print('>>loader.oAuthCallback() acquired token value'  + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
       # pprint.pprint(tokenInfo)
 
       # Saving the access token along with all other token related info
@@ -262,7 +259,7 @@ class SpfLoader():
   def oAuthGetToken(this, session):
     # Check to see if token is valid and gets a new token if not
     try:
-      # print('>>loader.oAuthGetToken()')
+      # print('>>loader.oAuthGetToken()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
       tokenInfo = session.get("tokenInfo", {})
 
       # Checking if the session already has a token stored
@@ -277,9 +274,11 @@ class SpfLoader():
       # Refreshing token if it has expired
       if (is_token_expired):
         # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
-        # print('>>loader.oAuthGetToken() - token expired')
-        spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.clientId, client_secret=this.clientSecret, redirect_uri=this.redirectUri, scope=this.scope)
+        # print('>>loader.oAuthGetToken() - token expired' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.sSpotifyClientId, client_secret=this.sSpotifyClientSecret, redirect_uri=this.sSpotifyRedirectUri, scope=this.sSpotifyScope)
         tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
+        print('>>loader.oAuthGetToken() - token refresh, ' + session.sid)
+        # pprint.pprint(tokenInfo)
 
       tokenValid = True
       return tokenInfo, tokenValid
@@ -1491,3 +1490,27 @@ class SpfLoader():
       retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'get search track list failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal, [], [], [], 0,
+
+  # ---------------------------------------------------------------
+  def playTracks(this, trackUris):
+    # print('>>loader.playTracks()')
+    try:
+      # experimental code for a potential play btn feature
+
+      # raise Exception('throwing loader.playTracks()')
+
+      # print('>>loader.playTracks() - making a call to spotify')
+      # this.oAuthGetSpotifyObj().start_playback(context_uri='spotify:playlist:6rfB2pTNv61ec3LiBV5SaK', uris=trackUris)
+
+      # need to pass in a device id    (spotifyfinder app would need to get a list of device ids)
+      # need to pass in a playlist uri (spotifyfinder app would need to add playlist uri to the return track info)
+      #                                (this is needed for the Prj_Wifi_Display so it can display a playlist name, wdaLoader.getCurrentlyPlaying needs a playlist)
+      # need to pass in an array of track uri's  (
+      this.oAuthGetSpotifyObj().start_playback(device_id='307f858f43f7fc5961086511711646cac4455a4a', context_uri='spotify:playlist:0A4Apj44H0qVVyDdShxS9C')
+
+      return [sfConst.errNone]
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errPlayTracks, this.getDateTm(), 'playTracks()', 'error when trying to start playback', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal,

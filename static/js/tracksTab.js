@@ -756,3 +756,63 @@
       return reply['plSelectedDictNotLoaded']
     }
   }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afBtnPlay()
+  {
+    // experimental code for a potential play btn feature
+
+    // 0<th></th>
+    // 1<th>TrackName</th>
+    // 2<th>ArtistName</th>
+    // 3<th>AlbumName</th>
+    // 4<th>Duration</th>
+    // 5<th>Track</th>
+    // 6<th>PlaylistOwner</th>
+    // 7<th>TrackId</th>
+    // 8<th>PlaylistId</th>
+    // 9<th>TrackUri</th>
+    // 10<th>PlaylistOwnerId</th>
+
+    // let count = vPlTracksTable.rows({selected: true}).count();
+    // if (count == 0)
+    // {
+    //   alert('To play a track(s) you need to select a track(s).');
+    //   return;
+    // }
+    //
+    //
+    // let vTrackUris = [];
+    // let rowData;
+    // $.each(vPlTracksTable.rows('.selected').nodes(), function (i, item)
+    // {
+    //   rowData = vPlTracksTable.row(this).data();
+    //   vTrackUris.push(rowData[9]);
+    // });
+
+    let vTrackUris = [];
+    let rowData = vPlTracksTable.row(10).data();
+    vTrackUris.push(rowData[9]);
+    console.log('trackUris = ' + vTrackUris);
+    await tracksTab_afPlayTracks(vTrackUris);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afPlayTracks(trackUris)
+  {
+    // experimental code for a potential play btn feature
+
+    // console.log('__SF__tracksTab_afPlayTracks()');
+    // console.log('tracksTab_afPlayTracks() - vUrl - playTracks');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ playTracks: 'playTracks', trackUris: trackUris }), });
+    if (!response.ok)
+      tabs_throwErrHttp('tracksTab_afPlayTracks()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tracksTab_afPlayTracks() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tracksTab_afPlayTracks()', reply['errRsp'], 'tracksTab_errInfo')
+    }
+  }

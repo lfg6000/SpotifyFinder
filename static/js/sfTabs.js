@@ -16,6 +16,7 @@
   // regex search to find await and _af on the same line .*?await.*?_af.*?
   //
   //-----------------------------------------------------------------------------------------------
+  function tabs_documentReady() { /* make function appear in pycharm structure list */ }
   $(document).ready(function()
   {
     // - called on initial load
@@ -389,7 +390,8 @@
     if (errStr.search('-742') != -1)
     {
       msg = 'Your session has timed out.\n' +
-            'A session restart is needed.\n\n' +
+            'A session restart is needed.\n' +
+            'A session timeouts after 12 hours of no activity.\n\n' +
             'Press Ok and you will be redirected to the home page.\n';
 
       vAborting = 1;

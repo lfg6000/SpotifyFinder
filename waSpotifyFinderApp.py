@@ -78,9 +78,9 @@ app.config['SESSION_FILE_THRESHOLD'] = 500 # defaults to 500
 app.config['SESSION_PERMANENT'] = True  # defaults to true
 
 # 1800 = .5 hr, 3600 = 1 hr, 5400 = 1.5 hrs, 7200 = 2 hrs, 9000 = 2.5 hrs, 10800 = 3 hrs, 21600 = 6hrs
-# 14400 = 4 hrs, 28800 = 8hrs, 57600 = 16hrs, 86400 = 24hrs
+# 14400 = 4 hrs, 28800 = 8hrs, 43200 = 12hrs, 57600 = 16hrs, 86400 = 24hrs
 # - rmOldSessionFileAge used in rmOldSessionFiles() must be greater than 'PERMANENT_SESSION_LIFETIME' to aviod deleting active session files
-app.config['PERMANENT_SESSION_LIFETIME'] = 21600
+app.config['PERMANENT_SESSION_LIFETIME'] = 43200
 
 # firefox ok with this true and 127.0.0.1
 # firefox not ok with this true and 192.168.2.10
@@ -143,35 +143,39 @@ Session(app)
 #   print('>>---- start before_rq  ----')
 
 #----------------------------------------------------------------------------------------------
-def getCookie():
-    cookie = request.headers.get('Cookie')
+def getCookie(cookieName):
+    # cookie = request.headers.get('Cookie')
+    cookie = request.cookies.get(cookieName)
     if cookie is None:
       return 'not set'
     else:
       return cookie
 
 #----------------------------------------------------------------------------------------------
-def cookieDump(caller):
-    print('>>cookie/sid,  ' + caller + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ',  cookie = ' + getCookie())
+def cookieDump(caller, cookieName):
+    print('>>cookie,  ' + caller + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ',  ' + cookieName + ' = ' + getCookie(cookieName))
 
 #----------------------------------------------------------------------------------------------
 @app.route('/', methods=['get', 'post'])
 def home():
   # hdrs = dict(request.headers)  # use this to view request msg header
-  # cookieDump('home')
+  # cookieDump('home', 'session')
+  # cookieDump('home', 'plDefault')
   return render_template("home.html")
 
 # #----------------------------------------------------------------------------------------------
 @app.route("/SpotifyLogin")
 def SpotifyLogin():
-  # cookieDump('SpotifyLogin')
+  # cookieDump('SpotifyLogin', 'session')
+  # cookieDump('SpotifyLogin', 'plDefault')
   authUrl = oLoader.oAuthLogin()
   return redirect(authUrl)
 
 #----------------------------------------------------------------------------------------------
 @app.route("/oAuthCallback")
 def oAuthCallback():
-  cookieDump('oAuthCallback')
+  # cookieDump('oAuthCallback', 'session')
+  # cookieDump('oAuthCallback', 'plDefault')
   oLoader.oAuthCallback()
   oLoader.initLoader()
   return redirect("Tabs")
@@ -179,7 +183,8 @@ def oAuthCallback():
 #----------------------------------------------------------------------------------------------
 @app.route("/Tabs", methods=['get', 'post'])
 def Tabs():
-  # cookieDump('/Tabs')
+  # cookieDump('Tabs', 'session')
+  # cookieDump('Tabs', 'plDefault')
 
   # if this throws than the session has expired, the user will be sent to the home page
   # normal scenario - spotifyfinder.com/tabs page is open and the session expires so user gets an alert box saying session expired
@@ -197,7 +202,17 @@ def Tabs():
     if rqJson != None:
       key = next(iter(rqJson))
 
+      if (key == 'playTracks'):
+        # experimental code for a potential play btn feature
+        # print('>>/Tabs playTrack()')
+        trackUris = rqJson['trackUris']
+        retVal = oLoader.playTracks(trackUris);
+        # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+        #   oLoader.updateDbVisitCnt(mysql, 'Help')
+        return jsonify({ 'errRsp': retVal })
+
       if (key == 'runSearch'):
+        # print('>>/Tabs runSearch()')
         ckTrackName = rqJson['ckTrackName']
         ckArtistName = rqJson['ckArtistName']
         ckAlbumName = rqJson['ckAlbumName']
@@ -205,7 +220,6 @@ def Tabs():
         ckDurationHms = rqJson['ckDurationHms']
         ckTrackId = rqJson['ckTrackId']
         searchText = rqJson['searchText']
-        # print('>>/Tabs runSearch()')
         retVal = oLoader.runSearch(searchText, ckTrackName, ckArtistName, ckAlbumName, ckPlaylistName, ckDurationHms, ckTrackId)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Search')
@@ -300,7 +314,7 @@ def Tabs():
         winWidth = rqJson['winWidth']
         winHeight = rqJson['winHeight']
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight)
-        return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie(), 'sid': sid})
+        return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie('session'), 'sid': sid})
 
       # if (key == 'loadPlDict'):
       #   # print('>>/Tabs loadPlDict()')
@@ -359,7 +373,6 @@ def Tabs():
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Help')
         return jsonify({ 'errRsp': retVal, 'htmlInfo': htmlStr })
-
 
       # - this is the error in the logs when a route return nothing....
       #   File "C:\Users\lfg70\.aa\LFG_Code\Python\WA_SpotifyFinder\venv\Lib\site-packages\flask\app.py", line 2097, in make_response
