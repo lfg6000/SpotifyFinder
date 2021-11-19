@@ -9,8 +9,8 @@ errSpotiyLogin = -1
 errLoadPlDict = -2
 errSetPlSelectedDict = -3
 errLoadPlTracks = -4
-errRmTracksFromSpotPlaylist = -5
-errRemoveTracks = -6
+errRmTracksByPosFromSpotPlaylist = -5
+errRmTracksByPos = -6
 errFindDupsId = -7
 errFindDupsNad = -8
 errLoadArtistDict = -9
@@ -37,6 +37,8 @@ errRunSearch = -29
 errGetSearchTrackList = -30
 errClearSearchTrackList = -31
 errPlayTracks = -32
+errRmTracksByIdFromSpotPlaylist = -33
+errRmTracksById = -34
 
 # ---------------------------------------------------------------
 # err log entry values

@@ -339,11 +339,22 @@ def Tabs():
         retVal, plDict, nPlaylists, nTracks, userList = oLoader.getPlDict()
         return jsonify({ 'errRsp': retVal, 'plDict': plDict , 'NPlaylists': nPlaylists, 'NTracks': nTracks, 'userList': userList })
 
-      if (key == 'removeTracks'):
-        # print('>>/Tabs removeTracks()')
-        rmTracksList = rqJson['rmTracksList']
+      if (key == 'rmTracksByPos'):  # uses both track id and track position
+        # print('>>/Tabs rmTracksByPos()')
+        rmTrackList = rqJson['rmTrackList']
         # pprint.pprint(rmTracksList)  # pprint sorts on key
-        retVal = oLoader.removeTracks(rmTracksList)
+        retVal = oLoader.rmTracksByPos(rmTrackList)
+        if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          oLoader.updateDbVisitCnt(mysql, 'Rm')
+        return jsonify({ 'errRsp': retVal })
+
+      if (key == 'rmTracksById'): # uses track id
+        # print('>>/Tabs rmTracksById()')
+        plId = rqJson['plId']
+        rmTrackList = rqJson['rmTrackList']
+        reload = rqJson['reload']
+        # pprint.pprint(rmTracksList)  # pprint sorts on key
+        retVal = oLoader.rmTracksById(plId, rmTrackList, reload)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Rm')
         return jsonify({ 'errRsp': retVal })

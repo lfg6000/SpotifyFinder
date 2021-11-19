@@ -451,9 +451,9 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function plTabs_btnRefresh()
+  function plTabs_btnRestore()
   {
-    // console.log('__SF__plTabs_btnRefresh()');
+    // console.log('__SF__plTabs_btnRestore()');
     plTabs_btnClearSearchPlOnClick();
     plTab_afRefresh();
   }
@@ -578,10 +578,11 @@
     vPlTabLoading = true;
     vPlTable.rows().deselect();
     vPlNumTracksInSelectedPl = 0;
-    vPlTable.rows().every(function()
-    {
-      this.select();
-    });
+    // vPlTable.rows().every(function()
+    // {
+    //   this.select();
+    // });
+    vPlTable.rows().select();
     vPlTabLoading = false;
 
     plTab_afIncPlSelectionCntr();
@@ -693,7 +694,7 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnSavePlDefault()
   {
-    console.log('plTabs_btnSavePlDefault()');
+    // console.log('plTabs_btnSavePlDefault()');
     plTab_setCookiePlDefault();
   }
 

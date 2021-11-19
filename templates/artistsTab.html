@@ -65,18 +65,18 @@
 
   <div class="borderGreen2"></div>
   <div id="artistsTab_outerRow1" class="clearfix">
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="artistsTab_btnRemoveTracks()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="artistsTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
     <div class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
-        <fieldset style="margin:-2px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist</legend>
-          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="artistsTab_btnMoveTracks()" title="Move selected tracks to another playlist">Move</button></div>
-          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="artistsTab_btnCopyTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
-          <div class="innerRowLeft" style="margin: 2px -6px 0px -4px; padding: 0px 6px 2px 6px;"><select id="artistsTab_cbMvCpDest" title="Select a destination playlist.">Select a destination playlist</select></div>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="artistsTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="artistsTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
+          <div class="innerRowLeft" style="margin: 2px -6px 0px -4px; padding: 0px 6px 2px 6px;"><select id="artistsTab_cbMvCpDest" title="Destination playlist for a move or copy operation.">Select a destination playlist</select></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="artistsTab_btnRefresh()"       title="Clear search boxes and restore original sort">Refresh</button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="artistsTab_btnClear()"       title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
     <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="artistsTab_btnHelp()"         title="View Artist Tab Help Info">?</button></div>
   </div>
 

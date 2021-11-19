@@ -50,7 +50,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 28,
+      "scrollY":         tableHeight - 18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
@@ -104,7 +104,7 @@
       },
 
       "dom":            "rt",
-      "scrollY":         tableHeight -28,
+      "scrollY":         tableHeight -18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,   // background color of sorted column does not change
@@ -287,11 +287,11 @@
       {
         if (item['Playlist Owners Id'] == vUserId)
         {
-          idNm = key + '::::' + item['Playlist Name']
+          idNm = key + '::::' + item['Playlist Name'];
           // console.log('__SF__artistsTab_afLoadArtistNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
-          plNm = item['Playlist Name']
+          plNm = item['Playlist Name'];
           if (plNm.length > 44)
-            plNm = plNm.slice(0, 44) + '...'
+            plNm = plNm.slice(0, 44) + '...';
           $('#artistsTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
         }
       });
@@ -341,7 +341,7 @@
       vArtistsTabLoading = true;
       vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
-      tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Loading Tracks for selected artist...', showStrImmed=false);
+      tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Loading Tracks...', showStrImmed=false);
 
       await artistsTab_afLoadArtistTracks(artistId = artistId)
       await artistsTab_afLoadArtistTracksTable()
@@ -419,11 +419,52 @@
     }
   }
 
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_artistsTracksRow_onUserSelect() { /* make function appear in pycharm structure list */ }
+  $('#artistTracksTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
+  {
+    // console.log('artistsTab_artistsTracksRow_onUserSelect() --- user-select.dt');
+    // this onUser method is called prior to the checkbox being updated
+    // we use it to tell the user they have hit the 100 track selection limit
+
+    let rowAlreadySelected = false;
+    let rowNum = cell.index().row;
+    vArtistTracksTable.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop)
+    {
+      if (rowNum === rowIdx)
+      {
+        rowAlreadySelected = true;
+        return false;
+      }
+    });
+
+
+    if (rowAlreadySelected == false)
+    {
+      let count = vArtistTracksTable.rows({selected: true}).count();
+      if (count === vSpotifyRmLimit)
+      {
+        e.preventDefault();
+        // alert('You have hit the track selection limit. The limit is 100 tracks.\n\n' +
+        //       'This is a Spotify limit.\n' +
+        //       'Spotify limits the number of tracks that can be removed or moved or copied per call to 100.\n\n');
+        $("#artistsTab_info3").text(vSpotifyRmLimitMsg);
+        setTimeout(function ()
+        {
+          $("#artistsTab_info3").text('');
+        }, 4500);
+        return;
+      }
+    }
+  });
+
   //-----------------------------------------------------------------------------------------------
   function artistsTab_artistsTracksTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistTracksTable').on('select.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__tracksTab_tracksTab_artistTracksTableSelect() - artistTracksTable row select');
+    // this method is called after the checkbox has been selected so we update the selected count
     artistsTab_updateSelectedCnt();
   });
 
@@ -431,6 +472,7 @@
   function artistisTab_artistTracksTableDeselect() { /* make function appear in pycharm structure list */ }
   $('#artistTracksTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
+    // this method is called after the checkbox has been deselected so we update the selected count
     artistsTab_updateSelectedCnt();
   });
 
@@ -459,18 +501,18 @@
   // });
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnRemoveTracks()
+  function artistsTab_btnRmTracksByPos()
   {
-    // console.log('__SF__artistsTab_btnRemoveTracks()');
-    artistsTab_afRmTracksSeq();
+    // console.log('__SF__artistsTab_btnRmTracksByPos()');
+    artistsTab_afRmTracksByPosSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function artistsTab_afRmTracksSeq()
+  async function artistsTab_afRmTracksByPosSeq()
   {
     try
     {
-      // console.log('__SF__artistsTab_afRmTracksSeq()');
+      // console.log('__SF__artistsTab_afRmTracksByPosSeq()');
       vArtistsTabLoading = true;
       vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Removing Tracks...', showStrImmed=true);
@@ -492,8 +534,8 @@
         return;
 
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__artistsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afRemoveTracks(rmTrackList);
+      // console.log('__SF__artistsTab_afRmTracksByPosSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      await tabs_afRmTracksByPos(rmTrackList);
       await artistsTab_afLoadArtistTracks(artistId=rowData[10])
       vArtistTracksTable.clear();        //.draw(); draw causes annoying flash
       await artistsTab_afLoadArtistTracksTable();
@@ -507,7 +549,7 @@
     }
     finally
     {
-      // console.log('__SF__artistsTab_afRmTracksSeq() finally.');
+      // console.log('__SF__artistsTab_afRmTracksByPosSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
@@ -515,9 +557,9 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnRefresh()
+  function artistsTab_btnClear()
   {
-    // console.log('__SF__artistsTab_btnRefresh()');
+    // console.log('__SF__artistsTab_btnClear()');
     artistsTab_btnClearSearchArtistNameOnClick();
     artistsTab_btnClearSearchTracksOnClick();
     let rowData = vArtistTracksTable.row(0).data();
@@ -570,9 +612,9 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnMoveTracks()
+  function artistsTab_btnMvTracks()
   {
-    // console.log('__SF__artistsTab_btnMoveTracks()');
+    // console.log('__SF__artistsTab_btnMvTracks()');
 
     let idNm = $('#artistsTab_cbMvCpDest option:selected').val();
     idNm = idNm.split('::::', 2)
@@ -628,8 +670,8 @@
       // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afMoveCopyTracks(destPlId, mvTrackList, 'Mv');
-      await tabs_afRemoveTracks(rmTrackList);
+      await tabs_afMvCpTracks(destPlId, mvTrackList, 'Mv');
+      await tabs_afRmTracksByPos(rmTrackList);
       await artistsTab_afLoadArtistTracks(rowData[10]) // artist id
       await artistsTab_afLoadArtistTracksTable();
     }
@@ -650,14 +692,14 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnCopyTracks()
+  function artistsTab_btnCpTracks()
   {
-    // console.log('__SF__artistsTab_btnCopyTracks()');
+    // console.log('__SF__artistsTab_btnCpTracks()');
 
     let idNm = $('#artistsTab_cbMvCpDest option:selected').val();
     idNm = idNm.split('::::', 2)
-    // console.log('__SF__artistsTab_btnCopyTracks() val = ' + idNm[0]);
-    // console.log('__SF__artistsTab_btnCopyTracks() val = ' + idNm[1]);
+    // console.log('__SF__artistsTab_btnCpTracks() val = ' + idNm[0]);
+    // console.log('__SF__artistsTab_btnCpTracks() val = ' + idNm[1]);
 
     let count = vArtistTracksTable.rows({ selected: true }).count();
     if (count == 0)
@@ -700,7 +742,7 @@
       // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afMoveCopyTracks(destPlId, cpTrackList, 'Cp');
+      await tabs_afMvCpTracks(destPlId, cpTrackList, 'Cp');
       await artistsTab_afLoadArtistTracks(rowData[10]) // artist id
       await artistsTab_afLoadArtistTracksTable();
     }

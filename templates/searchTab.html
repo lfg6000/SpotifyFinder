@@ -49,7 +49,7 @@
         <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Search Text</legend>
           <button class="btnClrSearch" onclick="searchTab_btnClearSearchText()"  title="Clear search text & search results">x</button>
-          <input style="margin: 0px 6px 2px 0px; padding: 1px 6px 2px 6px;" size="50" id="searchTextInput" type="text" spellcheck="false">
+          <input style="margin: 0px 6px 2px 0px; padding: 1px 6px 2px 6px;" size="30" id="searchTextInput" type="text" spellcheck="false">
         </fieldset>
       </span>
     </div>
@@ -60,10 +60,10 @@
       <span style="font-size: 10pt;">
         <fieldset style="margin: 0px 0px 0px 0px;  padding: 0px 6px 3px 6px;">
           <legend style="margin: 0px 6px 0px 0px;  padding: 0px 6px 2px 6px;">Track Search Fields</legend>
-          <input  style="margin: 4px 6px 6px 0px;  padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxTrackNameId" value="Track Name"><label for="cbxTrackNameId">Track Name</label>
-          <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxArtistNameId" value="Artist Name"  checked><label for="cbxArtistNameId">Artist Name</label>
-          <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxAlbumNameId" value="Album Name"><label for="cbxAlbumNameId">Album Name</label>
-          <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxPlaylistNameId" value="Playlist Name"><label for="cbxPlaylistNameId">Playlist Name</label>
+          <input  style="margin: 4px 6px 6px 0px;  padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxTrackNameId" value="Track"><label for="cbxTrackNameId">Track</label>
+          <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxArtistNameId" value="Artist"  checked><label for="cbxArtistNameId">Artist</label>
+          <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxAlbumNameId" value="Album"><label for="cbxAlbumNameId">Album Name</label>
+          <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxPlaylistNameId" value="Playlist"><label for="cbxPlaylistNameId">Playlist</label>
           <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxDurationHmsId" value="Duration"><label for="cbxDurationHmsId">Duration</label>
           <input  style="margin: 4px 6px 6px 10px; padding: 1px 6px 2px 6px;" type="checkbox" name="cbxSearchFields" id="cbxTrackId" value="Track Id"><label for="cbxTrackId">Track Id</label>
         </fieldset>
@@ -75,18 +75,18 @@
   <hr class="sep1px">
 
   <div id="searchTab_outerRow2" class="clearfix" style="margin: 4px 0px 4px 4px;">
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="searchTab_btnRemoveTracks()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="searchTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
     <div class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
         <fieldset style="margin:-2px 0px 0px 0px; padding: 0px 6px 2px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist</legend>
-          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="searchTab_btnMoveTracks()" title="Move selected tracks to another playlist">Move</button></div>
-          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="searchTab_btnCopyTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
-          <div class="innerRowLeft" style="margin: 2px -6px 0px -4px; padding: 0px 6px 2px 6px;"><select id="searchTab_cbMvCpDest" title="Select a destination playlist.">Select a destination playlist</select></div>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="searchTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button onclick="searchTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
+          <div class="innerRowLeft" style="margin: 2px -6px 0px -4px; padding: 0px 6px 2px 6px;"><select id="searchTab_cbMvCpDest" title="Destination playlist for a move or copy operation.">Select a destination playlist</select></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="searchTab_btnRefresh()"       title="Clear search boxes and restore original sort">Refresh</button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="searchTab_btnClear()"       title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
     <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="searchTab_btnHelp()"         title="View Tracks Tab Help Info">?</button></div>
   </div>
 

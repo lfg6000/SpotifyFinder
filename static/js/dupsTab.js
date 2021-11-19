@@ -2,17 +2,21 @@
   var vLastPlSelectionCntrDupsTab = 0;
   var vDupsTableLastSearchCol = '';
   var vDupsTabLoading = false;
+  var vSortCount = 0;
 
   var vModePlaylist = 'Same'  // 'Across' or 'Same'
   var vModeSearch = 'Track Id'  // 'Track Id' or 'Nad' = TrackName/ArtistName/Duration
 
   const cbAutoSel = 'Auto Select Dups';
+  const cbRmTracksById = 'Select Playlist';
+
+
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_init(tableHeight=300)
   {
     // console.log("dupsTab_initPlTab() - dupsTable ready()");
-    
+
     // after a refresh put the radio btns back into the initial state (needed for firefox)
     $(rPlModeAcross).prop('checked',true);
     $(rPlSearchId).prop('checked',true);
@@ -64,7 +68,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 14,  // compensate for extra height for radio btns that the other tabs do not have
+      "scrollY":         tableHeight - 92,  // compensate for extra height for radio btns that the other tabs do not have
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false, // background color of sorted column does not change
@@ -115,7 +119,16 @@
         tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
         tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
 
-        $('#dupsTab_cbAutoSel').append($('<option>', { value: 0, text : cbAutoSel }));
+        let cbAuto = $('#dupsTab_cbAutoSel');
+        cbAuto.empty();
+        cbAuto.append($('<option>', { value: 0, text : cbAutoSel }));
+        cbAuto.append($('<option>', { value: 1, text : 'Select First' }));
+        cbAuto.append($('<option>', { value: 2, text : 'Select Second' }));
+        cbAuto.append($('<option>', { value: 3, text : 'Clear' }));
+
+        let cbRmPlId = $('#dupsTab_cbRmPlId');
+        cbRmPlId.empty();
+        cbRmPlId.append($('<option>', { value: 0, text : cbRmTracksById }));
 
         await tracksTab_afLoadPlTracks();
         await dupsTab_afFindDups();
@@ -138,6 +151,7 @@
     {
       // console.log('__SF__dupsTab_afActivate() finally.');
       vDupsTabLoading = false;
+      vSortCount = 1;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
   }
@@ -164,6 +178,8 @@
     finally
     {
       // console.log('__SF__dupsTab_afLoadDupsTableSeq() finally.');
+      vSortCount = 1;
+      // console.log('__SF__dupsTab_afLoadDupsTableSeq() sort count = ' + vSortCount);
       vDupsTabLoading = false;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
@@ -242,6 +258,75 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  function dupsTab_setupRmPlId(dupsTrackList)
+  {
+    let cbRmPlId = $('#dupsTab_cbRmPlId');
+    let btnRmPlId = $('#dupsTab_btnRmTracksById');
+    cbRmPlId.empty();
+    cbRmPlId.append($('<option>', {value: 0, text: cbRmTracksById}));
+
+    let cnt = 0;
+
+    if (plTabs_getSelectedCnt() === 2)
+    {
+      cbRmPlId.css('opacity', '1.0');
+      cbRmPlId.prop("disabled", false); // exactly 2 playlists selected on plTab so enable
+      btnRmPlId.css('opacity', '1.0');
+      btnRmPlId.prop("disabled", false); // exactly 2 playlists selected on plTab so enable
+
+      // load the remove by playlist drop down combo
+      let listUniquePl = [];
+      $.each(dupsTrackList, function (key, tvals)
+      {
+        cnt += 1;
+
+        // console.log('load dup table pl owner id = ' + tvals['Playlist Owners Id']);
+        if (tvals['Playlist Owners Id'] == vUserId)
+        {
+          idNm = tvals['Playlist Id'] + '::::' + tvals['Playlist Name'];
+          plNm = tvals['Playlist Name'];
+          if (plNm.length > 44)
+            plNm = plNm.slice(0, 44) + '...';
+          // console.log('dupsTab_setupRmPlId() - idNm = \n' + idNm + ',   plNm = ' + plNm);
+          cbRmPlId.append($('<option>', {value: idNm, text: plNm}));
+        }
+
+        if (listUniquePl.includes(tvals['Playlist Id']) == false)
+          listUniquePl.push(tvals['Playlist Id']);
+
+        // once we found 2 unique playlists we can exit
+        if (listUniquePl.length === 2)
+           return false;
+      });
+    }
+    else
+    {
+      cbRmPlId.css('opacity', '0.2');
+      cbRmPlId.prop("disabled", true); // more than 2 playlists selected on plTab so disable
+      btnRmPlId.css('opacity', '0.2');
+      btnRmPlId.prop("disabled", true); // more than 2 playlists selected on plTab so disable
+    }
+    // console.log('dupsTab_setupRmPlId   cnt = ' + cnt);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function dupsTab_setupAutoSel()
+  {
+    // enable/disable the auto select dropdown combo box
+    let cbAuto = $('#dupsTab_cbAutoSel')
+    if (plTabs_getSelectedCnt() > 2)
+    {
+      cbAuto.css('opacity', '0.2');
+      cbAuto.prop("disabled", true); // more than 2 playlists selected on plTab so disable
+    }
+    else
+    {
+      cbAuto.css('opacity', '1.0');
+      cbAuto.prop("disabled", false); // 1 or 2 playlists selected on plTab so enable
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
   async function dupsTab_afLoadDupsTable()
   {
     // console.log('__SF__dupsTab_afLoadDupsTable()');
@@ -257,6 +342,7 @@
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('dupsTab_afLoadDupsTable()', reply['errRsp'], 'dupsTab_errInfo')
 
+      // load the dups track table
       let idx = 0;
       let dupsTrackList = reply['dupsTrackList'];
       let dupsClrList = reply['dupsClrList'];
@@ -269,18 +355,11 @@
       });
       vDupsTable.draw();
 
-      let cbAuto = $('#dupsTab_cbAutoSel')
-      cbAuto.empty();
-      cbAuto.append($('<option>', { value: 0, text : cbAutoSel }));
-      cbAuto.append($('<option>', { value: 1, text : 'Set' }));
-      cbAuto.append($('<option>', { value: 2, text : 'Clear' }));
-      if (plTabs_getSelectedCnt() > 2)  // more than 2 playlists selected on plTab?
-        cbAuto.prop("disabled", true);
-      else
-        cbAuto.prop("disabled", false);
+      dupsTab_setupRmPlId(dupsTrackList);
+      dupsTab_setupAutoSel();
 
       dupsTab_updateSelectedCnt();
-      let infoStr2 = 'Duplicates in Selected Playlists: ' + reply['numDupsMatch'];
+      let infoStr2 = 'Duplicates in Selected Playlists: ' +  reply['numDupsMatch'];;
       tabs_setLabel('dupsTab_info2', infoStr2);
 
       if (reply['numDupsMatch'] == 0)
@@ -310,24 +389,70 @@
   function dupsTab_dupsTableRow_onUserSelect() { /* make function appear in pycharm structure list */ }
   $('#dupsTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
   {
-    rowData = vDupsTable.row(cell.node()).data()
-    // let rowData = vPlTracksTable.row(indexes).data();
-    // console.log('__SF__dupsTab_dupsTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
-    if (rowData[12] != vUserId)    // playlistOwnerId != vUserId
-    {
-       e.preventDefault();
-       $("#dupsTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
-       setTimeout(function() { $("#dupsTab_info3").text(''); }, 4500);
-       return;
-    }
+    // console.log('dupsTab_dupsTableRow_onUserSelect() --- user-select.dt');
+    // this onUser method is called prior to the checkbox being updated
+    // we use it to tell the user you can not select a track you do not own
+    // we use it to tell the user they have hit the 100 track selection limit
 
-    dupsTab_updateSelectedCnt();
+    let rowAlreadySelected = false;
+    let rowNum = cell.index().row;
+    vDupsTable.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop)
+    {
+      if (rowNum === rowIdx)
+      {
+        rowAlreadySelected = true;
+        return false;
+      }
+    });
+
+
+    // console.log('__SF__dupsTab_dupsTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
+    if (rowAlreadySelected == false)
+    {
+      rowData = vDupsTable.row(cell.node()).data()
+      if (rowData[12] != vUserId)    // playlistOwnerId != vUserId
+      {
+        e.preventDefault();
+        $("#dupsTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
+        setTimeout(function ()
+        {
+          $("#dupsTab_info3").text('');
+        }, 4500);
+        return;
+      }
+
+      let count = vDupsTable.rows({selected: true}).count();
+      if (count === vSpotifyRmLimit)
+      {
+        e.preventDefault();
+        // alert('You have hit the track selection limit. The limit is 100 tracks.\n\n' +
+        //       'This is a Spotify limit.\n' +
+        //       'Spotify limits the number of tracks that can be removed per call to 100.\n\n');
+        $("#dupsTab_info3").text(vSpotifyRmLimitMsg);
+        setTimeout(function ()
+        {
+          $("#dupsTab_info3").text('');
+        }, 4500);
+        return;
+      }
+    }
   });
+
+  //-----------------------------------------------------------------------------------------------
+  // function dupsTab_dupsTableRow_onUserDeselect() { /* make function appear in pycharm structure list */ }
+  // $('#dupsTable').on('user-deselect.dt', function (e, dt, type, cell, originalEvent)
+  // {
+  //   console.log('dupsTab_dupsTableRow_onUserDeselect() --- user-deselect.dt');
+  //   // console.log('__SF__dupsTab_dupsTableRow_onUserDeselect(): rowData = \n' + JSON.stringify(rowData, null, 4));
+  //   dupsTab_updateSelectedCnt();
+  // });
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_dupsTableSelect() { /* make function appear in pycharm structure list */ }
   $('#dupsTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
+    // console.log('dupsTab_dupsTableRow_onUserDeselect() --- select.dt');
+    // this method is called after the checkbox has been selected so we update the selected count
     dupsTab_updateSelectedCnt();
   });
 
@@ -335,8 +460,19 @@
   function dupsTab_dupsTableDeselect() { /* make function appear in pycharm structure list */ }
   $('#dupsTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
+    // console.log('dupsTab_dupsTableDeselect() --- deselect.dt');
+    // this method is called after the checkbox has been deselected so we update the selected count
     dupsTab_updateSelectedCnt();
   });
+
+  //-----------------------------------------------------------------------------------------------
+  function dupsTab_dupsTableOrder() { /* make function appear in pycharm structure list */ }
+  $('#dupsTable').on( 'order.dt', function ()
+  {
+      // need to know if user has sorted the table because auto select needs to clear sorting before auto selecting rows
+      vSortCount += 1;
+      // console.log('dupsTab_dupsTableOrder() --- order.dt  sort count = ' + vSortCount);
+  } );
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_btnClearSearchPlOnClick()
@@ -364,11 +500,11 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function dupsTab_afRmTracksSeq()
+  async function dupsTab_afRmTracksByPosSeq()
   {
     try
     {
-      // console.log('__SF__dupsTab_afRmTracksSeq()');
+      // console.log('__SF__dupsTab_afRmTracksByPosSeq()');
       vDupsTabLoading = true;
 
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Removing Tracks...', showStrImmed=true);
@@ -382,11 +518,14 @@
       });
 
       if (Object.keys(rmTrackList).length === 0)
+      {
+        alert('No tracks removed. Please select one or more tracks before pressing remove.')
         return
+      }
 
-      vDupsTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__dupsTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afRemoveTracks(rmTrackList);
+      // vDupsTable.clear();//.draw(); draw causes annoying flash
+      // console.log('__SF__dupsTab_afRmTracksByPosSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      await tabs_afRmTracksByPos(rmTrackList);
       vDupsTable.clear();
       await dupsTab_afFindDups();
       await dupsTab_afLoadDupsTable();
@@ -398,23 +537,23 @@
     }
     finally
     {
-      // console.log('__SF__dupsTab_afRmTracksSeq() finally.');
+      // console.log('__SF__dupsTab_afRmTracksByPosSeq() finally.');
       vDupsTabLoading = false;
       tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
     }
   }
 
   //-----------------------------------------------------------------------------------------------
-  function dupsTab_btnRemoveTracks()
+  function dupsTab_btnRmTracksByPos()
   {
-    // console.log('__SF__dupsTab_btnRemoveTracks()');
-    dupsTab_afRmTracksSeq();
+    // console.log('__SF__dupsTab_btnRmTracksByPos()');
+    dupsTab_afRmTracksByPosSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
-  function dupsTab_btnRefresh()
+  function dupsTab_btnClear()
   {
-    // console.log('__SF__dupsTab_btnRefresh()');
+    // console.log('__SF__dupsTab_btnClear()');
     dupsTab_btnClearSearchPlOnClick();
     dupsTab_afLoadDupsTableSeq();
   }
@@ -428,7 +567,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function dupsTab_cbAutoSelOnChange()
+  async function dupsTab_cbAutoSelOnChange()
   {
     // console.log('__SF__dupsTab_cbAutoSelOnChange()')
     let curSel = $('#dupsTab_cbAutoSel option:selected').text();
@@ -436,21 +575,65 @@
     if (curSel === cbAutoSel)
       return;
 
+    // undo any column sorting before auto selecting so the selections display in order rather than mixed up
+    if (vSortCount > 1)
+    {
+      // console.log('auto sel doing a clear.  sort count = ' + vSortCount);
+      $("#dupsTab_info3").text("Clearing column sort prior to doing auto selection.");
+      setTimeout(function ()
+      {
+        $("#dupsTab_info3").text('');
+      }, 4500);
+
+      dupsTab_btnClearSearchPlOnClick();
+      await dupsTab_afLoadDupsTableSeq();
+    }
+    else
+    {
+      // clear all selections prior to auto selecting
+      vDupsTable.rows().deselect();
+    }
+
     // [''0, tvals['Track Name']1, tvals['Playlist Name']2, tvals['Track Position']3, tvals['Artist Name']4,
     //      tvals['Album Name']5, tvals['Duration Hms']6, tvals['Playlist Owners Name']7, tvals['Track Id']8,
     //      tvals['Playlist Id']9, tvals['Track Uri']10, dupsClrList[idx]11, tvals['Playlist Owners Id']12 ]);
 
-    let idx = 0;
+    let cntSelectd = 0;
     let skipOneOnClrChange = 1;
     let lastColor = ~vDupsTable.row(0).data()[11];
     vDupsTabLoading = true;
-    if (curSel === 'Set')
+
+    if (curSel === 'Select First')
     {
       vDupsTable.rows().every(function ()
       {
         let rowData = this.data();
-        // console.log('dups row idx = ' + idx + ', clr = ' + rowData[11]);
-        idx += 1;
+
+        if (lastColor != rowData[11])
+          skipOneOnClrChange = 0;
+        else
+          skipOneOnClrChange = 1;
+
+        if (skipOneOnClrChange == 0)
+        {
+          if (rowData[12] == vUserId)
+          {
+            cntSelectd += 1;
+            // console.log('auto sel doing a select first cntSelect = ' + cntSelectd);
+            if (cntSelectd <= 100)
+              this.select();
+          }
+        }
+
+        lastColor = rowData[11];
+      });
+    }
+
+    if (curSel === 'Select Second')
+    {
+      vDupsTable.rows().every(function ()
+      {
+        let rowData = this.data();
 
         if (lastColor != rowData[11])
           skipOneOnClrChange = 1;
@@ -458,10 +641,27 @@
           skipOneOnClrChange = 0;
 
         if (skipOneOnClrChange == 0)
-          this.select();
+        {
+          if (rowData[12] == vUserId)
+          {
+            cntSelectd += 1;
+            // console.log('auto sel doing a select second cntSelect = ' + cntSelectd);
+            if (cntSelectd <= 100)
+              this.select();
+          }
+        }
 
         lastColor = rowData[11];
       });
+    }
+
+    if (cntSelectd > 100)
+    {
+       msg = 'Only the first 100 duplicate tracks selected.\n' +
+             'Spotify limits the number of tracks that can be removed per call to 100.\n\n' +
+             'Repeat the use of Auto Select until all the desired tracks are removed.\n\n' +
+             'Press Ok and then press Remove to have the tracks removed.\n'
+       alert(msg);
     }
 
     if (curSel === 'Clear')
@@ -475,4 +675,146 @@
 
     $('#dupsTab_cbAutoSel').val(0);
     dupsTab_updateSelectedCnt();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function dupsTab_cbRmPlIdOnChange()
+  {
+    console.log('__SF__dupsTab_cbRmPlIdOnChange() - enter')
+    let curSel = $('#dupsTab_cbRmPlId option:selected').text();
+    if (curSel === cbRmTracksById)
+      return;
+
+    // // clear any selections since we are doing a rm tracks by pl
+    // vDupsTable.rows().every(function ()
+    // {
+    //   this.deselect();
+    // });
+    vDupsTable.rows().deselect();
+
+    console.log('__SF__dupsTab_cbRmPlIdOnChange() - exit')
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function dupsTab_btnRmTracksByIdOnClick()
+  {
+    console.log('__SF__dupsTab_btnRmTracksById()')
+
+    let cbRmPlId = $('#dupsTab_cbRmPlId')
+    let curSel = $('#dupsTab_cbRmPlId option:selected').text();
+    // console.log('__SF__dupsTab_btnRmTracksById() selected = ' + curSel);
+    if (curSel === cbRmTracksById)
+    {
+      alert('No tracks removed. Please select a playlist before pressing remove.');
+      return;
+    }
+
+    let plIdPlNm = $('#dupsTab_cbRmPlId option:selected').val();
+    plIdPlNm = plIdPlNm.split('::::', 2)
+    // console.log('__SF__dupsTab_btnRmTracksById() plIdPlNam = ' + plIdPlNm);
+
+    msg = 'All the duplicate tracks listed in the table for this playlist:\n\n' +
+          '     ' + plIdPlNm[1] + '\n\n' +
+          'will be removed.\n\n' +
+          'Checkbox selections are ignored/not used.\n';
+
+    if (confirm(msg) == true)
+    {
+     await dupsTab_afRmTracksByIdSeq(plIdPlNm[0]);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function dupsTab_afRmTracksByIdSeq(plId)
+  {
+    try
+    {
+      console.log('__SF__dupsTab_afRmTracksByIdSeq()');
+      vDupsTabLoading = true;
+
+      tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Removing Tracks...', showStrImmed = true);
+
+      // give the Removing Tracks a chance to appear before going into the loop recording track id's
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // [''0, tvals['Track Name']1, tvals['Playlist Name']2, tvals['Track Position']3, tvals['Artist Name']4,
+      //      tvals['Album Name']5, tvals['Duration Hms']6, tvals['Playlist Owners Name']7, tvals['Track Id']8,
+      //      tvals['Playlist Id']9, tvals['Track Uri']10, dupsClrList[idx]11, tvals['Playlist Owners Id']12 ]);
+
+      let rowData;
+      let rmTrackList = [];
+      let rmTrackIdsSet = new Set();  // create a unique set of track ids (no duplicate tracks id)
+      vDupsTable.rows().every(function ()
+      {
+        rowData = vDupsTable.row(this).data();
+        if (rowData[9] == plId)
+          rmTrackIdsSet.add(rowData[8]);
+      });
+
+      rmTrackList = Array.from(rmTrackIdsSet); // turn set into an array
+      // console.log('__SF__dupsTab_afRmTracksByIdSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+
+      let iRem = (Object.keys(rmTrackList).length);
+      let numTracksToRm = iRem;
+      if (iRem === 0)
+        return
+
+      let iStart = 0;
+      let iEnd = 0;
+      let reload = false;
+      while (iRem > 0)
+      {
+        iStart = iEnd;
+        if (iRem > 100)
+        {
+          iEnd = iEnd + 100;
+          reload = 0;
+        }
+        else
+        {
+          iEnd = iEnd + iRem
+          reload = numTracksToRm;  // reload > 0 tells rmTracksById() to reload pl, and total number of tracks removed
+        }
+
+        // console.log('iStart = ' + iStart + ', iEnd = ' + iEnd + ', iRem = ' + iRem);
+        await dupsTab_afRmTracksById(plId, rmTrackList.slice(iStart, iEnd), reload);
+        iRem = iRem - (iEnd - iStart);
+        // console.log('iRem = ' + iRem);
+      }
+
+      vDupsTable.clear();
+      await dupsTab_afFindDups();
+      await dupsTab_afLoadDupsTable();
+    }
+    catch (err)
+    {
+      // console.log('__SF__plTab_afActivate() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__dupsTab_afRmTracksByIdSeq() finally.');
+      vDupsTabLoading = false;
+      tabs_progBarStop('dupsTab_progBar', 'dupsTab_progStat1', '');
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function dupsTab_afRmTracksById(plId, rmTrackList, reload)
+  {
+    vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
+    vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
+    
+    // console.log('__SF__dupsTab_afRmTracksById() - vUrl - removeTracksById');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ rmTracksById: 'removeTracks', plId: plId, rmTrackList: rmTrackList, reload: reload}), });
+    if (!response.ok)
+      tabs_throwErrHttp('dupsTab_afRmTracksById()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__dupsTab_afRmTracksById() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('dupsTab_afRmTracksById()', reply['errRsp'], 'tracksTab_errInfo')
+    }
   }

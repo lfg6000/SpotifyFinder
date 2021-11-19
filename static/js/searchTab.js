@@ -56,7 +56,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 105,  // compensate for extra height for radio btns that the other tabs do not have
+      "scrollY":         tableHeight - 92,  // compensate for extra height for radio btns that the other tabs do not have
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false, // background color of sorted column does not change
@@ -285,7 +285,7 @@
   {
     try
     {
-      console.log("searchTab_afLoadSearchTableSeq()");
+      // console.log("searchTab_afLoadSearchTableSeq()");
       vSearchTabLoading = true;
       tabs_set2Labels('searchTab_info1', 'Loading...', 'searchTab_info2', 'Loading...');
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Searching...', showStrImmed=true);
@@ -348,11 +348,11 @@
       {
         if (item['Playlist Owners Id'] === vUserId)
         {
-          idNm = key + '::::' + item['Playlist Name']
+          idNm = key + '::::' + item['Playlist Name'];
           // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
-          plNm = item['Playlist Name']
+          plNm = item['Playlist Name'];
           if (plNm.length > 44)
-            plNm = plNm.slice(0, 44) + '...'
+            plNm = plNm.slice(0, 44) + '...';
           $('#searchTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
         }
       });
@@ -407,9 +407,48 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  function searchTab_searchTableRow_userSelect() { /* make function appear in pycharm structure list */ }
+  $('#searchTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
+  {
+    // console.log('searchTab_searchTableRow_userSelect() --- user-select.dt');
+    // this onUser method is called prior to the checkbox being updated
+    // we use it to tell the user they have hit the 100 track selection limit
+
+    let rowAlreadySelected = false;
+    let rowNum = cell.index().row;
+    vSearchTable.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop)
+    {
+      if (rowNum === rowIdx)
+      {
+        rowAlreadySelected = true;
+        return false;
+      }
+    });
+
+    if (rowAlreadySelected == false)
+    {
+      let count = vSearchTable.rows({selected: true}).count();
+      if (count === vSpotifyRmLimit)
+      {
+        e.preventDefault();
+        // alert('You have hit the track selection limit. The limit is 100 tracks.\n\n' +
+        //       'This is a Spotify limit.\n' +
+        //       'Spotify limits the number of tracks that can be removed or moved or copied per call to 100.\n\n');
+        $("#searchTab_info3").text(vSpotifyRmLimitMsg);
+        setTimeout(function ()
+        {
+          $("#searchTab_info3").text('');
+        }, 4500);
+        return;
+      }
+    }
+  });
+
+  //-----------------------------------------------------------------------------------------------
   function searchTab_searchTableSelect() { /* make function appear in pycharm structure list */ }
   $('#searchTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
+    // this method is called after the checkbox has been selected so we update the selected count
     searchTab_updateSelectedCnt();
   });
 
@@ -417,22 +456,23 @@
   function searchTab_searchTableDeselect() { /* make function appear in pycharm structure list */ }
   $('#searchTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
+    // this method is called after the checkbox has been deselected so we update the selected count
     searchTab_updateSelectedCnt();
   });
 
     //-----------------------------------------------------------------------------------------------
-  function searchTab_btnRemoveTracks()
+  function searchTab_btnRmTracksByPos()
   {
-    // console.log('__SF__searchTab_btnRemoveTracks()');
-    searchTab_afRmTracksSeq();
+    // console.log('__SF__searchTab_btnRmTracksByPos()');
+    searchTab_afRmTracksByPosSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function searchTab_afRmTracksSeq()
+  async function searchTab_afRmTracksByPosSeq()
   {
     try
     {
-      // console.log('__SF__searchTab_afRmTracksSeq()');
+      // console.log('__SF__searchTab_afRmTracksByPosSeq()');
       vSearchTabLoading = true;
 
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Removing Tracks...', showStrImmed=true);
@@ -454,8 +494,8 @@
         return;
 
       vSearchTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__searchTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afRemoveTracks(rmTrackList);
+      // console.log('__SF__searchTab_afRmTracksByPosSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      await tabs_afRmTracksByPos(rmTrackList);
       vSearchTable.clear();
       await searchTab_afRunSearchSeq();
     }
@@ -468,16 +508,16 @@
     }
     finally
     {
-      // console.log('__SF__searchTab_afRmTracksSeq() finally.');
+      // console.log('__SF__searchTab_afRmTracksByPosSeq() finally.');
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
     }
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_btnMoveTracks()
+  function searchTab_btnMvTracks()
   {
-    // console.log('__SF__searchTab_btnMoveTracks()');
+    // console.log('__SF__searchTab_btnMvTracks()');
 
     let idNm = $('#searchTab_cbMvCpDest option:selected').val();
     idNm = idNm.split('::::', 2)
@@ -532,8 +572,8 @@
       // console.log('__SF__searchTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__searchTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__searchTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afMoveCopyTracks(destPlId, mvTrackList, 'Mv');
-      await tabs_afRemoveTracks(rmTrackList);
+      await tabs_afMvCpTracks(destPlId, mvTrackList, 'Mv');
+      await tabs_afRmTracksByPos(rmTrackList);
       await searchTab_afRunSearchSeq()
     }
     catch(err)
@@ -552,14 +592,14 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_btnCopyTracks()
+  function searchTab_btnCpTracks()
   {
-    // console.log('__SF__searchTab_btnCopyTracks()');
+    // console.log('__SF__searchTab_btnCpTracks()');
 
     let idNm = $('#searchTab_cbMvCpDest option:selected').val();
     idNm = idNm.split('::::', 2)
-    // console.log('__SF__searchTab_btnCopyTracks() val = ' + idNm[0]);
-    // console.log('__SF__searchTab_btnCopyTracks() val = ' + idNm[1]);
+    // console.log('__SF__searchTab_btnCpTracks() val = ' + idNm[0]);
+    // console.log('__SF__searchTab_btnCpTracks() val = ' + idNm[1]);
 
     let count = vSearchTable.rows({ selected: true }).count();
     if (count == 0)
@@ -601,7 +641,7 @@
       // console.log('__SF__searchTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__searchTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__searchTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afMoveCopyTracks(destPlId, cpTrackList, 'Cp');
+      await tabs_afMvCpTracks(destPlId, cpTrackList, 'Cp');
       await searchTab_afRunSearchSeq();
     }
     catch(err)
@@ -650,9 +690,9 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_btnRefresh()
+  function searchTab_btnClear()
   {
-    // console.log('__SF__searchTab_btnRefresh()');
+    // console.log('__SF__searchTab_btnClear()');
     vSearchTable.order([]); // remove sorting
     searchTab_btnClearColSearchFieldsOnClick();
     searchTab_afLoadSearchTableSeq(false);

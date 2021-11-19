@@ -8,8 +8,19 @@
   var vProgressBarTmr = null;
   var vProgBar = null;
   var vLblId = null;
+  var vSpotifyRmLimit = 100;
+  var vSpotifyRmLimitMsg = "Spotify limit: max of 100 tracks can be sent/call.";
   var vShowExeTm = 0;
   const cbMvDestDefault = '     Select A Destination Playlist     ';
+
+
+  //-----------------------------------------------------------------------------------------------
+  // leave this commented out - show cursor position in browser console log
+  // var pointerX = -1; var pointerY = -1;
+  // document.onmousemove = function(event) { pointerX = event.pageX; pointerY = event.pageY; }
+  // setInterval(pointerCheck, 1000);
+  // function pointerCheck() { console.log('Cursor at: '+pointerX+', '+pointerY);}
+  //-----------------------------------------------------------------------------------------------
 
 
   //
@@ -41,7 +52,7 @@
 
 
     // attempting to set the table scrolly to use most of the browser client window height
-    tableHeight = document.documentElement.clientHeight-256;
+    tableHeight = document.documentElement.clientHeight-264;
 
     infoTab_addClientLogMsg(['SpotifyFinder', 'Started']);
 
@@ -228,51 +239,50 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function tabs_afRemoveTracks(rmTracksList)
+  async function tabs_afRmTracksByPos(rmTrackList)
   {
-    console.log('__SF__tabs_afRemoveTracks() - vUrl - removeTracks');
-
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
-    if (Object.keys(rmTracksList).length > 100)
+    if (Object.keys(rmTrackList).length > 100)
     {
       msg = 'Spotify limits the number of tracks that can be removed at a time to 100. No tracks were removed.\n'
       alert(msg);
       return;
     }
 
+    console.log('__SF__tabs_afRmTracksByPos() - vUrl - rmTracksByPos');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ removeTracks: 'removeTracks', rmTracksList: rmTracksList }), });
+                                       body: JSON.stringify({ rmTracksByPos: 'rmTracksByPos', rmTrackList: rmTrackList }), });
     if (!response.ok)
-      tabs_throwErrHttp('tabs_afRemoveTracks()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tabs_afRmTracksByPos()', response.status, 'tracksTab_errInfo');
     else
     {
       let reply = await response.json();
-      // console.log('__SF__tabs_afRemoveTracks() reply = ', reply);
+      // console.log('__SF__tabs_afRmTracksByPos() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tabs_afRemoveTracks()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tabs_afRmTracksByPos()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function tabs_afMoveCopyTracks(destPlId, trackList, type)
+  async function tabs_afMvCpTracks(destPlId, trackList, type)
   {
-    // console.log('__SF__tabs_afMoveCopyTracks()');
+    // console.log('__SF__tabs_afMvCpTracks()');
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
-    console.log('__SF__tabs_afMoveCopyTracks() - vUrl - mvcpTracks');
+    console.log('__SF__tabs_afMvCpTracks() - vUrl - mvcpTracks');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ mvcpTracks: 'mvcpTracks', destPlId: destPlId, trackList: trackList, type: type }), });
     if (!response.ok)
-      tabs_throwErrHttp('tabs_afMoveCopyTracks()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tabs_afMvCpTracks()', response.status, 'tracksTab_errInfo');
     else
     {
       let reply = await response.json();
-      // console.log('__SF__tabs_afMoveCopyTracks() reply = ', reply);
+      // console.log('__SF__tabs_afMvCpTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tabs_afMoveCopyTracks()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tabs_afMvCpTracks()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 

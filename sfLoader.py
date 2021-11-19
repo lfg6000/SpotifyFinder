@@ -57,7 +57,7 @@ class SpfLoader():
     session['mTotalTrackCnt'] = 0
     session['mTotalTrackCntUsr'] = 0
 
-    session['mPlTracksDict'] = {}
+    session['mPlTracksDict'] = collections.OrderedDict();
 
     session['mDupsTrackList'] = []
     session['mNumDupsMatch'] = 0
@@ -731,13 +731,18 @@ class SpfLoader():
     return session['mPlTracksDict']
 
   # ---------------------------------------------------------------
-  def loadPlTracks1x(this, plId, updateTrackCnt=0):
+  # def loadPlTracks1x(this, plId, updateTrackCnt=0):
+  def loadPlTracks1x(this, plId):
     # print('>>loader.loadPlTracks1x()')
-    # mPlTracksDict['plId'] = trackList[]
-    #   - one trackList[] for each playlist
-    # trackList[] = each list entry is dict of track values
-    #   - one track dict in the list for each track in the playlist
+
+    # session['mPlTracksDict'] = collections.OrderedDict();
+    #   - below we do a: session['mPlTracksDict'][plId] = tracksList
+    #     - the dict key is a plId and dict value is a trackList array
+    #   - there is one trackList[] for each fetched playlist in the mPlTracksDict[]
+    #     - each trackList[] is an array of dictionaries
+    #     - example dict entries {'Track Id': track['id'], 'Track Name': track['name'],}
     #   - we are using a list because because a single playlist can have duplicates
+    #   - this works: tn = session['mPlTracksDict'][plId][0]['Track Name'] .... track name for the first track in a specific pl
 
     try:
       # raise Exception('throwing loader.loadPlTracks1x()')
@@ -801,16 +806,26 @@ class SpfLoader():
         idx += 100
         # print('track fetch loop idx = ', idx)
 
-      # updateTrackCnt is non zero during a Rm, Mp, Cp operation
-      if (updateTrackCnt != 0):
-        nTracks = int(plValues['Tracks'])
-        nTracks += updateTrackCnt;
-        plValues['Tracks'] = str(nTracks)
+      # # updateTrackCnt is non zero during a Rm, Mp, Cp operation
+      # # at one time updateTrackCnt was necessary because spotify was not returning unavailable tracks here, but # tracks in the get Pl call
+      # # included unavailable tracks. this meant the number tracks on the plTab and the trackCnt here would not match. so we could not use
+      # trackCnt and we had to just inc/dec the pl 'tracks' value to reflect the rm/mv/cp
+      # if (updateTrackCnt != 0):
+      #   nTracks = int(plValues['Tracks'])
+      #   nTracks += updateTrackCnt;
+      #   plValues['Tracks'] = str(nTracks)
+
+      # it now appears we are getting unavailable tracks so the trackCnt will now match the pl tracks value
+      plValues['Tracks'] = trackCnt
 
       # i am thinking we have to create this pl duration ourselves because spotify does not provide a total pl duration?
       plValues['Duration'] = this.msToHms(dur, 1)
 
+      # - after tracks are removed the tracklist is deleted from the mPlTracksDict and refetched so it ends up in a different pos in the mPlTracksDict
+      #   so we sort mPlTracksDict to get it back into order. we do this because do not want playlists swapping position in the dups tab after a remove
       session['mPlTracksDict'][plId] = tracksList
+      sortedDict = collections.OrderedDict(sorted(session['mPlTracksDict'].items()))
+      session['mPlTracksDict'] = sortedDict
       # print('>>loader.loadPlTracks1x() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlTracksDict.json', 'w') as f:
@@ -934,11 +949,11 @@ class SpfLoader():
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
-  # removeTracks
+  # rmTracksByPos
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
-  def rmTracksFromSpotPlaylist(this, plId, spotRmTrackList):
-    # print('>>loader.rmTracksFromSpotPlaylist()')
+  def rmTracksByPosFromSpotPlaylist(this, plId, spotRmTrackList):
+    # print('>>loader.rmTracksByPosFromSpotPlaylist()')
     # spotRmTrackList uses spotify key names
 
     #  url         = 'https://api.spotify.com/v1/playlists/6llbMlPvjrSSy8NTLfBltc/tracks'
@@ -949,30 +964,25 @@ class SpfLoader():
     #  body (json) = '{"tracks": [{"uri": "spotify:track:5dTuEVETmQ15gP2M8E5I45", "positions": 1}]}'
 
     try:
-      # raise Exception('throwing loader.rmTracksFromSpotPlaylist()')
+      # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       # since we are no longer reloading the playlists after a remove we can nolonger use snapshot id
-      # if you do a rm with the orginal id , you do not refetch the pl, and a second rm the id is no longer valid
       # we do reload the tracklist after each delete
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
-      # snapshotId = session['mPlDict'][plId]['Snapshot Id']
-      # newSnapshotId = this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList, snapshot_id=snapshotId)
-      # retVal = this.loadPlDict(clean=False)
-      # if retVal[sfConst.errIdxCode] != sfConst.errNone:
-      #   return retVal
       del session['mPlTracksDict'][plId]
-      retVal = this.loadPlTracks1x(plId, -(len(spotRmTrackList)))
+      # retVal = this.loadPlTracks1x(plId, -(len(spotRmTrackList))) # updateTrackCnt - see notes in loadPlTracks1x
+      retVal = this.loadPlTracks1x(plId)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
       return [sfConst.errNone]
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errRmTracksFromSpotPlaylist, this.getDateTm(), 'rmTracksFromSpotPlaylist()', 'Remove tracks from spotify playlist failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), 'rmTracksByPosFromSpotPlaylist()', 'Remove tracks from spotify playlist by pos failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal
 
   # ---------------------------------------------------------------
-  def isTrackInSpotRmTrackList(this, spotRmTrackList, trackUri, trackPosition):
-    # print('>>loader.isTrackInSpotRmTrackList()')
+  def isTrackByPosInSpotRmTrackList(this, spotRmTrackList, trackUri, trackPosition):
+    # print('>>loader.isTrackByPosInSpotRmTrackList()')
     for item in spotRmTrackList:
       if trackUri == item['uri']:
         if trackPosition == item['positions'][0]:
@@ -980,14 +990,14 @@ class SpfLoader():
     return False
 
   # ---------------------------------------------------------------
-  def removeTracks(this, rmTrackList):
-    # print('>>loader.removeTracks()')
+  def rmTracksByPos(this, rmTrackList):
+    # print('>>loader.rmTracksByPos()')
 
     try:
-      # raise Exception('throwing loader.removeTracks()')
+      # raise Exception('throwing loader.rmTracksByPos()')
       plIdsCompleted = []
       spotRmTrackList = []
-      # raise Exception('throwing loader.removeTracks()')
+      # raise Exception('throwing loader.rmTracksByPos()')
       for item1 in rmTrackList:  # for each unique plId in the list
         spotRmTrackList.clear()
         curPlId = item1['Playlist Id']
@@ -997,18 +1007,18 @@ class SpfLoader():
           if curPlId != item2['Playlist Id']:  # is track in the pl we are currently working on
             continue
           # skip over tracks that are already in the spotRmTrackList match on uri and position
-          if this.isTrackInSpotRmTrackList(spotRmTrackList, item2['Track Uri'], item2['Track Position']) == False:
+          if this.isTrackByPosInSpotRmTrackList(spotRmTrackList, item2['Track Uri'], item2['Track Position']) == False:
             spotRmTrackList.append({'uri': item2['Track Uri'], 'positions': [int(item2['Track Position'])]})
 
         # remove tracks for this unique plId
-        retVal = this.rmTracksFromSpotPlaylist(curPlId, spotRmTrackList)
+        retVal = this.rmTracksByPosFromSpotPlaylist(curPlId, spotRmTrackList)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
         plIdsCompleted.append(curPlId)
       return [sfConst.errNone]
     except Exception:
       tupleExc = sys.exc_info()
-      retVal = [sfConst.errRemoveTracks, this.getDateTm(), 'removeTracks()', 'Remove tracks from playlist failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      retVal = [sfConst.errRmTracksByPos, this.getDateTm(), 'rmTracksByPos()', 'Remove tracks from playlist by pos failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1055,7 +1065,8 @@ class SpfLoader():
         # if retVal[sfConst.errIdxCode] != sfConst.errNone:
         #   return retVal
         del session['mPlTracksDict'][plIdDest]
-        retVal = this.loadPlTracks1x(plIdDest, len(trackListCleaned))
+        # retVal = this.loadPlTracks1x(plIdDest, len(trackListCleaned)) # updateTrackCnt - see notes in loadPlTracks1x
+        retVal = this.loadPlTracks1x(plIdDest)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
       return [sfConst.errNone]
@@ -1490,6 +1501,50 @@ class SpfLoader():
       retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'get search track list failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
       return retVal, [], [], [], 0,
+
+  # ---------------------------------------------------------------
+  # ---------------------------------------------------------------
+  # rmTracksById
+  # ---------------------------------------------------------------
+  # ---------------------------------------------------------------
+  def rmTracksById(this, plId, rmTrackList, reload):
+    # print('>>loader.rmTracksById()')
+
+    # this is currently coded to assume
+    #   - rmTrackList is an array of dicts  { 'Playlist Id": plId, 'Track Id': trkId }
+    #   - rmTrackList has up to 100 entries, spotify has a 100 track remove limit, you must call in bactches of 100 or less
+    #   - all duplicate track ids have previously been removed, the list is a unique list of track ids
+    #   - all tracks are in the same pl but could be upgraded to detect different plId's like rmTracksByPos
+
+    #  url         = 'https://api.spotify.com/v1/playlists/4cMO7GcKEwsfDwhmzczuMz/tracks'
+    #  method      = Delete
+    #  header      = { 'User-Agent': 'python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive',
+    #                  'Authorization': 'Bearer BQCk60Nw6CrP-Ln0JWSnpJE1Z6jDQkQ.....mY', 'Content-Type':
+    #                  'application/json', 'Content-Length': '1188'}
+    #  body (json) = {"tracks": [{"uri": "spotify:track:5HuAzrXrJV7gINMZ39CygH"}, {"uri": "spotify:track:3GLKuZMs9FHwoO9su6ZB5P"}]}
+
+    try:
+      # raise Exception('throwing loader.rmTracksById()')
+      this.oAuthGetSpotifyObj().playlist_remove_all_occurrences_of_items(plId, rmTrackList)
+
+      # this method can be call in a loop in order to delete more than 100 tracks
+      # on the last call to this method the reload value is set to the total # of tracks removed
+      # if reload > 0 then refetch the tracks for this pl from spotify
+      if (reload):
+        del session['mPlTracksDict'][plId]
+        # retVal = this.loadPlTracks1x(plId, -(reload)) # updateTrackCnt - see notes in loadPlTracks1x
+        retVal = this.loadPlTracks1x(plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          return retVal
+      return [sfConst.errNone]
+
+    except Exception:
+      tupleExc = sys.exc_info()
+      retVal = [sfConst.errRmTracksById, this.getDateTm(), 'rmTracksById()', 'Remove tracks from playlist by playlist id failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+
 
   # ---------------------------------------------------------------
   def playTracks(this, trackUris):

@@ -1,21 +1,24 @@
 /venv/
+/venv*/
 /__pycache__/
 /.idea/
 /build/
 /dist/
-/.table_exports/
+/.sqldb_table_exports/
 /.lfg_work_dir/
 /flask_session/
 /WA_SpotifyFinder_GitDb_PreGitHub/
+/_NO_BU_/
 
 .cache
 /templates/helper.txt
 lfgDbCmds.txt
 lfgDbCmdsWB.sql
 lfgReadMe.txt
-lfgReadMePa.txt
+lfgReadMePyAny.txt
 waSpotifyFinderApp.spec
 pyinstaller.exe
+
 
 
 

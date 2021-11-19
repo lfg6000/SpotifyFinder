@@ -51,7 +51,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 28,
+      "scrollY":         tableHeight - 18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
@@ -105,7 +105,7 @@
       },
 
       "dom":            "rt",
-      "scrollY":         tableHeight - 28,
+      "scrollY":         tableHeight - 18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false,   // background color of sorted column does not change
@@ -246,7 +246,7 @@
   {
     // console.log('__SF__tracksTab_afLoadPlTracks()');
     let plSelectedDictNotLoaded = await tracksTab_afGetPlSelectedDictNotLoaded();
-    console.log('__SF__tracksTab_afLoadPlTracks() plSelectedDictNotLoaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
+    // console.log('__SF__tracksTab_afLoadPlTracks() plSelectedDictNotLoaded cnt = ' + Object.keys(plSelectedDictNotLoaded).length);
     // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDictNotLoaded = \n' + JSON.stringify(plSelectedDictNotLoaded, null, 4));
     // for (let plId in plSelectedDictNotLoaded)
     for (const [plId, value] of Object.entries(plSelectedDictNotLoaded))
@@ -301,11 +301,11 @@
     {
       if (item['Playlist Owners Id'] == vUserId)
       {
-        idNm = key + '::::' + item['Playlist Name']
+        idNm = key + '::::' + item['Playlist Name'];
         // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
-        plNm = item['Playlist Name']
+        plNm = item['Playlist Name'];
         if (plNm.length > 44)
-          plNm = plNm.slice(0, 44) + '...'
+          plNm = plNm.slice(0, 44) + '...';
         $('#tracksTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
       }
     });
@@ -350,7 +350,7 @@
       vTracksTabLoading = true;
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
-      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks for selected playlist...', showStrImmed=false);
+      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...', showStrImmed=false);
 
       // tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...');
       await tracksTab_afLoadTracksTable(plId, plName)
@@ -416,10 +416,49 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  function tracksTab_tracksTableRow_onUserSelect() { /* make function appear in pycharm structure list */ }
+  $('#tracksTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
+  {
+    // console.log('tracksTab_tracksTableRow_onUserSelect() --- user-select.dt');
+    // this onUser method is called prior to the checkbox being updated
+    // we use it to tell the user they have hit the 100 track selection limit
+
+    let rowAlreadySelected = false;
+    let rowNum = cell.index().row;
+    vPlTracksTable.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop)
+    {
+      if (rowNum === rowIdx)
+      {
+        rowAlreadySelected = true;
+        return false;
+      }
+    });
+
+    if (rowAlreadySelected == false)
+    {
+      let count = vPlTracksTable.rows({selected: true}).count();
+      if (count === vSpotifyRmLimit)
+      {
+        e.preventDefault();
+        // alert('You have hit the track selection limit. The limit is 100 tracks.\n\n' +
+        //       'This is a Spotify limit.\n' +
+        //       'Spotify limits the number of tracks that can be removed or moved or copied per call to 100.\n\n');
+        $("#tracksTab_info3").text(vSpotifyRmLimitMsg);
+        setTimeout(function ()
+        {
+          $("#tracksTab_info3").text('');
+        }, 4500);
+        return;
+      }
+    }
+  });
+
+  //-----------------------------------------------------------------------------------------------
   function tracksTab_tracksTableSelect() { /* make function appear in pycharm structure list */ }
   $('#tracksTable').on( 'select.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__tracksTab_tracksTab_tracksTableSelect() - tracksTable row select');
+    // this method is called after the checkbox has been selected so we update the selected count
     tracksTab_updateSelectedCnt();
   });
 
@@ -428,48 +467,23 @@
   $('#tracksTable').on( 'deselect.dt', function ( e, dt, type, indexes )
   {
     // console.log('__SF__tracksTab_tracksTab_tracksTableDeselect() - tracksTable row deselect');
+    // this method is called after the checkbox has been deselected so we update the selected count
     tracksTab_updateSelectedCnt();
   });
 
   //-----------------------------------------------------------------------------------------------
-  // function tracksTab_tracksTableRow_onUserSelect() { /* make function appear in pycharm structure list */ }
-  // $('#tracksTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
-  // {
-  //   // console.log('__SF__tracksTableRow_onUserSelect()');
-  //
-  //   let rowData = vPlTracksTable.row(cell.node()).data()
-  //   // let rowData = vPlTracksTable.row(indexes).data();
-  //   // console.log('__SF__tracksTab_tracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
-  //   if (rowData[10] != vUserId)   // playlistOwnerId != vUserId...user is not the owner of the track....
-  //   {
-  //      e.preventDefault();
-  //      $("#tracksTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
-  //      setTimeout(function() { $("#tracksTab_info3").text(''); }, 4500);
-  //      return;
-  //   }
-
-    // tracksTab_updateSelectedCnt(); // can not do this here since the select has yet to occur
-  // });
-
-  //-----------------------------------------------------------------------------------------------
-  // function tracksTab_tracksTable_onDeselect() { /* make function appear in pycharm structure list */ }
-  // $('#tracksTable').on( 'deselect.dt', function (e, dt, type, indexes)
-  // {
-  // });
-
-  //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnRemoveTracks()
+  function tracksTab_btnRmTracksByPos()
   {
-    // console.log('__SF__tracksTab_btnRemoveTracks()');
-    tracksTab_afRmTracksSeq();
+    // console.log('__SF__tracksTab_btnRmTracksByPos()');
+    tracksTab_afRmTracksByPosSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afRmTracksSeq()
+  async function tracksTab_afRmTracksByPosSeq()
   {
     try
     {
-      // console.log('__SF__tracksTab_afRmTracksSeq()');
+      // console.log('__SF__tracksTab_afRmTracksByPosSeq()');
       vTracksTabLoading = true;
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Removing Tracks...', showStrImmed=true);
@@ -491,20 +505,20 @@
         return;
 
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__tracksTab_afRmTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afRemoveTracks(rmTrackList);
+      // console.log('__SF__tracksTab_afRmTracksByPosSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      await tabs_afRmTracksByPos(rmTrackList);
       await tracksTab_afLoadTracksTable(pl=rowData[8]);
     }
     catch(err)
     {
-      // console.log('__SF__tracksTab_afRmTracksSeq() caught error: ', err);
+      // console.log('__SF__tracksTab_afRmTracksByPosSeq() caught error: ', err);
       if (err.toString() == 'NotOwnerErr')
         return;
       tabs_errHandler(err);
     }
     finally
     {
-      // console.log('__SF__tracksTab_afRmTracksSeq() finally.');
+      // console.log('__SF__tracksTab_afRmTracksByPosSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
@@ -512,9 +526,9 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnRefresh()
+  function tracksTab_btnClear()
   {
-    // console.log('__SF__tracksTab_btnRefresh()');
+    // console.log('__SF__tracksTab_btnClear()');
     tracksTab_btnClearSearchPlNameOnClick();
     tracksTab_btnClearSearchTracksOnClick();
     let rowData = vPlTracksTable.row(0).data();
@@ -568,9 +582,9 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnMoveTracks()
+  function tracksTab_btnMvTracks()
   {
-    // console.log('__SF__tracksTab_btnMoveTracks()');
+    // console.log('__SF__tracksTab_btnMvTracks()');
 
     let idNm = $('#tracksTab_cbMvCpDest option:selected').val();
     idNm = idNm.split('::::', 2)
@@ -625,8 +639,8 @@
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afMoveCopyTracks(destPlId, mvTrackList, 'Mv');
-      await tabs_afRemoveTracks(rmTrackList);
+      await tabs_afMvCpTracks(destPlId, mvTrackList, 'Mv');
+      await tabs_afRmTracksByPos(rmTrackList);
       await tracksTab_afLoadTracksTable(pl=rowData[8]);
     }
     catch(err)
@@ -646,14 +660,14 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnCopyTracks()
+  function tracksTab_btnCpTracks()
   {
-    // console.log('__SF__tracksTab_btnCopyTracks()');
+    // console.log('__SF__tracksTab_btnCpTracks()');
 
     let idNm = $('#tracksTab_cbMvCpDest option:selected').val();
     idNm = idNm.split('::::', 2)
-    // console.log('__SF__tracksTab_btnCopyTracks() val = ' + idNm[0]);
-    // console.log('__SF__tracksTab_btnCopyTracks() val = ' + idNm[1]);
+    // console.log('__SF__tracksTab_btnCpTracks() val = ' + idNm[0]);
+    // console.log('__SF__tracksTab_btnCpTracks() val = ' + idNm[1]);
 
     let count = vPlTracksTable.rows({ selected: true }).count();
     if (count == 0)
@@ -696,12 +710,12 @@
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
-      await tabs_afMoveCopyTracks(destPlId, cpTrackList, 'Cp');
+      await tabs_afMvCpTracks(destPlId, cpTrackList, 'Cp');
       await tracksTab_afLoadTracksTable(pl=rowData[8]);
     }
     catch(err)
     {
-      // console.log('__SF__tracksTab_btnCopyTracks() caught error: ', err);
+      // console.log('__SF__tracksTab_btnCpTracks() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
@@ -793,7 +807,7 @@
     let vTrackUris = [];
     let rowData = vPlTracksTable.row(10).data();
     vTrackUris.push(rowData[9]);
-    console.log('trackUris = ' + vTrackUris);
+    // console.log('trackUris = ' + vTrackUris);
     await tracksTab_afPlayTracks(vTrackUris);
   }
 

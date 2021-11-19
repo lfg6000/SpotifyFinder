@@ -4,19 +4,20 @@
 View this project live at:   https://www.SpotifyFinder.com
 
 ### Why (App Overview)
-The SpotifyFinder web app is a set of tools to help you organize your Spotify playlists. 
-  * find duplicates (and remove them) in your Spotify playlists.
-  * to see where a particular artist appears in your Spotify playlists.
-  * to move tracks to another playlist
+This website is a set of tools to help you organize/curate your Spotify playlists. 
+  * Use this website to search for tracks, artists, albums <i><u>across</u></i> your Spotify playlists.
+  * Use this website to find duplicates <i><u>across</u></i> playlists or in the same playlists and remove them.
+  * Use this website to move or copy tracks to another playlist.
 
 ### Technical Details
 * Server Side:
-    * Python - server side language
-    * Flask (pkg) - web application framework
-    * Flask-Session  (pkg) - server side sessions
-    * Spotipy (pkg) - python wrapper around Spotify Web Client API
-    * Flask-MySqlDb (pkg) - flask wrapper around db connections
+    * Python v3.8 - server side language
+    * Flask (pkg v1.1.1) - web application framework
+    * Flask-Session  (pkg v0.3.2) - server side sessions
+    * Spotipy (pkg v2.16.1) - python wrapper around Spotify Web Client API
+    * Flask-MySqlDb (pkg v0.2.0) - flask wrapper around db connections
     * MySql (server) - sql database (optional)
+    * the pkg versions specified above match the pkg versions used by the actual website
 * Client side:
     * Html - ui elements
     * Css - ui elements styling
