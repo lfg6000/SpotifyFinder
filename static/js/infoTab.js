@@ -58,9 +58,9 @@
       case 'helpTextTabSearch.html':
         $('#infoTab_btnSearchInfo').focus();
         break;
-      // case 'helpTextCoffee.html':
-      //   $('#infoTab_btnCoffeeInfo').focus();
-      //   break;
+      case 'helpTextChangeLog.html':
+        $('#infoTab_btnChangeLog').focus();
+        break;
       default:
         break;
     }
@@ -141,10 +141,10 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  // function infoTab_btnCoffeeInfo()
-  // {
-  //   infoTab_afLoadInfo('helpTextCoffee.html');
-  // }
+  function infoTab_btnChangeLog()
+  {
+    infoTab_afLoadInfo('helpTextChangeLog.html');
+  }
 
   //-----------------------------------------------------------------------------------------------
   function infoTab_btnClientLog()
