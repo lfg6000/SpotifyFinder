@@ -8,6 +8,8 @@ from spotipy.oauth2 import SpotifyOAuth
 from collections import Counter
 import sfConst
 
+# from memory_profiler import profile
+
 # ---------------------------------------------------------------
 # flask returns a session id when receiving a connection request and
 # upon subsequent requests the browser sends a session cookie in the request header
@@ -627,6 +629,15 @@ class SpfLoader():
         session['mPlSelectedDict'].clear()
         session['mPlTracksDict'].clear()
 
+        session['mPlDictOwnersList'].clear()
+        session['mDupsTrackList'].clear()
+        session['mNumDupsMatch'] = 0
+        session['mArtistDict'].clear()
+        session['mArtistTrackList'].clear()
+        session['mSearchTrackList'].clear()
+        session['mNumSearchMatches'] = 0
+        session['mLastPlLoaded'] = ''
+
       # spotify only returns 50 playlists at a time so we loop until we have them all
       # 'https://api.spotify.com/v1/me/playlists'
       results = this.oAuthGetSpotifyObj().current_user_playlists(limit=50, offset=idx)
@@ -1183,6 +1194,7 @@ class SpfLoader():
     return False
 
   # ---------------------------------------------------------------
+  # @profile
   def findDupsId(this, modePlaylist):
     # print('>>loader.findDupsId() match on Track Id')
 

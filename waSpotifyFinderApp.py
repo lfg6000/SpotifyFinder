@@ -6,6 +6,9 @@ import spotipy
 import json, logging, datetime, pprint, os, time
 import sfLoader, sfConst
 
+# import gc
+# from guppy import hpy
+
 #----------------------------------------------------------------------------------------------
 # - flask requries all .css and js files be in '/static/..'
 # - favicon not showing up firefox/chrome: clear the cache in firefox/chrome
@@ -37,7 +40,7 @@ app.config['SECRET_KEY'] = oLoader.sFlaskAppSecretKey
 # SESSION_COOKIE_HTTPONLY defaults to true, if true javascript cookies=document.cookie is not able to read the cookie(s)
 # because the cookie(s) are only for server side usage and not accessible to the client
 # the cookie(s) are sent with every subsequent requests after being issued by the server
-# this app only has one cookie and it is the session id (plus signer extension if used)
+# this app only has two cookies: session id (plus signer extension if used), and saved playlist selections
 # chrome console.log reports cookies = 'session=dff678bd-d9fa-45f0-9bec-840f6e630533'  (it is not encrypted like i thought it would be)
 # app.config['SESSION_COOKIE_HTTPONLY'] = False
 # app.config['SESSION_COOKIE_NAME'] = 'session'  # defaults to 'session' for the cookie name
@@ -202,6 +205,8 @@ def Tabs():
     if rqJson != None:
       key = next(iter(rqJson))
 
+      # gc.collect()
+
       if (key == 'playTracks'):
         # experimental code for a potential play btn feature
         # print('>>/Tabs playTrack()')
@@ -209,6 +214,7 @@ def Tabs():
         retVal = oLoader.playTracks(trackUris);
         # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
         #   oLoader.updateDbVisitCnt(mysql, 'Help')
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'runSearch'):
@@ -223,25 +229,33 @@ def Tabs():
         retVal = oLoader.runSearch(searchText, ckTrackName, ckArtistName, ckAlbumName, ckPlaylistName, ckDurationHms, ckTrackId)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Search')
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getSearchTrackList'):
         # print('>>/Tabs getNameSearchTrackList()')
         retVal, searchTrackList, numSearchMatches, plSelectedDict, numTracksInSelectedPl = oLoader.getSearchTrackList()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'searchTrackList': searchTrackList, 'numSearchMatches': numSearchMatches, 'plSelectedDict': plSelectedDict, 'numTracksInSelectedPl': numTracksInSelectedPl })
 
       if (key == 'clearSearchTrackList'):
         # print('>>/Tabs clearSearchTrackList()')
         retVal = oLoader.clearSearchTrackList()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'findDups'):
+        # h = hpy()
+        # print(h.heap().byid[0].sp)
+        # h = hpy()
         modePlaylist = rqJson['modePlaylist']
         modeSearch = rqJson['modeSearch']
         # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
         retVal = oLoader.findDups(modePlaylist, modeSearch)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Dups')
+        # print(h.heap().byid[0].sp)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getDupsTrackList'):
@@ -249,6 +263,7 @@ def Tabs():
         modeSearch = rqJson['modeSearch']
         # print('>>/Tabs getDupsTrackList()')
         retVal, dupsTrackList, numDupsMatch, dupsClrList = oLoader.getDupsTrackList(modePlaylist, modeSearch)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'dupsTrackList': dupsTrackList, 'numDupsMatch': numDupsMatch, 'dupsClrList': dupsClrList})
 
       if (key == 'loadArtistDict'):
@@ -256,22 +271,26 @@ def Tabs():
         retVal = oLoader.loadArtistDict()
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Art')
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getArtistDict'):
         # print('>>/Tabs getArtistDict()')
         retVal, artistDict, plSelectedDict = oLoader.getArtistDict()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'artistDict': artistDict, 'plSelectedDict': plSelectedDict})
 
       if (key == 'loadArtistTrackList'):
         artistId = rqJson['artistId']
         # print('>>/Tabs loadArtistTrackList() - artistId = ' + artistId)
         retVal = oLoader.loadArtistTrackList(artistId)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getArtistTrackList'):
         # print('>>/Tabs getArtistTrackList()')
         retVal, artistTrackList = oLoader.getArtistTrackList()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'artistTrackList': artistTrackList})
 
       # if (key == 'loadPlTracks'):
@@ -285,28 +304,33 @@ def Tabs():
         # print('>>/Tabs loadPlTracks1x()')
         plId = rqJson['plId']
         retVal = oLoader.loadPlTracks1x(plId)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal})
 
       if (key == 'getPlSelectedDict'):
         # print('>>/Tabs getPlSelectedDict')
         retVal, plSelectedDict = oLoader.getPlSelectedDict()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'plSelectedDict': plSelectedDict })
 
       if (key == 'getPlSelectedDictNotLoaded'):
         # print('>>/Tabs getPlSelectedDictNotLoaded')
         retVal, plSelectedDictNotLoaded = oLoader.getPlSelectedDictNotLoaded()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'plSelectedDictNotLoaded': plSelectedDictNotLoaded })
 
       if (key == 'getTrackList'):
         plId = rqJson['plId']
         # print('>>/Tabs getTrackList() - plId = ' + plId)
         retVal, trackList, duration = oLoader.getTrackList(plId)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'trackList': trackList, 'plDuration': duration})
 
       if (key == 'setPlSelectedDict'):
         # print('>>/Tabs setPlSelectedDict()')
         newPlSelectedDict = rqJson['newPlSelectedDict']
         retVal = oLoader.setPlSelectedDict(newPlSelectedDict)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'loadSpotifyInfo'):
@@ -314,6 +338,7 @@ def Tabs():
         winWidth = rqJson['winWidth']
         winHeight = rqJson['winHeight']
         retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie('session'), 'sid': sid})
 
       # if (key == 'loadPlDict'):
@@ -332,11 +357,13 @@ def Tabs():
         # the mysql server is optional if db name is not set skip the one and only db read/write
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '') and (nPlRxd < 50)):
           oLoader.updateDbUniqueSpotifyInfo(mysql)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'nPlRxd': nPlRxd })
 
       if (key == 'getPlDict'):
         # print('>>/Tabs getPlDict')
         retVal, plDict, nPlaylists, nTracks, userList = oLoader.getPlDict()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'plDict': plDict , 'NPlaylists': nPlaylists, 'NTracks': nTracks, 'userList': userList })
 
       if (key == 'rmTracksByPos'):  # uses both track id and track position
@@ -346,6 +373,7 @@ def Tabs():
         retVal = oLoader.rmTracksByPos(rmTrackList)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Rm')
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'rmTracksById'): # uses track id
@@ -357,6 +385,7 @@ def Tabs():
         retVal = oLoader.rmTracksById(plId, rmTrackList, reload)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Rm')
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'mvcpTracks'):
@@ -369,11 +398,13 @@ def Tabs():
         retVal = oLoader.mvcpTracks(destPlId, trackList)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, type)
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal })
 
       if (key == 'getErrLog'):
         # print('>>/Tabs getErrLog()')
         retVal, errLog = oLoader.getErrLog()
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'errLog': errLog })
 
       if (key == 'getInfoHtml'):
@@ -383,6 +414,7 @@ def Tabs():
         # jsonStr = json.dumps(htmlStr)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Help')
+        # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'htmlInfo': htmlStr })
 
       # - this is the error in the logs when a route return nothing....
@@ -395,15 +427,18 @@ def Tabs():
         key = 'unknown post cmd: key = None'
       retVal = [sfConst.errUnknownPostCmd, oLoader.getDateTm(), '@app.route Tabs post', 'Post Cmd not recognized key = ', str(key), ' ', ' ']
       oLoader.addErrLogEntry(retVal)
+      # print(gc.collect())
       return jsonify({ 'errRsp': retVal })  # always return something
 
     # we should not ever get here...post cmd is completely invalid
     retVal = [sfConst.errUnknownPost, oLoader.getDateTm(), '@app.route Tabs post', 'Post missing cmd', 'request.get_json() returns nothing', ' ', ' ']
     oLoader.addErrLogEntry(retVal)
+    # print(gc.collect())
     return '200';  # always return something
 
   # print('>>/Tabs render_template sfTabs.html')
   # oLoader.initLoader()
+  # print(gc.collect())
   return render_template("sfTabs.html")
 
 
