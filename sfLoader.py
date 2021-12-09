@@ -944,7 +944,7 @@ class SpfLoader():
       # print('>>loader.getTrackList()')
 
       if len(session['mPlSelectedDict']) == 0:
-        raise Exception('throwing loader.getTrackLiset() - no playlists selected')
+        raise Exception('throwing loader.getTrackList() - no playlists selected')
 
       if plId not in session['mPlTracksDict']:
         raise Exception('throwning loader.getTrackList() - requested tracks not found for plId = ' + plId)

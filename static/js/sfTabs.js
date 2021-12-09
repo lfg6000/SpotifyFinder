@@ -415,10 +415,26 @@
       return;
 
     vAborting = 1;
+
     msg = 'An error has occured.\n' +
-          'A session restart is needed.\n\n' +
-          'Press Ok and you will be redirected to the home page.\n' +
-          'Press Cancel and you will be redirected to the log viewer.';
+      'A session restart is needed.\n\n' +
+      'Press Ok and you will be redirected to the home page.\n' +
+      'Press Cancel and you will be redirected to the log viewer.';
+
+
+    let errMsgSplit = err.message.split(", ");
+    console.log('splits = ', errMsgSplit);
+    if (errMsgSplit[2] === "errCode: -5") // errRmTracksByPosFromSpotPlaylist = -5
+    {
+      msg = 'A remove track by position error has occured.\n\n' +
+        'A session restart is needed.\n\n' +
+        'Press Ok and you will be redirected to the home page.\n' +
+        'Press Cancel and you will be redirected to the log viewer.\n\n' +
+        'Details:\n' +
+        '1) This error usually occurs when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n\n' +
+        '2) If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n';
+    }
+
 
     if (confirm(msg) == true)
     {
