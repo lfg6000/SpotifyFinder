@@ -27,6 +27,7 @@ class SpfLoader():
     this.sSpotifyScope += 'playlist-read-collaborative '
     this.sSpotifyScope += 'playlist-modify-public '
     this.sSpotifyScope += 'playlist-modify-private '
+    this.sSpotifyScope += 'user-read-private '             # for country code
 
     # experimental code for a potential play btn feature
     # this.sSpotifyScope += 'user-read-playback-state '
@@ -49,7 +50,7 @@ class SpfLoader():
     # session['mSpotipy'] = None
     session['mUserId'] = ''
     session['mUserName'] = ''
-    # session['mUserCountry'] = '' # needs a user permission
+    session['mUserCountry'] = '' # needs a user-read-private permission, # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
     session['mPlDict'] = {}
     session['mPlaylistCntUsr'] = 0
@@ -331,6 +332,7 @@ class SpfLoader():
       results = this.oAuthGetSpotifyObj().current_user()
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
+      session['mUserCountry'] = results['country']   # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', ' + session.sid + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
       return [sfConst.errNone], session['mUserId'], session['mUserName'], session.sid
     except Exception:
@@ -372,6 +374,7 @@ class SpfLoader():
 
       userId = session['mUserId']
       userName = session['mUserName']
+      country = session['mUserCountry']  # needs a user-read-private permission, # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistCnt = len(session['mPlDict'])
       playlistCntUsr = session['mPlaylistCntUsr']
       totalTrackCnt = session['mTotalTrackCnt']
@@ -384,8 +387,12 @@ class SpfLoader():
       user = cursor.fetchone()
       if user:
         visitCnt = user['visitCnt'] + 1
-        cursor.execute("UPDATE uniqueUsers SET visitCnt=%s, playlistCnt=%s, playlistCntUsr=%s, totalTrackCnt=%s, totalTrackCntUsr=%s, lastVisit=%s WHERE userId=%s",
-                       (int(visitCnt), int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr), sqlDate, userId))
+        # country can be removed after a while.
+        # country was added after 197 user entries were created
+        # so get the country of an existing user we need to set country here for now
+        # once all the existing users visit the site we can remove country because it is set on the first visit also
+        cursor.execute("UPDATE uniqueUsers SET country=%s, visitCnt=%s, playlistCnt=%s, playlistCntUsr=%s, totalTrackCnt=%s, totalTrackCntUsr=%s, lastVisit=%s WHERE userId=%s",
+                       (country, int(visitCnt), int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr), sqlDate, userId))
         # print('>>loader.updateDbUniqueSpotifyInfo - inc existing user')
       else:
         visitCnt = 1
@@ -397,8 +404,8 @@ class SpfLoader():
         visitCntCp = 0
         visitCntSearch = 0
         visitCntHelp = 0
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
-                       (userId, userName,
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+                       (userId, userName, country,
                         int(visitCnt), int(visitCntTracks), int(visitCntDups), int(visitCntArt),
                         int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntHelp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
@@ -772,8 +779,6 @@ class SpfLoader():
 
       # lots of tracks have an available_markets list with 0 entries but not all
       # maybe we need to pass a market param (country code) in the .playlist_items() call and get back track linking info
-      # you need the 'user-read-private ' scope to get the country code
-      # countryCode = session['mUserCountry']
 
       plValues = session['mPlDict'].get(plId)  # need the ownerName and ownerId
       trackCnt = 0
@@ -884,8 +889,6 @@ class SpfLoader():
   #
   #       # lots of tracks have an available_markets list with 0 entries but not all
   #       # maybe we need to pass a market param (country code) in the .playlist_items() call and get back track linking info
-  #       # you need the 'user-read-private ' scope to get the country code
-  #       # countryCode = session['mUserCountry']
   #
   #       plValues = session['mPlDict'].get(plSelectedId)  # need the ownerName and ownerId
   #       trackCnt = 0
