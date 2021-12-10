@@ -11,6 +11,7 @@
   var vCbxTrackIdVal = false;
 
   var vSearchText = '';
+  var vPrevSearchFieldVal = '';
 
 
   //-----------------------------------------------------------------------------------------------
@@ -189,13 +190,25 @@
   function searchTab_searchTextFieldKeyUpEvent() { /* make function appear in pycharm structure list */ }
   $("#searchTextInput").on('keyup', function (event)
   {
+    // console.log('search txt key up,  val = ', $(this).val())
+
+    // if the search field is cleared by a backspace or delete clear the search results
+    if ((event.keyCode === 8) || (event.keyCode === 46)) // backspace || delete
+    {
+      fieldVal = $(this).val();
+      if ((vPrevSearchFieldVal != "") && (fieldVal == ""))
+        searchTab_afLoadSearchTableSeq(true);
+    }
+
     // do a search when the user hits enter
-    if (event.keyCode === 13)
+    if (event.keyCode === 13) // return
     {
       vSearchText = $(this).val();
       if (vSearchText != "")
         searchTab_afRunSearchSeq();
     }
+
+    vPrevSearchFieldVal = $(this).val();
   });
 
   //-----------------------------------------------------------------------------------------------
