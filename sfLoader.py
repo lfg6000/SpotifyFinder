@@ -759,7 +759,11 @@ class SpfLoader():
       # raise Exception('throwing loader.loadPlTracks1x()')
 
       if plId in session['mPlTracksDict']:  # did we already load the tracks for the pl
-        return [sfConst.errNone]
+        loadedPlIds = []
+        for plId in session['mPlTracksDict']:
+          loadedPlIds.append(plId)
+        return [sfConst.errNone], loadedPlIds
+
 
       idx = 0
       dur = 0
@@ -839,15 +843,19 @@ class SpfLoader():
       session['mPlTracksDict'] = sortedDict
       # print('>>loader.loadPlTracks1x() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
 
+      loadedPlIds = []
+      for plId in session['mPlTracksDict']:
+        loadedPlIds.append(plId)
+
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlTracksDict.json', 'w') as f:
       #   json.dump(session['mPlTracksDict'], f)
-      return [sfConst.errNone]
+      return [sfConst.errNone], loadedPlIds
     except Exception:
       # error: HTTPSConnectionPool(host='api.spotify.com', port=443): Read timed out. (read 'timeout=5) see notes in: oAuthGetSpotifyObj()
       tupleExc = sys.exc_info()
       retVal = [sfConst.errLoadPlTracks1x, this.getDateTm(), 'loadPlTracks1x()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
       this.addErrLogEntry(retVal)
-      return retVal
+      return retVal, []
 
   # # ---------------------------------------------------------------
   # def loadPlTracks(this):
@@ -980,8 +988,7 @@ class SpfLoader():
       # we do reload the tracklist after each delete
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
       del session['mPlTracksDict'][plId]
-      # retVal = this.loadPlTracks1x(plId, -(len(spotRmTrackList))) # updateTrackCnt - see notes in loadPlTracks1x
-      retVal = this.loadPlTracks1x(plId)
+      retVal, loadedPlIds = this.loadPlTracks1x(plId)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
       return [sfConst.errNone]
@@ -1072,12 +1079,8 @@ class SpfLoader():
       trackListCleaned = this.cleanMvCpTrackList(plIdDest, trackList)
       if (len(trackListCleaned) > 0):
         newSnapshotId = this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, trackListCleaned)
-        # retVal = this.loadPlDict(clean=False)
-        # if retVal[sfConst.errIdxCode] != sfConst.errNone:
-        #   return retVal
         del session['mPlTracksDict'][plIdDest]
-        # retVal = this.loadPlTracks1x(plIdDest, len(trackListCleaned)) # updateTrackCnt - see notes in loadPlTracks1x
-        retVal = this.loadPlTracks1x(plIdDest)
+        retVal, loadedPlIds = this.loadPlTracks1x(plIdDest)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
       return [sfConst.errNone]
@@ -1544,8 +1547,7 @@ class SpfLoader():
       # if reload > 0 then refetch the tracks for this pl from spotify
       if (reload):
         del session['mPlTracksDict'][plId]
-        # retVal = this.loadPlTracks1x(plId, -(reload)) # updateTrackCnt - see notes in loadPlTracks1x
-        retVal = this.loadPlTracks1x(plId)
+        retVal, loadedPlIds = this.loadPlTracks1x(plId)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
           return retVal
       return [sfConst.errNone]

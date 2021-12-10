@@ -9,7 +9,7 @@
   var vProgBar = null;
   var vLblId = null;
   var vSpotifyRmLimit = 100;
-  var vSpotifyRmLimitMsg = "Spotify limit: max of 100 tracks can be sent/call.";
+  var vSpotifyRmLimitMsg = "Spotify limit: max of 100 tracks per request.";
   var vShowExeTm = 0;
   const cbMvDestDefault = '     Select A Destination Playlist     ';
 

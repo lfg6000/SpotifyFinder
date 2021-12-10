@@ -5,6 +5,7 @@
   var vTracksTabLoading = false;
   var vPlTracksTableLastSearchCol = '';
   var vPlNameTableLastSelectedRow = 0;
+  var vLoadedPlIds = [];
 
   //-----------------------------------------------------------------------------------------------
   function tracksTab_init(tableHeight=300)
@@ -269,6 +270,10 @@
       // console.log('__SF__tracksTab_afLoadPlTracks1x() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afLoadPlTracks1x()', reply['errRsp'], 'tracksTab_errInfo')
+
+      // how many tracks have been loaded so far
+      // when the user is selecting pl's on the plTab we warn them if there selection will cause over 40k tracks to be loaded
+      vLoadedPlIds = reply['loadedPlIds'];
     }
   }
 

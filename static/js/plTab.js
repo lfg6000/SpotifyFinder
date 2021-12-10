@@ -4,8 +4,8 @@
   var vPlTabActivated = 0;
   var vPlTabLoading = false;
   var vPlTableLastSearchCol = '';
-  var vPlNumTracksInSelectedPl = 0;
   var vPlTmExe = 0;
+  var vTrackLoadingWarning = false;
 
   var vUserId = '';
   var vUserName = '';
@@ -94,7 +94,6 @@
       if (vPlTabActivated === 0)
       {
         vLastTracksRmMvCpCntr = 1;
-        vPlNumTracksInSelectedPl = 0;
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
@@ -113,7 +112,6 @@
         // console.log("plTab_afActivate() - last and cur removed cntrs are different");
 
         vLastTracksRmMvCpCntr = curTracksRmMvCpCntr;
-        vPlNumTracksInSelectedPl = 0;
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
@@ -148,7 +146,6 @@
     try
     {
       // console.log("plTab_afRefresh()");
-      vPlNumTracksInSelectedPl = 0;
 
       tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
       tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
@@ -228,7 +225,7 @@
     let idx = 0;
     let done = false;
     let nPlRxd = 0;
-    while (done == false)
+    while (done === false)
     {
       sIdx = idx;
       nPlRxd = await plTab_afLoadPlDictBatch(idx);
@@ -464,13 +461,6 @@
   {
     // console.log('__SF__plTabs_plTableSelect()');
 
-    // ['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id']]
-    if (indexes.length == 1) // not select all
-    {
-      let rowData = $('#plTable').DataTable().row(indexes).data();
-      vPlNumTracksInSelectedPl = vPlNumTracksInSelectedPl + parseInt(rowData[2], 10);
-      // console.log('__SF__plTabs_plTableSelect() - You clicked on ' + rowData[1] + ', vPlNumTracksInSelectedPl = ' + vPlNumTracksInSelectedPl);
-    }
     if (vPlTabLoading === true)
       return;
 
@@ -484,18 +474,9 @@
   {
     // console.log('__SF__plTabs_plTableDeselect()');
 
-    if (indexes.length == 1) // not deselect all, update vPlNumTracksInSelectedPl
-    {
-      let rowData = $('#plTable').DataTable().row(indexes).data();
-      vPlNumTracksInSelectedPl = vPlNumTracksInSelectedPl - parseInt(rowData[2], 10);
-      // console.log('__SF__plTabs_plTableDeselect() - You clicked on ' + rowData[1] + ', vPlNumTracksInSelectedPl = ' + vPlNumTracksInSelectedPl);
-    }
-
     if (vPlTabLoading === true)
       return;
 
-    // let rowData = $('#plTable').DataTable().row(indexes).data();
-    // console.log( 'plTab - You clicked on ' + rowData[1]);
     plTab_afIncPlSelectionCntr();
     plTabs_updateSelectedCntInfo();
   });
@@ -549,9 +530,30 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_updateSelectedCntInfo()
   {
-    //console.log('__SF__plTabs_updateSelectedCntInfo()');
+    // console.log('__SF__plTabs_updateSelectedCntInfo()');
+
+    let tracksToBeLoaded = 0;
+    let plNumTracksInSelectedPl = 0;
+    $.each(vPlTable.rows('.selected').nodes(), function(i, item)
+    {
+      let rowData = vPlTable.row(this).data();
+      plNumTracksInSelectedPl += parseInt(rowData[2], 10);
+      if (vLoadedPlIds.includes(rowData[5]) === false)
+        tracksToBeLoaded += parseInt(rowData[2], 10);
+    });
+
     let count = vPlTable.rows({ selected: true }).count();
-    tabs_setLabel('plTab_info1', 'Selected Playlists: ' + count + '&nbsp &nbsp &nbsp &nbsp &nbsp' + ' Selected Tracks: '+ vPlNumTracksInSelectedPl);
+    tabs_setLabel('plTab_info1', 'Selected Playlists: ' + count + '&nbsp &nbsp &nbsp &nbsp &nbsp' + ' Selected Tracks: '+ plNumTracksInSelectedPl);
+
+    // console.log('tracksToBeLoaded = ', tracksToBeLoaded);
+    if ((vTrackLoadingWarning === false) && (tracksToBeLoaded > 30000))
+    {
+      vTrackLoadingWarning = true;
+      msg = 'With the currently selected playlists  ' + tracksToBeLoaded + '  tracks will need to be loaded.\n\n' +
+          'It is highly recommended that you select fewer playlists, to reduce the number of tracks that need to be loaded, before continiuing.\n\n' +
+          'It is significantly more efficient to work on smaller batches of playlists.\n';
+      alert(msg);
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -576,12 +578,6 @@
   {
     // console.log('__SF__plTabs_btnSelectAll()')
     vPlTabLoading = true;
-    vPlTable.rows().deselect();
-    vPlNumTracksInSelectedPl = 0;
-    // vPlTable.rows().every(function()
-    // {
-    //   this.select();
-    // });
     vPlTable.rows().select();
     vPlTabLoading = false;
 
@@ -595,7 +591,6 @@
     // console.log('__SF__plTabs_btnClearAll()')
     vPlTabLoading = true;
     vPlTable.rows().deselect();
-    vPlNumTracksInSelectedPl = 0;
     vPlTabLoading = false;
 
     plTab_afIncPlSelectionCntr();
@@ -614,7 +609,6 @@
     let selectRowData = '';
     vPlTabLoading = true;
     vPlTable.rows().deselect();
-    vPlNumTracksInSelectedPl = 0;
     vPlTable.rows().every(function()
     {
       rowData = this.data();

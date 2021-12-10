@@ -303,9 +303,9 @@ def Tabs():
       if (key == 'loadPlTracks1x'):
         # print('>>/Tabs loadPlTracks1x()')
         plId = rqJson['plId']
-        retVal = oLoader.loadPlTracks1x(plId)
+        retVal, loadedPlIds = oLoader.loadPlTracks1x(plId)
         # print(gc.collect())
-        return jsonify({ 'errRsp': retVal})
+        return jsonify({ 'errRsp': retVal, 'loadedPlIds': loadedPlIds})
 
       if (key == 'getPlSelectedDict'):
         # print('>>/Tabs getPlSelectedDict')
