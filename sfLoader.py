@@ -359,7 +359,7 @@ class SpfLoader():
     # row-level locking makes these tables suitable for your busiest databases with your most important data, while also simplifying
     # application logic since you do not need to lock and unlock tables. Consequently, the InnoDB storage engine is the default in MySQL.
 
-    # these are the sql cmds to create the database and it's one table with four columns
+    # these are the sql cmds to create the database and it's one table
     # CREATE DATABASE IF NOT EXISTS `spotifyFinderDb` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
     # USE `spotifyFinderDb`;
 
