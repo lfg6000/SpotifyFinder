@@ -655,12 +655,12 @@ class SpfLoader():
         pub = 'Public' if item['public'] == True else 'Private'
         ownerId = item['owner']['id']
         ownerNm = item['owner']['display_name']
-        if (ownerId == None):
+        if (ownerId is None):
           ownerId='unknownId'
-        if (ownerNm == None):
+        if (ownerNm is None):
           ownerNm = 'unknownNm'
         nTracks = item['tracks']['total']
-        if (nTracks == None):
+        if (nTracks is None):
           nTracks = 0
 
         session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
@@ -793,7 +793,7 @@ class SpfLoader():
           done = True
 
         for item in tracks['items']:
-          if (item['track'] == None):
+          if (item['track'] is None):
             continue;
 
           track = item['track']
@@ -903,7 +903,7 @@ class SpfLoader():
   #           done = True
   #
   #         for item in tracks['items']:
-  #           if (item['track'] == None):
+  #           if (item['track'] is None):
   #             continue;
   #
   #           track = item['track']

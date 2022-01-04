@@ -202,7 +202,7 @@ def Tabs():
 
   if request.method == 'POST':
     rqJson = request.get_json()
-    if rqJson != None:
+    if rqJson is not None:
       key = next(iter(rqJson))
 
       # gc.collect()
@@ -423,7 +423,7 @@ def Tabs():
       # TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
 
       # we should not ever get here...the key from a post cmd should always recognized
-      if (key == None):
+      if (key is None):
         key = 'unknown post cmd: key = None'
       retVal = [sfConst.errUnknownPostCmd, oLoader.getDateTm(), '@app.route Tabs post', 'Post Cmd not recognized key = ', str(key), ' ', ' ']
       oLoader.addErrLogEntry(retVal)

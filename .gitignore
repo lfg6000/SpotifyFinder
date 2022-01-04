@@ -13,7 +13,8 @@
 .cache
 /templates/helper.txt
 lfgDbCmds.txt
-lfgDbCmdsWB.sql
+lfgDbCmdsSortUsersByDate.sql
+lfgDbCmdsUniqueContries.sql
 lfgReadMe.txt
 lfgReadMePyAny.txt
 waSpotifyFinderApp.spec
