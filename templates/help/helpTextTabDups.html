@@ -41,6 +41,7 @@
       <li><span style="font-size: 11pt;">up to 100 tracks can be selected</span></li>
       <li><span style="font-size: 11pt;">spotify limits the number of tracks that can be removed per call to 100</span></li>
       <li><span style="font-size: 11pt;">you can not remove tracks from a playlist you do not own</span></li>
+      <li><span style="font-size: 11pt;">you can not remove tracks that have a null track id</span></li>
     </ul>
 
     <h3>Remove Selected Dups Auto Select (drop down list) </h3>
@@ -52,12 +53,14 @@
       <li><span style="font-size: 11pt;">repeat the use of auto select until all the desired tracks are removed</span></li>
       <li><span style="font-size: 11pt;">if a column header was used to reorder the table, it will be returned to the original order by auto select</span></li>
       <li><span style="font-size: 11pt;">you can not remove tracks from a playlist you do not own</span></li>
+      <li><span style="font-size: 11pt;">tracks that have a null track id are not auto selected</span></li>
     </ul>
 
     <h3>Remove Dups by Playlist (button) and Select Playlist (drop down list)</h3>
     <ul>
       <li><span style="font-size: 11pt;">this feature is designed to automate the removal of <u>All</u> the duplicate tracks from the selected playlist</span></li>
       <li><span style="font-size: 11pt;">this feature is only enabled when 2 playlists are selected on the playlist tab</span></li>
+      <li><span style="font-size: 11pt;">this feature is only enabled when finding dups across playlists</span></li>
       <li><span style="font-size: 11pt;"><u>All</u> the duplicate tracks for the selected playlist will be removed</span></li>
       <li><span style="font-size: 11pt;">if there are 1000 duplicated tracks listed for the selected playlist then all 1000 tracks will be removed</span></li>
       <li><span style="font-size: 11pt;">a dialog will be displayed showing the details prior to the remove, providing a chance to cancel the remove</span></li>
@@ -65,6 +68,7 @@
       <li><span style="font-size: 11pt;">this feature uses the track id to remove the tracks from the selected playlist</span></li>
       <li><span style="font-size: 11pt;">if the same track appears more than once in the selected playlist than all copies of the track will be removed</span></li>
       <li><span style="font-size: 11pt;">you can not remove tracks from a playlist you do not own</span></li>
+      <li><span style="font-size: 11pt;">tracks that have a null track id are not removed</span></li>
     </ul>
 
     <h3>Why do tracks have the same name but different track ids</h3>
@@ -74,7 +78,7 @@
     <ul>
       <ol>
         <li><span style="font-size: 11pt;">The artist has made multiple recordings of the same track</span></li>
-        <li><span style="font-size: 11pt;">The artist releases the same track on multiple albums, original, greatist hits</span></li>
+        <li><span style="font-size: 11pt;">The artist releases the same track on multiple albums: studio, live, greatist hits, ... </span></li>
         <li><span style="font-size: 11pt;">The artist re-releases the same album with improved sound (remastered)</span></li>
         <li><span style="font-size: 11pt;">It is a long list....</span></li>
       </ol>
@@ -102,6 +106,12 @@
     <ul>
       <li><span style="font-size: 11pt;">reloads all of your playlists from Spotify</span></li>
       <li><span style="font-size: 11pt;">reloading your playlists can be useful if you change any of your playlists in the Spotify App while using this website</span></li>
+    </ul>
+
+    <h3>Null Track Id's</h3>
+    <ul>
+      <li><span style="font-size: 11pt;">tracks with null track ids can not be removed</span></li>
+      <li><span style="font-size: 11pt;">null track ids can occur if spotify lost the rights to the track or artist</span></li>
     </ul>
 
     <h3>Support</h3>

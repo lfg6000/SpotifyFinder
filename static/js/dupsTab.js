@@ -47,6 +47,9 @@
 
           if (rowData[12] != vUserId)   // playlistOwnerId != vUserId
             $('td:eq(0)', nRow).addClass('disabledCkBx');
+
+          if (!rowData[8])  // !trackId tests for "", null, undefined, false, 0, NaN
+            $('td:eq(0)', nRow).addClass('disabledCkBx');
       },
 
       initComplete: function()  //col search: https://datatables.net/examples/api/multi_filter.html
@@ -267,7 +270,9 @@
 
     let cnt = 0;
 
-    if (plTabs_getSelectedCnt() === 2)
+
+    vModePlaylist = $("input[name='rPlMode']:checked").val();
+    if ((plTabs_getSelectedCnt() === 2) && (vModePlaylist === 'Across'))
     {
       cbRmPlId.css('opacity', '1.0');
       cbRmPlId.prop("disabled", false); // exactly 2 playlists selected on plTab so enable
@@ -352,6 +357,7 @@
                                 tvals['Album Name'], tvals['Duration Hms'], tvals['Playlist Owners Name'], tvals['Track Id'],
                                 tvals['Playlist Id'], tvals['Track Uri'], dupsClrList[idx], tvals['Playlist Owners Id'] ]);
         idx++;
+        // console.log('track name: ' + tvals['Track Name'] + ', track id: ' + tvals['Track Id']);
       });
       vDupsTable.draw();
 
@@ -409,11 +415,22 @@
     // console.log('__SF__dupsTab_dupsTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
     if (rowAlreadySelected == false)
     {
-      rowData = vDupsTable.row(cell.node()).data()
+      let rowData = vDupsTable.row(cell.node()).data()
       if (rowData[12] != vUserId)    // playlistOwnerId != vUserId
       {
         e.preventDefault();
         $("#dupsTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
+        setTimeout(function ()
+        {
+          $("#dupsTab_info3").text('');
+        }, 4500);
+        return;
+      }
+
+      if (!rowData[8])    // !trackId tests for "", null, undefined, false, 0, NaN
+      {
+        e.preventDefault();
+        $("#dupsTab_info3").text("Track can not be selected/removed since it does not have a track id.");
         setTimeout(function ()
         {
           $("#dupsTab_info3").text('');
@@ -616,7 +633,7 @@
 
         if (skipOneOnClrChange == 0)
         {
-          if (rowData[12] == vUserId)
+          if ((rowData[12] == vUserId) && (rowData[8]))  // if usrId == plOwnderId And trackId is not "", null, undefined, false, 0, NaN
           {
             cntSelectd += 1;
             // console.log('auto sel doing a select first cntSelect = ' + cntSelectd);
@@ -642,7 +659,7 @@
 
         if (skipOneOnClrChange == 0)
         {
-          if (rowData[12] == vUserId)
+          if ((rowData[12] == vUserId) && (rowData[8])) // if usrId == plOwnderId And trackId is not "", null, undefined, false, 0, NaN
           {
             cntSelectd += 1;
             // console.log('auto sel doing a select second cntSelect = ' + cntSelectd);
@@ -748,7 +765,10 @@
       {
         rowData = vDupsTable.row(this).data();
         if (rowData[9] == plId)
-          rmTrackIdsSet.add(rowData[8]);
+        {
+          if (rowData[8])  // trackId is not "", null, undefined, false, 0, NaN
+            rmTrackIdsSet.add(rowData[8]);
+        }
       });
 
       rmTrackList = Array.from(rmTrackIdsSet); // turn set into an array

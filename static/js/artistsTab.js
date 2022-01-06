@@ -311,6 +311,8 @@
 
     // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - artistNamesTable row select indexes = ', indexes);
     let rowData = $('#artistNamesTable').DataTable().row(indexes).data();
+    
+    // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - lfg artistId = ', rowData[1]);
     artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[1]);
   });
 
@@ -337,7 +339,7 @@
   {
     try
     {
-      // console.log('__SF__artistsTab_afLoadArtistTracksTableSeq() - plId = ' + plId');
+      // console.log('__SF__artistsTab_afLoadArtistTracksTableSeq() - artistId = ' + artistId);
       vArtistsTabLoading = true;
       vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
@@ -439,6 +441,17 @@
       }
     });
 
+    let rowData = vArtistTracksTable.row(cell.node()).data()
+    if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+    {
+      e.preventDefault();
+      $("#artistsTab_info3").text("Track can not be removed or moved or copied since it does not have a track id.");
+      setTimeout(function ()
+      {
+        $("#artistsTab_info3").text('');
+      }, 4500);
+      return;
+    }
 
     if (rowAlreadySelected == false)
     {

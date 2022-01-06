@@ -439,6 +439,18 @@
       }
     });
 
+    let rowData = vPlTracksTable.row(cell.node()).data()
+    if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+    {
+      e.preventDefault();
+      $("#tracksTab_info3").text("Track can not be removed or moved or copied since it does not have a track id.");
+      setTimeout(function ()
+      {
+        $("#tracksTab_info3").text('');
+      }, 4500);
+      return;
+    }
+
     if (rowAlreadySelected == false)
     {
       let count = vPlTracksTable.rows({selected: true}).count();

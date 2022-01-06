@@ -1110,7 +1110,7 @@ class SpfLoader():
         retVal = this.findDupsId(modePlaylist)
 
       if (modeSearch == 'Nad'):
-        retVal= this.findDupsNad(modePlaylist)
+        retVal = this.findDupsNad(modePlaylist)
 
       return retVal
     except Exception:
@@ -1306,7 +1306,7 @@ class SpfLoader():
                 if ltkVals['Track Id'] != rtkVals['Track Id']:
                   if ltkVals['Track Name'] == rtkVals['Track Name']:
                     if ltkVals['Artist Name'] == rtkVals['Artist Name']:
-                      if abs(ltkVals['Duration']) - rtkVals['Duration'] < sfConst.c30seconds:
+                      if abs(ltkVals['Duration'] - rtkVals['Duration']) < sfConst.c30seconds:
                         # if this.isDupAlreadyInDupIdList(ltkVals, rtkVals) == False:
                         session['mDupsTrackList'].append(ltkVals)
                         session['mDupsTrackList'].append(rtkVals)
@@ -1386,6 +1386,8 @@ class SpfLoader():
         if plId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
           continue
         for trkVals in plTrackList:
+          if (trkVals['Artist Id'] is None):
+            continue
           toBeSortedDict[trkVals['Artist Id']] = trkVals['Artist Name']
 
       sortedList = sorted(toBeSortedDict.items(), key=itemgetter(1))
@@ -1469,6 +1471,8 @@ class SpfLoader():
         if plId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
           continue
         for track in plTrackList:
+          if track['Track Id'] is None:
+            continue
           if (ckTrackName):
             if searchText in track['Track Name'].lower():
               this.searchAddTrack(trackId_plId_List, track)
