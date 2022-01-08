@@ -1101,7 +1101,7 @@ class SpfLoader():
   # ---------------------------------------------------------------
 
   # ---------------------------------------------------------------
-  def findDups(this, modePlaylist, modeSearch):
+  def findDups(this, modePlaylist, modeSearch, durTimeDiff):
     # print('>>loader.findDups()')
 
     try:
@@ -1110,7 +1110,7 @@ class SpfLoader():
         retVal = this.findDupsId(modePlaylist)
 
       if (modeSearch == 'Nad'):
-        retVal = this.findDupsNad(modePlaylist)
+        retVal = this.findDupsNad(modePlaylist, durTimeDiff)
 
       return retVal
     except Exception:
@@ -1270,7 +1270,7 @@ class SpfLoader():
       return retVal
 
   # ---------------------------------------------------------------
-  def findDupsNad(this, modePlaylist):
+  def findDupsNad(this, modePlaylist, durTimeDiff):
     # print('>>loader.findDupsNad()  match on TrackName/ArtistName/Duration')
 
     try:
@@ -1278,6 +1278,7 @@ class SpfLoader():
       session['mNumDupsMatch'] = 0
       leftPlTracksDict = this.getPlTracksDict()
       rightPlTracksDict = this.getPlTracksDict()
+      durTimeDiffInt = int(durTimeDiff) * 1000
 
       # raise Exception('throwing loader.findDupsNad()')
 
@@ -1306,7 +1307,7 @@ class SpfLoader():
                 if ltkVals['Track Id'] != rtkVals['Track Id']:
                   if ltkVals['Track Name'] == rtkVals['Track Name']:
                     if ltkVals['Artist Name'] == rtkVals['Artist Name']:
-                      if abs(ltkVals['Duration'] - rtkVals['Duration']) < sfConst.c30seconds:
+                      if abs(ltkVals['Duration'] - rtkVals['Duration']) <= durTimeDiffInt:
                         # if this.isDupAlreadyInDupIdList(ltkVals, rtkVals) == False:
                         session['mDupsTrackList'].append(ltkVals)
                         session['mDupsTrackList'].append(rtkVals)
@@ -1328,7 +1329,7 @@ class SpfLoader():
                 if ltkVals['Track Name'] == ntkVals['Track Name']:
                   if ltkVals['Artist Name'] == ntkVals['Artist Name']:
                     # val = abs(ltkVals['Duration'] - ntkVals['Duration'])
-                    if abs(ltkVals['Duration'] - ntkVals['Duration']) < sfConst.c30seconds:
+                    if abs(ltkVals['Duration'] - ntkVals['Duration']) <= durTimeDiffInt:
                       session['mNumDupsMatch'] += 1
                       if this.isTrkAlreadyInDupListNad(ltkVals) == False:
                         session['mDupsTrackList'].append(ltkVals)

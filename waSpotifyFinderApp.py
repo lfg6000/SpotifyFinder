@@ -250,8 +250,9 @@ def Tabs():
         # h = hpy()
         modePlaylist = rqJson['modePlaylist']
         modeSearch = rqJson['modeSearch']
-        # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch)
-        retVal = oLoader.findDups(modePlaylist, modeSearch)
+        durTimeDiff = rqJson['durTimeDiff']
+        # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch + ', durTimeDiff = ' + durTimeDiff)
+        retVal = oLoader.findDups(modePlaylist, modeSearch, durTimeDiff)
         if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
           oLoader.updateDbVisitCnt(mysql, 'Dups')
         # print(h.heap().byid[0].sp)

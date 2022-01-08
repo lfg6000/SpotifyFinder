@@ -59,7 +59,8 @@
         <fieldset style="margin: 2px 0px 4px 0px; padding: 2px 6px 6px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Find Dups Using</legend>
           <input  style="margin: 4px 6px 3px 0px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchId" value="Track Id" checked title="Duplicates are tracks that have the same track id."><label for="rPlSearchId">Track Id (Exact Match)</label>
-          <input  style="margin: 4px 6px 3px 10px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchNad" value="Nad"   title="Duplicates are tracks that have the same track name & the same artist name & a duration within 30 seconds, the track id is ignored."><label for="rPlSearchNad">Track Name/Artist Name/Duration (Very Close Match)</label>
+          <input  style="margin: 4px 6px 3px 10px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchNad" value="Nad"   title="Duplicates are tracks that have the same track name & the same artist name & a duration within X seconds (the track id is ignored)."><label for="rPlSearchNad">Track Name/Artist Name/Duration (Very Close Match)</label>
+          <select style="margin: 0px 6px 0px 10px; padding: 0px 6px 0px 6px;" id="dupsTab_cbDuration" onchange="dupsTab_cbDurationOnChange()" title="If the time difference between tracks is less than this value the tracks are marked as duplicates when using the Very Close Match option."></select>
         </fieldset>
       </span>
     </div>

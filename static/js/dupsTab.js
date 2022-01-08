@@ -129,6 +129,23 @@
         cbAuto.append($('<option>', { value: 2, text : 'Select Second' }));
         cbAuto.append($('<option>', { value: 3, text : 'Clear' }));
 
+        let cbDuration = $('#dupsTab_cbDuration');
+        cbDuration.empty();
+        cbDuration.append($('<option>', { value: '1', text : '1 sec' }));
+        cbDuration.append($('<option>', { value: '2', text : '2 secs' }));
+        cbDuration.append($('<option>', { value: '3', text : '3 secs' }));
+        cbDuration.append($('<option>', { value: '4', text : '4 secs' }));
+        cbDuration.append($('<option>', { value: '5', text : '5 secs' }));
+        cbDuration.append($('<option>', { value: '10', text : '10 secs' }));
+        cbDuration.append($('<option>', { value: '15', text : '15 secs' }));
+        cbDuration.append($('<option>', { value: '20', text : '20 secs' }));
+        cbDuration.append($('<option>', { value: '25', text : '25 secs' }));
+        cbDuration.append($('<option>', { value: '30', text : '30 secs' }));
+        cbDuration.append($('<option>', { value: '40', text : '40 secs' }));
+        cbDuration.append($('<option>', { value: '50', text : '50 secs' }));
+        cbDuration.append($('<option>', { value: '60', text : '60 secs' }));
+        cbDuration.val(10).change();
+
         let cbRmPlId = $('#dupsTab_cbRmPlId');
         cbRmPlId.empty();
         cbRmPlId.append($('<option>', { value: 0, text : cbRmTracksById }));
@@ -244,11 +261,12 @@
 
     vModePlaylist = $("input[name='rPlMode']:checked").val();
     vModeSearch = $("input[name='rPlSearch']:checked").val();
+    let durTimeDiff = $('#dupsTab_cbDuration').val();
     // console.log('__SF__dupsTab_afFindDups() - radio btn values vModePlaylist = ' + vModePlaylist + ', vModeSearch = ' + vModeSearch)
 
     console.log('__SF__dupsTab_afFindDups() - vUrl - findDups');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ findDups: 'FindDups', modePlaylist: vModePlaylist, modeSearch: vModeSearch }), });
+                                       body: JSON.stringify({ findDups: 'FindDups', modePlaylist: vModePlaylist, modeSearch: vModeSearch, durTimeDiff: durTimeDiff }), });
     if (!response.ok)
       tabs_throwErrHttp('dupsTab_afFindDups()', response.status, 'dupsTab_errInfo');
     else
@@ -837,4 +855,13 @@
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('dupsTab_afRmTracksById()', reply['errRsp'], 'tracksTab_errInfo')
     }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function dupsTab_cbDurationOnChange()
+  {
+    // let durTimeDiff = $('#dupsTab_cbDuration').val();
+    // console.log('__SF__dupsTab_cbDurationOnChange() durVal: ' + durTimeDiff);
+
+    dupsTab_afFindDupsSeq();
   }
