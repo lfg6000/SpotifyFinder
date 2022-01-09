@@ -863,5 +863,13 @@
     // let durTimeDiff = $('#dupsTab_cbDuration').val();
     // console.log('__SF__dupsTab_cbDurationOnChange() durVal: ' + durTimeDiff);
 
+    if (vDupsTabLoading)
+      return;
+
+    vModeSearch = $("input[name='rPlSearch']:checked").val();
+    if (vModeSearch == 'Track Id')
+      return;
+
+    // were not loading and we are using nad/very close match
     dupsTab_afFindDupsSeq();
   }
