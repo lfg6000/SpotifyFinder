@@ -150,6 +150,8 @@
         cbRmPlId.empty();
         cbRmPlId.append($('<option>', { value: 0, text : cbRmTracksById }));
 
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+
         await tracksTab_afLoadPlTracks();
         await dupsTab_afFindDups();
         await dupsTab_afLoadDupsTable();
@@ -232,6 +234,7 @@
       $("#dupsTab_info3").text('');
       tabs_set2Labels('dupsTab_info1', 'Loading...', 'dupsTab_info2', 'Loading...');
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Finding Duplicates...', showStrImmed=true);
+      // await new Promise(resolve => setTimeout(resolve, 1000));
 
       await dupsTab_afFindDups();
       await dupsTab_afLoadDupsTable();
@@ -871,5 +874,6 @@
       return;
 
     // were not loading and we are using nad/very close match
+    // console.log('__SF__dupsTab_cbDurationOnChange() durVal: ' + durTimeDiff);
     dupsTab_afFindDupsSeq();
   }

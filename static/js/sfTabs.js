@@ -289,7 +289,7 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_progBarStart(progBar, lblId, lblStr, showStrImmed = true)
   {
-    // console.log('__SF__tabs_progBarStart() - ' + progBar);
+    // console.log('__SF__tabs_progBarStart() bar = ' + progBar + ', id = ' + lblId + ', str = ' + lblStr + ', Immed = ' + showStrImmed);
     let element = document.getElementById(progBar);
     let width = 10;
     let cntr = 0;
@@ -327,7 +327,7 @@
   //-----------------------------------------------------------------------------------------------
   function tabs_progBarStop(progBar, lblId, lblStr)
   {
-     // console.log('__SF__tabs_progBarStop() - ' + progBar);
+     // console.log('__SF__tabs_progBarStop() bar = ' + progBar + ', id = ' + lblId + ', str = ' + lblStr);
      let element = document.getElementById(progBar);
      element.style.width = 0;
      element.innerHTML = '';
