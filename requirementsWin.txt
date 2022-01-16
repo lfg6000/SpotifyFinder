@@ -9,6 +9,12 @@
 # (venv) > pip freeze > requirementsWin.txt
 
 
+# getting the dependency tree for this app
+------------------------------------------
+# install the pipdevtree pkg into the venv
+# (venv) > pipdeptree
+
+
 cachelib==0.1.1
 certifi==2020.12.5
 chardet==4.0.0
