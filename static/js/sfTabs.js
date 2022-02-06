@@ -166,6 +166,7 @@
       // console.log('__SF__tabs_afSwitchTabs() - switching tab to = ' + tabName);
       // var cookies = document.cookie; // only works if SESSION_COOKIE_HTTPONLY is false
       // console.log('__SF__cookies = ', cookies)
+      $('#artistTab_hint').hide();
 
       if (vLastPlSelectionCntr !== vCurPlSelectionCntr)
       {
