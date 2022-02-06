@@ -98,6 +98,7 @@
         // console.log('__SF__searchTab_activate() - lastCnt = ' + vLastPlSelectionCntrSearchTab + ', curCnt = ' + curPlSelectionCntr);
         vLastPlSelectionCntrSearchTab = curPlSelectionCntr;
         vSearchTabLoading = true;
+        $('#artistTab_hint').hide();
 
         // this works better if the clear tables are here instead of being inside async calls
         // we are reloading both tables so we empty them out
@@ -136,6 +137,7 @@
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
       searchTab_SetSearchTextFocus();
+      $('#artistTab_hint').show();
     }
   }
 
@@ -218,6 +220,7 @@
     {
       // console.log('__SF__searchTab_afRunSearchSeq()');
       vSearchTabLoading = true;
+      $('#artistTab_hint').hide();
       vSearchTable.clear().draw();
 
       var cbxFound = searchTab_LoadSearchFields();
@@ -257,6 +260,7 @@
       // console.log('__SF__searchTab_afRunSearchSeq() finally.');
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+      $('#artistTab_hint').show();
     }
   }
 
@@ -300,6 +304,8 @@
     {
       // console.log("searchTab_afLoadSearchTableSeq()");
       vSearchTabLoading = true;
+      $('#artistTab_hint').hide();
+
       tabs_set2Labels('searchTab_info1', 'Loading...', 'searchTab_info2', 'Loading...');
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Searching...', showStrImmed=true);
 
@@ -320,6 +326,7 @@
       // console.log('__SF__searchTab_afLoadSearchTableSeq() finally.');
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+      $('#artistTab_hint').show();
     }
   }
 
@@ -499,6 +506,7 @@
     {
       // console.log('__SF__searchTab_afRmTracksByPosSeq()');
       vSearchTabLoading = true;
+      $('#artistTab_hint').hide();
 
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Removing Tracks...', showStrImmed=true);
 
@@ -536,6 +544,7 @@
       // console.log('__SF__searchTab_afRmTracksByPosSeq() finally.');
       vSearchTabLoading = false;
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+      $('#artistTab_hint').show();
     }
   }
 
@@ -569,6 +578,8 @@
     {
       // console.log('__SF__searchTab_afMvTracksSeq()');
       vSearchTabLoading = true;
+      $('#artistTab_hint').hide();
+
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Moving Tracks...', showStrImmed=true);
 
       let rmTrackList = [];
@@ -613,6 +624,7 @@
       // console.log('__SF__searchTab_afMvTracksSeq() finally.');
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
       vSearchTabLoading = false;
+      $('#artistTab_hint').show();
     }
   }
 
@@ -646,6 +658,8 @@
     {
       // console.log('__SF__searchTab_afCpTracksSeq()');
       vSearchTabLoading = true;
+      $('#artistTab_hint').hide();
+
       tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Coping Tracks...', showStrImmed=true);
 
       let cpTrackList = [];
@@ -679,6 +693,7 @@
       // console.log('__SF__searchTab_afCpTracksSeq() finally.');
       tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
       vSearchTabLoading = false;
+      $('#artistTab_hint').show();
     }
   }
 
