@@ -1,5 +1,5 @@
 from flask import session, request
-import pprint, json, collections, sys, datetime, time, os, logging
+import pprint, json, collections, sys, datetime, time, os, logging, traceback
 from operator import itemgetter
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
@@ -74,22 +74,6 @@ class SpfLoader():
     session['mLastPlLoaded'] = ''
     session['mErrLog'] = []
 
-    # errDesc = []
-    # errDesc.append('Description of error log entries:')
-    # errDesc.append("entry[0] - error code]")
-    # errDesc.append('entry[1] - date time when the err was posted')
-    # errDesc.append('entry[2] - method in which error occurred')
-    # errDesc.append('entry[3] - description of error for display')
-    # errDesc.append('entry[4] - system exception info[0]')
-    # errDesc.append('entry[5] - system exception info[0]')
-    # errDesc.append('entry[6] - system exception info[0]')
-    # this.addErrLogEntry(errDesc)
-
-    # retVal = [sfConst.errNone, this.getDateTm(), 'initLoader()', 'New Session Started', 'sid=' + session.sid, '', 'this is not an error']
-    # this.addErrLogEntry(retVal)
-
-
-
   # -------------------------------------------------------------------------------------------------------------------------------------------
   def msToHms(this, ms, format):
     s = (ms / 1000) % 60
@@ -133,6 +117,7 @@ class SpfLoader():
       # - we can not push the json cfg file with our flask and spotify secret keys
       #   to github because this would expose them.
 
+      # raise Exception('throwing loader.loadCfgFile()')
       cfgFnd = 0
       grpKey = 'local_server_127_0_0_1'
 
@@ -176,8 +161,8 @@ class SpfLoader():
       return 1
 
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errCfgFile, this.getDateTm(), 'loadCfgFile()', 'Error loading config file.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errCfgFile, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Error loading config file.', str(exTyp), str(exObj)]
       pprint.pprint(retVal) #pprint sorts on key
       # this.addErrLogEntry(retVal) # session not available yet
       return -1
@@ -194,6 +179,7 @@ class SpfLoader():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
 
     try:
+      # raise Exception('throwing loader.oAuthLogin()')
       # print('>>loader.oAuthLogin()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
       # the pythonanywhere error log file is filling up with Spotipy warning: Couldn't read cache at: .cache
@@ -218,8 +204,8 @@ class SpfLoader():
       return authUrl
 
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errSpotiyLogin, this.getDateTm(), 'login()', 'Spotify Login Failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Spotify Login Failed.', str(exTyp), str(exObj)]
       pprint.pprint(retVal) #pprint sorts on key
       # this.addErrLogEntry(retVal) # session not available yet
       return 'oLoader:login() failed'
@@ -231,6 +217,7 @@ class SpfLoader():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
 
     try:
+      # raise Exception('throwing loader.oAuthCallback()')
       # print('>>loader.oAuthCallback()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
       # - on PA the .cache write fails if we do not set the cache_path param
@@ -252,8 +239,8 @@ class SpfLoader():
       session["tokenInfo"] = tokenInfo
 
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errSpotiyLogin, this.getDateTm(), 'oAuthCallback()', 'oAuthCallback failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'oAuthCallback failed.', str(exTyp), str(exObj)]
       pprint.pprint(retVal) #pprint sorts on key
       # this.addErrLogEntry(retVal) # session not available yet
       return
@@ -262,6 +249,7 @@ class SpfLoader():
   def oAuthGetToken(this, session):
     # Check to see if token is valid and gets a new token if not
     try:
+      # raise Exception('throwing loader.oAuthGetToken()')
       # print('>>loader.oAuthGetToken()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
       tokenInfo = session.get("tokenInfo", {})
 
@@ -286,8 +274,8 @@ class SpfLoader():
       tokenValid = True
       return tokenInfo, tokenValid
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errSpotiyLogin, this.getDateTm(), 'oAuthGetSpotifyObj()', 'Failed to acquire spotify object.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to acquire spotify object.', str(exTyp), str(exObj)]
       # pprint.pprint(retVal) #pprint sorts on key
       this.addErrLogEntry(retVal)
       return None, None
@@ -310,6 +298,7 @@ class SpfLoader():
     # when creating the Spotify object you can set a requests_timeout param
     #  - see \venv\Lib\site-packages\spotipy\client.py __init__() for list of config params
 
+    # raise Exception('throwing loader.oAuthGetSpotifyObj()')
     session['tokenInfo'], tokenValid = this.oAuthGetToken(session)
     session.modified = True
     if not tokenValid:
@@ -318,8 +307,8 @@ class SpfLoader():
     return sp
 
     # except Exception:
-    #   tupleExc = sys.exc_info()
-    #   retVal = [spfConst.errSpotiyLogin, this.getDateTm(), 'oAuthGetSpotifyObj()', 'Failed to acquire spotify object.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+    #   exTyp, exObj, exTrace = sys.exc_info()
+    #   retVal = [spfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to acquire spotify object.', str(exTyp), str(exObj)]
     #   pprint.pprint(retVal) #pprint sorts on key
     #   this.addErrLogEntry(retVal)
     #   return None
@@ -334,10 +323,10 @@ class SpfLoader():
       session['mUserName'] = results['display_name']
       session['mUserCountry'] = results['country']   # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', ' + session.sid + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
-      return [sfConst.errNone], session['mUserId'], session['mUserName'], session.sid
+      return [sfConst.errNone], session['mUserId'], session['mUserName'], this.getSidTruncated()
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errSpotifyInfo, this.getDateTm(), 'loadSpotifyInfo()', 'Failed to get spotify info.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSpotifyInfo, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to get spotify info.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, '', '', ''
 
@@ -417,11 +406,13 @@ class SpfLoader():
       # print('>>loader.updateDbUniqueSpotifyInfo - cursor close')
 
     except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbUniqueSpotifyInfo()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSqlErr, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to set unique spotify info.', str(e), ' ']
       this.addErrLogEntry(retVal)
       return
     except:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbUniqueSpotifyInfo()', 'Failed to set unique spotify info.', 'updateDbUniqueSpotifyInfo - unknown error ', ' ', ' ']
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSqlErr, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to set unique spotify info.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return
 
@@ -481,11 +472,13 @@ class SpfLoader():
       # print('>>loader.updateDbVisitCnt - cursor close')
 
     except (MySQLdb.Error, MySQLdb.Warning, TypeError, ValueError) as e:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', str(e), ' ', ' ']
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSqlErr, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to set unique spotify info.', str(e), ' ']
       this.addErrLogEntry(retVal)
       return
     except:
-      retVal = [sfConst.errSqlErr, this.getDateTm(), 'updateDbVisitCnt()', 'Failed to set unique spotify info.', 'updateDbVisitCnt - unknown error ', ' ', ' ']
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSqlErr, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to set unique spotify info.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return
 
@@ -504,8 +497,8 @@ class SpfLoader():
       # raise Exception('throwing loader.getErrLog()')
       return [sfConst.errNone], session['mErrLog']
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetErrLog, this.getDateTm(), 'getErrLog()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetErrLog, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       pprint.pprint(retVal) #pprint sorts on key
       # this.addErrLogEntry(retVal)...we could not get errlog so it is not usable...
       return retVal, 0
@@ -520,8 +513,8 @@ class SpfLoader():
         htmlStr = " ".join([l.rstrip() for l in f])
       return [sfConst.errNone], htmlStr
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetInfoHtml, this.getDateTm(), 'getInfoHtml()', 'Check path to help file.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetInfoHtml, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Check path to help file.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, ''
 
@@ -530,21 +523,41 @@ class SpfLoader():
   # errLog array of arrays
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
+  def getSidTruncated(this):
+    sid = session.sid
+    sid = sid.split('-')
+    sid = sid[0][0:5] + "...." + sid[len(sid) - 1][-5:]
+    return sid
+
+  # ---------------------------------------------------------------
   def addErrLogEntry(this, entry):
     # an entry needs to be an array with 7 entries
     # [0] = int,            errNone or err constant, see seConst
     # [1] = string,         date time
     # [2] = string,         method in which error occurred
     # [3] = string,         description of error for display
-    # [4] = string or None, tupleExc[0] from sys.exc_info()
-    # [5] = string or None, tupleExc[1] from sys.exc_info()
-    # [6] = string or None, tupleExc[2] from sys.exc_info()
+    # [4] = string,         str(exTyp) from sys.exc_info()
+    # [5] = string,         str(exObj) from sys.exc_info()
     # entry[1] = datetime.datetime.now().strftime("%Y/%m/%d   %H:%M:%S  %f")
+
+     # < and > cause the value string to be blank on the log screem using <pre>
+    entry[4] = entry[4].replace('<', '')
+    entry[4] = entry[4].replace('>', '')
+    
     entry.insert(2, session['mUserName'])
     entry.insert(3, session['mUserId'])
-    entry.insert(4, session.sid)
+    entry.insert(4, this.getSidTruncated())
     pprint.pprint(entry)  # pprint sorts on key,  this will show up in pythonAnywhere server log file
     session['mErrLog'].append(entry)
+
+  # -------------------------------------------------------------------------------------
+  def fNm(this, obj=None):
+    # val = traceback.extract_stack(None, 2)
+    mn = traceback.extract_stack(None, 2)[0][2] + '()'
+    if (obj is None):
+      return mn
+    cn = obj.__class__.__name__
+    return f"{cn}::{mn}"
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
@@ -557,8 +570,8 @@ class SpfLoader():
       # raise Exception('throwing loader.getPlDict()')
       return [sfConst.errNone], session['mPlDict'], len(session['mPlDict']), session['mTotalTrackCnt'], session['mPlDictOwnersList']
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetPlDict, this.getDateTm(), 'getPlDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetPlDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, [], 0, 0, []
 
@@ -614,8 +627,8 @@ class SpfLoader():
   #     #   json.dump(session['mPlDict'], f)
   #     return [sfConst.errNone]
   #   except Exception:
-  #     tupleExc = sys.exc_info()
-  #     retVal = [sfConst.errLoadPlDict, this.getDateTm(), 'loadPlDict()', 'Loading Playlists Failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+  #     exTyp, exObj, exTrace = sys.exc_info()
+  #     retVal = [sfConst.errLoadPlDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading Playlists Failed', str(exTyp), str(exObj)]
   #     this.addErrLogEntry(retVal)
   #     return retVal
 
@@ -684,8 +697,8 @@ class SpfLoader():
       #   json.dump(session['mPlDict'], f)
       return [sfConst.errNone], nPlRxd
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errLoadPlDict, this.getDateTm(), 'loadPlDict()', 'Loading Playlists Failed', str(tupleExc[0]), str(tupleExc[1]), 'last playlists successfully loaded = ' + session['mLastPlLoaded']]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errLoadPlDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading Playlists Failed', str(exTyp), 'last playlists successfully loaded = ' + session['mLastPlLoaded']]
       this.addErrLogEntry(retVal)
       return retVal, 0
 
@@ -700,8 +713,8 @@ class SpfLoader():
       # raise Exception('throwing loader.getPlSelectedDict()')
       return [sfConst.errNone], session['mPlSelectedDict']
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetPlSelectedDict, this.getDateTm(), 'getPlSelectedDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetPlSelectedDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, []
 
@@ -717,8 +730,8 @@ class SpfLoader():
 
       return [sfConst.errNone], plSelectedDictNotLoaded
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetPlSelectedDict, this.getDateTm(), 'getPlSelectedDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetPlSelectedDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, []
 
@@ -732,8 +745,8 @@ class SpfLoader():
       # pprint.pprint(session['mPlSelectedDict']) # pprint sorts on key
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errSetPlSelectedDict, this.getDateTm(), 'setPlSelectedDict()', 'Failed to set the playlist selected dictionary.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSetPlSelectedDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to set the playlist selected dictionary.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -784,11 +797,11 @@ class SpfLoader():
       trackCnt = 0
       while (False == done):
         # spotify only returns 100 tracks at a time so we loop until we have them all
-        # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
-        # tracks = this.oAuthGetSpotifyObj().user_playlist_tracks(playlist_id=plId)
-        # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
 
-        tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx)
+        # tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx, additional_types=['track'])
+        # 'https://api.spotify.com/v1/playlists/0V8kR4VHvDjoqzPgmdbcr7/tracks?limit=100&offset=0&additional_types=track'
+
+        tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx, additional_types=['track'])
         if (len(tracks['items']) < 100):
           done = True
 
@@ -857,8 +870,8 @@ class SpfLoader():
       return [sfConst.errNone], loadedPlIds
     except Exception:
       # error: HTTPSConnectionPool(host='api.spotify.com', port=443): Read timed out. (read 'timeout=5) see notes in: oAuthGetSpotifyObj()
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errLoadPlTracks1x, this.getDateTm(), 'loadPlTracks1x()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errLoadPlTracks1x, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading tracks for selected playlists failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, []
 
@@ -944,8 +957,8 @@ class SpfLoader():
   #     #   json.dump(session['mPlTracksDict'], f)
   #     return [sfConst.errNone]
   #   except Exception:
-  #     tupleExc = sys.exc_info()
-  #     retVal = [sfConst.errLoadPlTracks, this.getDateTm(), 'loadPlTracks()', 'Loading tracks for selected playlists failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+  #     exTyp, exObj, exTrace = sys.exc_info()
+  #     retVal = [sfConst.errLoadPlTracks, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading tracks for selected playlists failed', str(exTyp), str(exObj)]
   #     this.addErrLogEntry(retVal)
   #     return retVal
 
@@ -964,8 +977,8 @@ class SpfLoader():
       duration = session['mPlDict'].get(plId)['Duration']
       return [sfConst.errNone], trackList, duration
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetTrackList, this.getDateTm(), 'getTrackList()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetTrackList, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, [], '0'
 
@@ -996,8 +1009,8 @@ class SpfLoader():
         return retVal
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), 'rmTracksByPosFromSpotPlaylist()', 'Remove tracks from spotify playlist by pos failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Remove tracks from spotify playlist by pos failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1038,8 +1051,8 @@ class SpfLoader():
         plIdsCompleted.append(curPlId)
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errRmTracksByPos, this.getDateTm(), 'rmTracksByPos()', 'Remove tracks from playlist by pos failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errRmTracksByPos, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Remove tracks from playlist by pos failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1088,8 +1101,8 @@ class SpfLoader():
           return retVal
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errMvCpTracks, this.getDateTm(), 'mvcpTracks()', 'move/copy tracks to playlist failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errMvCpTracks, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'move/copy tracks to playlist failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1114,8 +1127,8 @@ class SpfLoader():
 
       return retVal
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errFindDups, this.getDateTm(), 'findDups()', 'findDups failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errFindDups, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'findDups failed.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1127,8 +1140,8 @@ class SpfLoader():
       dupsClrList = this.dupsRowBgClr(session['mDupsTrackList'], modePlaylist, modeSearch)
       return [sfConst.errNone], session['mDupsTrackList'], session['mNumDupsMatch'], dupsClrList
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetDupsTrackList, this.getDateTm(), 'getDupsTrackList()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetDupsTrackList, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, [], 0, []
 
@@ -1264,8 +1277,8 @@ class SpfLoader():
       #   json.dump(session['mDupsTrackList'], f)
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errFindDupsId, this.getDateTm(), 'findDupsId()', 'Finding dups by track id failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errFindDupsId, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Finding dups by track id failed.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1340,8 +1353,8 @@ class SpfLoader():
       #   json.dump(session['mDupsTrackList'], f)
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errFindDupsNad, this.getDateTm(), 'findDupsNad()', 'Finding dups by track name/artist name/duration failed.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errFindDupsNad, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Finding dups by track name/artist name/duration failed.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1356,10 +1369,10 @@ class SpfLoader():
       # raise Exception('throwing loader.getArtistDict()')
       return [sfConst.errNone], session['mArtistDict'], session['mPlSelectedDict']
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetArtistDict, this.getDateTm(), 'getArtistDict()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetArtistDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal, []
+      return retVal, [], []
 
   # ---------------------------------------------------------------
   def getArtistTrackList(this):
@@ -1368,8 +1381,8 @@ class SpfLoader():
       # raise Exception('throwing loader.getArtistTrackList()')
       return [sfConst.errNone], session['mArtistTrackList']
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetArtistTrackList, this.getDateTm(), 'getArtistTrackList()', 'Session Invalid??', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetArtistTrackList, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, []
 
@@ -1398,8 +1411,8 @@ class SpfLoader():
       #   json.dump(session['mArtistDict'], f)
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errLoadArtistDict, this.getDateTm(), 'loadArtistDict()', 'Failed to create artist list from selected playlists.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errLoadArtistDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to create artist list from selected playlists.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1422,8 +1435,8 @@ class SpfLoader():
       #   json.dump(session['mArtistTrackList'], f)
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errLoadArtistTrackList, this.getDateTm(), 'loadArtistTrackList()', 'Failed to create track list for selected artists.', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errLoadArtistTrackList, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to create track list for selected artists.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1441,10 +1454,10 @@ class SpfLoader():
       session['mNumSearchMatches'] = 0
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errClearSearchTrackList, this.getDateTm(), 'clearSearchTrackList()', 'clear search track list failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errClearSearchTrackList, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'clear search track list failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal, [], [], [], 0,
+      return retVal
 
   # ---------------------------------------------------------------
   def searchAddTrack(this, trackId_plId_List, track):
@@ -1499,8 +1512,8 @@ class SpfLoader():
 
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errRunSearch, this.getDateTm(), 'runSearch()', 'search failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errRunSearch, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'search failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1520,8 +1533,8 @@ class SpfLoader():
 
       return [sfConst.errNone], session['mSearchTrackList'], session['mNumSearchMatches'], session['mPlSelectedDict'], numTracksInSelectedPl
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), 'getSearchTrackList()', 'get search track list failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetSearchTrackList, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'get search track list failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, [], [], [], 0,
 
@@ -1561,8 +1574,8 @@ class SpfLoader():
       return [sfConst.errNone]
 
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errRmTracksById, this.getDateTm(), 'rmTracksById()', 'Remove tracks from playlist by playlist id failed', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errRmTracksById, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Remove tracks from playlist by playlist id failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
@@ -1587,7 +1600,7 @@ class SpfLoader():
 
       return [sfConst.errNone]
     except Exception:
-      tupleExc = sys.exc_info()
-      retVal = [sfConst.errPlayTracks, this.getDateTm(), 'playTracks()', 'error when trying to start playback', str(tupleExc[0]), str(tupleExc[1]), str(tupleExc[2])]
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errPlayTracks, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when trying to start playback', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal,

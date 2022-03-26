@@ -368,9 +368,6 @@
   function tabs_throwSvrErr(methodName, errArr, errCode)
   {
     // console.log('__SF__tabs_throwSvrErr()');
-    // < and > cause the value string to be blank on the log screem using <pre>
-    for (var i = 4; i <= 6; i++)
-      errArr[i] = errArr[i].replace('<', ' ').replace('>', ' ');
 
     console.log('__SF__tabs_throwSvrErr() - errArr = ' + errArr);
     let errMsg =  'errorType: '           + 'SpotifyFinder Server Error' +
@@ -380,8 +377,7 @@
                   ', serverMethod: '      + errArr[5] +
                   ', description: '       + errArr[6] +
                   ', svrSysStr1: '        + errArr[7] +
-                  ', svrSysStr2: '        + errArr[8] +
-                  ', svrSysStr3: '        + errArr[9];
+                  ', svrSysStr2: '        + errArr[8];
 
     throw new Error(errMsg);
   }
@@ -420,7 +416,9 @@
     msg = 'An error has occured.\n' +
       'A session restart is needed.\n\n' +
       'Press Ok and you will be redirected to the home page.\n' +
-      'Press Cancel and you will be redirected to the log viewer.';
+      'Press Cancel and you will be redirected to the log viewer.\n\n\n\n' +
+      'Support:\n' +
+      'If you send instructions on how to reproduce the error we will have a look.   Email: spotifyfinderapp@gmail.com\n';
 
 
     let errMsgSplit = err.message.split(", ");
@@ -433,7 +431,9 @@
         'Press Cancel and you will be redirected to the log viewer.\n\n' +
         'Details:\n' +
         '1) This error usually occurs when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n\n' +
-        '2) If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n';
+        '2) If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n\n\n' +
+        'Support:\n' +
+        'If you send instructions on how to reproduce the error we will have a look.   Email: spotifyfinderapp@gmail.com\n';
     }
 
 

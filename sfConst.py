@@ -1,6 +1,9 @@
 # constant declarations
 
 # ---------------------------------------------------------------
+errIdxCode   = 0
+
+# ---------------------------------------------------------------
 # errors returned by loader
 errNone = 1
 
@@ -40,18 +43,6 @@ errPlayTracks = -32
 errRmTracksByIdFromSpotPlaylist = -33
 errRmTracksById = -34
 
-# ---------------------------------------------------------------
-# err log entry values
-errIdxCode = 0 # [0] = int,            errNone or err constant, see seConst
-errIdxDate   = 1 # [1] = string,         date time
-errIdxMethod = 2 # [2] = string,         method in which error occurred
-errIdxDesc   = 3 # [3] = string,         description of error for display
-errIdxTup1   = 4 # [4] = string or None, tupleExc[0] from sys.exc_info()
-errIdxTup2   = 5 # [5] = string or None, tupleExc[1] from sys.exc_info()
-errIdxTup3   = 6 # [6] = string or None, tupleExc[2] from sys.exc_info()
 
-# ---------------------------------------------------------------
-# general constants
-c30seconds = 30000
 
 
