@@ -1002,6 +1002,19 @@ class SpfLoader():
       # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       # since we are no longer reloading the playlists after a remove we can nolonger use snapshot id
       # we do reload the tracklist after each delete
+
+      # plNm, pub, tn are fetched to make a more informative error msg
+      plNm = 'not found'
+      pub = 'not found'
+      tn = f"rm list len = {len(spotRmTrackList)}"
+      if plId in session['mPlDict']:
+        plNm = session['mPlDict'][plId]['Playlist Name']
+        pub = session['mPlDict'][plId]['Public']
+      if len(spotRmTrackList) == 1:
+        if plId in session['mPlTracksDict']:
+          pos = spotRmTrackList[0]['positions'][0]
+          tn = session['mPlTracksDict'][plId][pos]['Track Name']
+
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
       del session['mPlTracksDict'][plId]
       retVal, loadedPlIds = this.loadPlTracks1x(plId)
@@ -1010,7 +1023,7 @@ class SpfLoader():
       return [sfConst.errNone]
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
-      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Remove tracks from spotify playlist by pos failed', str(exTyp), str(exObj)]
+      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Remove tracks from spotify playlist ({pub}:{plNm}:{tn}) by pos failed", str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
 
