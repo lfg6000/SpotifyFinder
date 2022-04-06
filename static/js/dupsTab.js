@@ -787,8 +787,9 @@
         rowData = vDupsTable.row(this).data();
         if (rowData[9] == plId)
         {
-          if (rowData[8])  // trackId is not "", null, undefined, false, 0, NaN
-            rmTrackIdsSet.add(rowData[8]);
+          // originally we just passed a list of track ids but when adding support for episodes we now pass a list of track uri's
+          if (rowData[10])  // track uri is not "", null, undefined, false, 0, NaN
+            rmTrackIdsSet.add(rowData[10]);
         }
       });
 

@@ -778,7 +778,7 @@ class SpfLoader():
     try:
       # raise Exception('throwing loader.loadPlTracks1x()')
 
-      if plId in session['mPlTracksDict']:  # did we already load the tracks for the pl
+      if plId in session['mPlTracksDict']:  # did we already load the tracks/episodes for the pl
         loadedPlIds = []
         for plId in session['mPlTracksDict']:
           loadedPlIds.append(plId)
@@ -797,11 +797,8 @@ class SpfLoader():
       trackCnt = 0
       while (False == done):
         # spotify only returns 100 tracks at a time so we loop until we have them all
-
-        # tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx, additional_types=['track'])
-        # 'https://api.spotify.com/v1/playlists/0V8kR4VHvDjoqzPgmdbcr7/tracks?limit=100&offset=0&additional_types=track'
-
-        tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx, additional_types=['track'])
+        # 'https://api.spotify.com/v1/playlists/1JE8axNdv3Ko9mwSihdBHR/tracks?limit=100&offset=0&additional_types=track%2Cepisode'
+        tracks = this.oAuthGetSpotifyObj().playlist_items(plId, limit=100, offset=idx)
         if (len(tracks['items']) < 100):
           done = True
 
@@ -814,25 +811,44 @@ class SpfLoader():
           # if countryCode not in track['available_markets']:
           #   continue
 
+          if (track['type'] != 'track') and (track['type'] != 'episode'):
+            continue
+
           # a daily wellness playlist from spotify had a podcast episode in the middle of a bunch of songs
           # we are ignoring podcast episodes.  track['type'] can be 'track' or 'episode'
-          if (track['type'] != 'track'):  # a daily wellness playlist from spotify had a
-            continue
-          tracksList.append({'Track Id': track['id'],
-                             'Playlist Id': plId,
-                             'Playlist Name': plValues['Playlist Name'],
-                             'Track Name': track['name'],
-                             'Track Position': (str(trackCnt)).zfill(4),
-                             'Album Name': track['album']['name'],
-                             'Album Id': track['album']['id'],
-                             'Artist Name': track['artists'][0]['name'],
-                             'Artist Id': track['artists'][0]['id'],
-                             'Duration': track['duration_ms'],
-                             'Duration Hms': this.msToHms(track['duration_ms'], 0),
-                             'Track Uri': track['uri'],
-                             'Playlist Owners Name': plValues['Playlist Owners Name'],
-                             'Playlist Owners Id': plValues['Playlist Owners Id']
-                             })
+          if (track['type'] == 'track'):  # a daily wellness playlist from spotify had a
+            tracksList.append({'Track Id': track['id'],
+                               'Playlist Id': plId,
+                               'Playlist Name': plValues['Playlist Name'],
+                               'Track Name': track['name'],
+                               'Track Position': (str(trackCnt)).zfill(4),
+                               'Album Name': track['album']['name'],
+                               'Album Id': track['album']['id'],
+                               'Artist Name': track['artists'][0]['name'],
+                               'Artist Id': track['artists'][0]['id'],
+                               'Duration': track['duration_ms'],
+                               'Duration Hms': this.msToHms(track['duration_ms'], 0),
+                               'Track Uri': track['uri'],
+                               'Playlist Owners Name': plValues['Playlist Owners Name'],
+                               'Playlist Owners Id': plValues['Playlist Owners Id']
+                               })
+
+          if (track['type'] == 'episode'):  # a daily wellness playlist from spotify had a
+            tracksList.append({'Track Id': track['id'],
+                               'Playlist Id': plId,
+                               'Playlist Name': plValues['Playlist Name'],
+                               'Track Name': track['name'],
+                               'Track Position': (str(trackCnt)).zfill(4),
+                               'Album Name': track['show']['publisher'],
+                               'Album Id': track['show']['id'],
+                               'Artist Name': track['show']['name'] + ' (podcast)',
+                               'Artist Id': track['show']['id'],
+                               'Duration': track['duration_ms'],
+                               'Duration Hms': this.msToHms(track['duration_ms'], 0),
+                               'Track Uri': track['uri'],
+                               'Playlist Owners Name': plValues['Playlist Owners Name'],
+                               'Playlist Owners Id': plValues['Playlist Owners Id']
+                               })
 
           trackCnt += 1
           dur += item['track']['duration_ms']
@@ -1574,6 +1590,8 @@ class SpfLoader():
 
     try:
       # raise Exception('throwing loader.rmTracksById()')
+      # originally we rxd a list of track ids but when adding support for episodes we now rxd a list of track uri's
+      # this spotipy api adds one 'tracks': prefix and a 'uri': prefix for each track uri
       this.oAuthGetSpotifyObj().playlist_remove_all_occurrences_of_items(plId, rmTrackList)
 
       # this method can be call in a loop in order to delete more than 100 tracks

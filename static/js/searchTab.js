@@ -597,7 +597,7 @@
         if (rowData[9] != destPlId)  // if src plid == the dest plid skip the track
         {
           rmTrackList.push({'Playlist Id': rowData[9], 'Track Uri': rowData[10], 'Track Position': parseInt(rowData[6])});
-          mvTrackList.push(rowData[8]); // track id
+          mvTrackList.push(rowData[10]); // track uri
         }
       });
 
@@ -669,7 +669,7 @@
         rowData = vSearchTable.row(this).data();
         if (rowData[9] != destPlId)  // if src plid == the dest plid skip the track
         {
-          cpTrackList.push(rowData[8]); // track id
+          cpTrackList.push(rowData[10]); // track uri
         }
       });
 
