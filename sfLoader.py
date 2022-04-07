@@ -268,7 +268,7 @@ class SpfLoader():
         # print('>>loader.oAuthGetToken() - token expired' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.sSpotifyClientId, client_secret=this.sSpotifyClientSecret, redirect_uri=this.sSpotifyRedirectUri, scope=this.sSpotifyScope)
         tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
-        print('>>loader.oAuthGetToken() - token refresh, ' + session.sid)
+        print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
         # pprint.pprint(tokenInfo)
 
       tokenValid = True
@@ -322,7 +322,7 @@ class SpfLoader():
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
       session['mUserCountry'] = results['country']   # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', ' + session.sid + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
+      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', ' + this.getSidTruncated() + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
       return [sfConst.errNone], session['mUserId'], session['mUserName'], this.getSidTruncated()
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
