@@ -552,7 +552,11 @@
       $.each(vDupsTable.rows('.selected').nodes(), function (i, item)
       {
         rowData = vDupsTable.row(this).data();
-        rmTrackList.push({'Playlist Id': rowData[9], 'Track Uri': rowData[10], 'Track Position': parseInt(rowData[3])});
+        // ignore tracks with a track uri containing: 'spotify:local:'  we can not delete them since the track id is null
+        // example: user id: earono, plnm: Sing Songs, track: Stil with you Jungkook
+        // if (rowData[10].indexOf("spotify:local:") == -1) ( we could do this instead of if (rowData[8]) )
+        if (rowData[8])  // add the track uri to the list if the track id is not null
+          rmTrackList.push({'Playlist Id': rowData[9], 'Track Uri': rowData[10], 'Track Position': parseInt(rowData[3])});
       });
 
       if (Object.keys(rmTrackList).length === 0)
@@ -789,7 +793,15 @@
         {
           // originally we just passed a list of track ids but when adding support for episodes we now pass a list of track uri's
           if (rowData[10])  // track uri is not "", null, undefined, false, 0, NaN
-            rmTrackIdsSet.add(rowData[10]);
+          {
+            // console.log('remove by id: track id = ' + rowData[10])
+
+            // ignore tracks with a track uri containing: 'spotify:local:'  we can not delete them since the track id is null
+            // example: user id: earono, plnm: Sing Songs, track: Stil with you Jungkook
+            // if (rowData[10].indexOf("spotify:local:") == -1) ( we could do this instead of if (rowData[8]) )
+            if (rowData[8]) // add the track uri to the list if the track id is not null
+              rmTrackIdsSet.add(rowData[10]);
+          }
         }
       });
 

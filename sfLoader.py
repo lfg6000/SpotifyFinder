@@ -149,7 +149,7 @@ class SpfLoader():
       this.sMySqlUser             = hVal[grpKey]['sMySqlUser']
       this.sMySqlPwRoot           = hVal[grpKey]['sMySqlPwRoot']
       this.sMySqlPwUser           = hVal[grpKey]['sMySqlPwUser']
-      this.sMySqlDbName     = hVal[grpKey]['sMySqlDbName']
+      this.sMySqlDbName           = hVal[grpKey]['sMySqlDbName']
 
       if (this.sFlaskAppSecretKey == ''):
         raise Exception('Cfg file error.  sFlaskAppSecretKey is empty. cfg file: ', vPath)
@@ -191,8 +191,6 @@ class SpfLoader():
       vPath = os.path.dirname(os.path.abspath(__file__)) + '/templates/'
       if (vPath.find('slipstream') != -1):
         logging.getLogger().setLevel('ERROR')
-
-
 
       spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
                                             client_secret = this.sSpotifyClientSecret,
@@ -266,7 +264,10 @@ class SpfLoader():
       if (is_token_expired):
         # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
         # print('>>loader.oAuthGetToken() - token expired' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.sSpotifyClientId, client_secret=this.sSpotifyClientSecret, redirect_uri=this.sSpotifyRedirectUri, scope=this.sSpotifyScope)
+        spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.sSpotifyClientId,
+                                              client_secret=this.sSpotifyClientSecret,
+                                              redirect_uri=this.sSpotifyRedirectUri,
+                                              scope=this.sSpotifyScope)
         tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
         print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
         # pprint.pprint(tokenInfo)
