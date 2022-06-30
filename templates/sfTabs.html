@@ -18,12 +18,12 @@
 
 
   <div class="tab">
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'PlayLists')" id="btnPlTab">PlayLists</button>
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Tracks')" id="btnTracksTab">Tracks</button>
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Duplicates')" id="btnDupsTab">Duplicates</button>
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Artists')" id="btnArtistsTab">Artists</button>
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Search')" id="btnSearchTab">Search</button>
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Info')" id="btnInfoTab">Help</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'PlayLists')" id="btnPlTab", title="Playlists selected on this tab determines which playlists are examined by the 'Duplicates Tab', 'Search Tab', 'Tracks Tab', 'Artists Tab'.">PlayLists</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Duplicates')" id="btnDupsTab", title="Find duplicates across the selected playlists. Find duplicates within each selected playlist. ">Duplicates</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Search')" id="btnSearchTab", title="Search across the selected playlists for a song, artist, album.">Search</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Tracks')" id="btnTracksTab", title="Show the songs in the selected playlists.">Tracks</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Artists')" id="btnArtistsTab", title="Show the artists in the selected playlists.">Artists</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Info')" id="btnInfoTab", title="Show the help docs.">Help</button>
     <button class="tablinks tabRight" style="pointer-events: none;  display: none;" id="cookieDisp">UUID</button>
   </div>
 
