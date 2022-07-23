@@ -14,6 +14,17 @@ import sfLoader, sfConst
 # - favicon not showing up firefox/chrome: clear the cache in firefox/chrome
 #----------------------------------------------------------------------------------------------
 
+# SW Stack
+# ---------------------------------------------------------------------------------------------
+# python anywhere uses nginx and uwsgi so the sw stack looks like this:
+# HTTP client ↔ Nginx ↔ uWSGI ↔ Flask ↔ Python app
+# - https://medium.com/techtofreedom/backend-architecture-of-a-python-web-application-7af256ee004c
+# - https://www.pythonanywhere.com/forums/topic/2776/
+# - user agent (web browser client) initiates communication by making a request for a web page
+# - A web server (nginx) is hw/sw that accepts requests via HTTP(s) protocol.
+# - WSGI (Web Server Gateway Interface) a calling convention for web servers to forward requests
+#   to web applications or frameworks written in the Python
+# -
 
 app = Flask(__name__)
 

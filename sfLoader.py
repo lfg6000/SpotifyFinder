@@ -1021,9 +1021,16 @@ class SpfLoader():
       # we do reload the tracklist after each delete
 
       # plNm, pub, tn are fetched to make a more informative error msg
-      plNm = 'not found'
       pub = 'not found'
+      plNm = 'not found'
       tn = f"rm list len = {len(spotRmTrackList)}"
+
+      # cntr, done, origPlLen are used to determine if the remove has completed
+      cntr = 0
+      done = False
+      maxRetries = 2
+      origPlLen = len(session['mPlTracksDict'][plId])
+
       if plId in session['mPlDict']:
         plNm = session['mPlDict'][plId]['Playlist Name']
         pub = session['mPlDict'][plId]['Public']
@@ -1033,10 +1040,38 @@ class SpfLoader():
           tn = session['mPlTracksDict'][plId][pos]['Track Name']
 
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
-      del session['mPlTracksDict'][plId]
-      retVal, loadedPlIds = this.loadPlTracks1x(plId)
+      time.sleep(2) # it may take a few seconds for spotify to complete the remove
+
+      # on 7/22/22 Ridrigo Flay da Silva reported an issue that turns out to be a race condition:
+      # - it was observed that the pyAny server does the delete and refetch before spotify is done deleting the tracks
+      #   spotify will eventually delete all the tracks but now sf pl is out of sync w/ spotify. the results are very confusing.
+      # - this error/race condition does not occur on my local server because it is slowly than pyAny?
+      # - so now we wait upto x secs for the remove to complete
+
+      # - it may take a few seconds for spotify to remove the tracks
+      # - we compare the expected pl len to the actual len to determine if the remove is complete
+      # - we will we delete the pl and refetch the pl and then check the len every x seconds for a max of x times
+      while ((cntr < maxRetries) and (done == False)):
+        cntr += 1
+        del session['mPlTracksDict'][plId]
+        retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        if retVal[sfConst.errIdxCode] == sfConst.errNone:
+          if len(session['mPlTracksDict'][plId]) != (origPlLen - len(spotRmTrackList)):
+            time.sleep(8)
+          else:
+            done = True
+        else:
+          break
+
+      # did the while loadPlTracks1x have an error
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
+
+      if (cntr >= maxRetries):
+        retVal = [sfConst.errRmTracksByPosSyncErr, this.getDateTm(), f"{this.fNm(this)}", f"Invalid track count after remove: expected({origPlLen - len(spotRmTrackList)}), actual({len(session['mPlTracksDict'][plId])})",f"we asked for the pl {cntr} times before throwing this error.", "n/a"]
+        this.addErrLogEntry(retVal)
+        return retVal
+
       return [sfConst.errNone]
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
@@ -1599,6 +1634,9 @@ class SpfLoader():
       # on the last call to this method the reload value is set to the total # of tracks removed
       # if reload > 0 then refetch the tracks for this pl from spotify
       if (reload):
+        # give spotify some time to complete the removes
+        # see rmTracksByPosFromSpotPlaylist() for a more robust check to see if spotify is done
+        time.sleep(6)
         del session['mPlTracksDict'][plId]
         retVal, loadedPlIds = this.loadPlTracks1x(plId)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
