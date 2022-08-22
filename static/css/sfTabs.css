@@ -191,6 +191,7 @@
   .infoBtn  {
     background-color: #FFFFFF;
     border-radius: 8px;
+    cursor: pointer;
   }
 
   .infoBtn:focus {
@@ -319,6 +320,7 @@
     text-align: center;
     margin: 0px 2px 0px 2px;
     border-radius: 8px;
+    cursor: pointer;
   }
 
 /* ------------------------------------------------------------------------------------------------------------------------------ */
@@ -326,6 +328,11 @@
 /* ------------------------------------------------------------------------------------------------------------------------------ */
 /* - a class selector is a name preceded by a full stop (“.”)
    - an ID selector is a name preceded by a hash character (“#”). */
+
+  .curPtr
+  {
+    cursor:pointer;
+  }
 
   .lineDiv
   {

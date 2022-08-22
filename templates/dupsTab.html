@@ -49,8 +49,8 @@
       <span style="font-size: 10pt;">
         <fieldset style="margin: 2px 0px 4px 0px; padding: 2px 6px 6px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Find Dups</legend>
-          <input  style="margin: 4px 6px 3px 0px; padding: 0px 6px 4px 6px;" type="radio" name="rPlMode" id="rPlModeAcross" value="Across" checked title="Find duplicate tracks across all the selected playlists."><label for="rPlModeAcross">Across Playlists</label>
-          <input  style="margin: 4px 6px 3px 10px; padding: 0px 6px 4px 6px;" type="radio" name="rPlMode" id="rPlModeSame" value="Same" title="Find duplicate tracks within each selected playlist."><label for="rPlModeSame">Within a Playlist</label>
+          <input  class="curPtr" style="margin: 4px 6px 3px 0px; padding: 0px 6px 4px 6px;" type="radio" name="rPlMode" id="rPlModeAcross" value="Across" checked title="Find duplicate tracks across all the selected playlists."><label class="curPtr" for="rPlModeAcross">Across Playlists</label>
+          <input  class="curPtr" style="margin: 4px 6px 3px 10px; padding: 0px 6px 4px 6px;" type="radio" name="rPlMode" id="rPlModeSame" value="Same" title="Find duplicate tracks within each selected playlist."><label class="curPtr" for="rPlModeSame">Within a Playlist</label>
         </fieldset>
       </span>
     </div>
@@ -58,9 +58,9 @@
       <span style="font-size: 10pt;">
         <fieldset style="margin: 2px 0px 4px 0px; padding: 2px 6px 6px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Find Dups Using</legend>
-          <input  style="margin: 4px 6px 3px 0px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchId" value="Track Id" checked title="Duplicates are tracks that have the same track id."><label for="rPlSearchId">Track Id (Exact Match)</label>
-          <input  style="margin: 4px 6px 3px 10px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchNad" value="Nad"   title="Duplicates are tracks that have the same track name & the same artist name & a duration within X seconds (the track id is ignored)."><label for="rPlSearchNad">Track Name/Artist Name/Duration (Very Close Match)</label>
-          <select style="margin: 0px 6px 0px 10px; padding: 0px 6px 0px 6px;" id="dupsTab_cbDuration" onchange="dupsTab_cbDurationOnChange()" title="If the time difference between tracks is less than this value the tracks are marked as duplicates when using the Very Close Match option."></select>
+          <input  class="curPtr" style="margin: 4px 6px 3px 0px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchId" value="Track Id" checked title="Duplicates are tracks that have the same track id."><label class="curPtr" for="rPlSearchId">Track Id (Exact Match)</label>
+          <input  class="curPtr" style="margin: 4px 6px 3px 10px; padding: 0px 6px 2px 6px;" type="radio" name="rPlSearch" id="rPlSearchNad" value="Nad"   title="Duplicates are tracks that have the same track name & the same artist name & a duration within X seconds (the track id is ignored)."><label class="curPtr" for="rPlSearchNad">Track Name/Artist Name/Duration (Very Close Match)</label>
+          <select class="curPtr" style="margin: 0px 6px 0px 10px; padding: 0px 6px 0px 6px;" id="dupsTab_cbDuration" onchange="dupsTab_cbDurationOnChange()" title="If the time difference between tracks is less than this value the tracks are marked as duplicates when using the Very Close Match option."></select>
         </fieldset>
       </span>
     </div>
@@ -73,7 +73,7 @@
       <span style="font-size: 10pt;">
         <fieldset style="margin:-2px 0px 0px 0px; padding: 2px 6px 0px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Remove Selected Dups</legend>
-          <div class="innerRowLeft" style="margin: 0px 4px 4px 4px;"><button onclick="dupsTab_btnRmTracksByPos()"  title="Remove selected duplicate tracks.">Remove</button></div>
+          <div class="innerRowLeft" style="margin: 0px 4px 4px 4px;"><button class="curPtr" onclick="dupsTab_btnRmTracksByPos()"  title="Remove selected duplicate tracks.">Remove</button></div>
         </fieldset>
       </span>
     </div>
@@ -81,7 +81,7 @@
       <span style="font-size: 10pt;">
         <fieldset style="margin:-2px 0px 0px 0px; padding: 2px 6px 0px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Auto Select Dups</legend>
-          <div class="innerRowLeft rowMargin1" style="margin: 0px 4px 4px 4px;"><select id="dupsTab_cbAutoSel" onchange="dupsTab_cbAutoSelOnChange()" title="Automated checkbox selection.  (Only enabled when 1 or 2 playlists are selected on the Playlist Tab).">Auto Select Dups</select></div>
+          <div class="innerRowLeft rowMargin1" style="margin: 0px 4px 4px 4px;"><select class="curPtr" id="dupsTab_cbAutoSel" onchange="dupsTab_cbAutoSelOnChange()" title="Automated checkbox selection.  (Only enabled when 1 or 2 playlists are selected on the Playlist Tab).">Auto Select Dups</select></div>
         </fieldset>
       </span>
     </div>
@@ -89,13 +89,13 @@
       <span style="font-size: 10pt;">
         <fieldset style="margin:-2px 0px 0px 0px; padding: 2px 6px 0px 6px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Remove Dups By Playlist</legend>
-          <div class="innerRowLeft" style="margin: 0px 4px 4px 4px;"><button id="dupsTab_btnRmTracksById" onclick="dupsTab_btnRmTracksByIdOnClick()"  title="Remove all the duplicate tracks from selected playlist  (Ignores/does not use checkbox selections) (Only enabled when 2 playlists are selected on the Playlist Tab and When finding duplicates across playlists).">Remove</button></div>
-          <div class="innerRowLeft rowMargin1" style="margin: 0px 4px 4px 4px;"><select id="dupsTab_cbRmPlId" onchange="dupsTab_cbRmPlIdOnChange()" title="Select playlist to remove duplicates tracks from. (Only enabled when 2 playlists are selected on the Playlist Tab and When finding duplicates across playlists).">Select Playlist</select></div>
+          <div class="innerRowLeft" style="margin: 0px 4px 4px 4px;"><button class="curPtr" id="dupsTab_btnRmTracksById" onclick="dupsTab_btnRmTracksByIdOnClick()"  title="Remove all the duplicate tracks from selected playlist  (Ignores/does not use checkbox selections) (Only enabled when 2 playlists are selected on the Playlist Tab and When finding duplicates across playlists).">Remove</button></div>
+          <div class="innerRowLeft rowMargin1" style="margin: 0px 4px 4px 4px;"><select class="curPtr" id="dupsTab_cbRmPlId" onchange="dupsTab_cbRmPlIdOnChange()" title="Select playlist to remove duplicates tracks from. (Only enabled when 2 playlists are selected on the Playlist Tab and When finding duplicates across playlists).">Select Playlist</select></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft" style="margin: 20px 4px 6px 4px;"><button onclick="dupsTab_btnClear()" title="Clear selections, clear search boxes, and restore original sort">Clear</button></div>
-    <div class="innerRowLeft" style="margin: 20px 4px 6px 4px;"><button onclick="dupsTab_btnHelp()" title="View Duplicates Tab Help Info">?</button></div>
+    <div class="innerRowLeft" style="margin: 20px 4px 6px 4px;"><button class="curPtr" onclick="dupsTab_btnClear()" title="Clear selections, clear search boxes, and restore original sort">Clear</button></div>
+    <div class="innerRowLeft" style="margin: 20px 4px 6px 4px;"><button class="curPtr" onclick="dupsTab_btnHelp()" title="View Duplicates Tab Help Info">?</button></div>
   </div>
 
 
