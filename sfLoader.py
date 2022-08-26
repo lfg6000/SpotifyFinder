@@ -1383,8 +1383,8 @@ class SpfLoader():
             for ltkVals in lplTrackList:
               for rtkVals in rplTrackList:
                 if ltkVals['Track Id'] != rtkVals['Track Id']:
-                  if ltkVals['Track Name'] == rtkVals['Track Name']:
-                    if ltkVals['Artist Name'] == rtkVals['Artist Name']:
+                  if ltkVals['Track Name'].lower() == rtkVals['Track Name'].lower():
+                    if ltkVals['Artist Name'].lower() == rtkVals['Artist Name'].lower():
                       if abs(ltkVals['Duration'] - rtkVals['Duration']) <= durTimeDiffInt:
                         # if this.isDupAlreadyInDupIdList(ltkVals, rtkVals) == False:
                         session['mDupsTrackList'].append(ltkVals)
@@ -1404,8 +1404,8 @@ class SpfLoader():
             for x in range(ix, len(lplTrackList)):
               ntkVals = lplTrackList[x]
               if ltkVals['Track Id'] != ntkVals['Track Id']:
-                if ltkVals['Track Name'] == ntkVals['Track Name']:
-                  if ltkVals['Artist Name'] == ntkVals['Artist Name']:
+                if ltkVals['Track Name'].lower() == ntkVals['Track Name'].lower():
+                  if ltkVals['Artist Name'].lower() == ntkVals['Artist Name'].lower():
                     # val = abs(ltkVals['Duration'] - ntkVals['Duration'])
                     if abs(ltkVals['Duration'] - ntkVals['Duration']) <= durTimeDiffInt:
                       session['mNumDupsMatch'] += 1
