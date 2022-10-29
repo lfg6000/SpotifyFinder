@@ -1,0 +1,15 @@
+
+# run this in a pycharm venv terminal
+# -----------------------------------
+# (venv) > pip install -r requirementsWin.txt
+
+
+# originally created using with this cmd
+# --------------------------------------
+# (venv) > pip freeze > requirementsWin.txt
+
+
+# getting the dependency tree for this app
+#------------------------------------------
+# install the pipdevtree pkg into the venv
+# (venv) > pipdeptree
