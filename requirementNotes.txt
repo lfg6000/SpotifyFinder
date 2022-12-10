@@ -13,3 +13,8 @@
 #------------------------------------------
 # install the pipdevtree pkg into the venv
 # (venv) > pipdeptree
+
+
+# 12/10/22 upgraded to tp 3.9.2 on win10
+# ------------------------------------------
+# the service seemed to work ok using the existing requirements.txt
