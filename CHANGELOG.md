@@ -1,5 +1,7 @@
 
 # SpotifyFinder Change Log
 
-### v1.0.0
-* 2021/03/09 - initial version
+### To view the change log 
+1) open www.SpotifyFinder.com
+2) select the help tab
+3) select change log

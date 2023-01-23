@@ -362,21 +362,25 @@
       let infoStr2 = 'Tracks Found: ' + reply['numSearchMatches'] + '&nbsp &nbsp &nbsp in ' + nSelectedPl + ' Selected Playlists ' + ' with ' + reply['numTracksInSelectedPl'] + ' Tracks';
       tabs_setLabel('searchTab_info2', infoStr2);
 
-      $('#searchTab_cbMvCpDest').empty();
-      $('#searchTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
-      $.each(plSelectedDict, function (key, item)
+      // on activate the combobox len will be one
+      // do not clear combobox drop down between searches to preserve the user selection
+      cbLen = $('#searchTab_cbMvCpDest').children('option').length
+      // console.log('searchTab_afLoadSearchTable() - cbLen = ' + cbLen);
+      if (cbLen <= 1)
       {
-        if (item['Playlist Owners Id'] === vUserId)
-        {
-          idNm = key + '::::' + item['Playlist Name'];
-          // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
-          plNm = item['Playlist Name'];
-          if (plNm.length > 44)
-            plNm = plNm.slice(0, 44) + '...';
-          $('#searchTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
-        }
-      });
-
+        $('#searchTab_cbMvCpDest').empty();
+        $('#searchTab_cbMvCpDest').append($('<option>', {value: '0::::str2', text: cbMvDestDefault}));
+        $.each(plSelectedDict, function (key, item) {
+          if (item['Playlist Owners Id'] === vUserId) {
+            idNm = key + '::::' + item['Playlist Name'];
+            // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
+            plNm = item['Playlist Name'];
+            if (plNm.length > 44)
+              plNm = plNm.slice(0, 44) + '...';
+            $('#searchTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
+          }
+        });
+      }
       // only show no matches found warning if we did a search and were not clearing the table
       vShowNoMatchesFound = true;
       vSearchText = $("#searchTextInput").val();
