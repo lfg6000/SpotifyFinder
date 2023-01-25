@@ -1028,7 +1028,7 @@ class SpfLoader():
       # cntr, done, origPlLen are used to determine if the remove has completed
       cntr = 0
       done = False
-      maxRetries = 2
+      maxRetries = 4
       origPlLen = len(session['mPlTracksDict'][plId])
 
       if plId in session['mPlDict']:
