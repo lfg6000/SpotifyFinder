@@ -4,14 +4,12 @@
 /.idea/
 /build/
 /dist/
-/.sqldb_table_exports/
 /.lfg_work_dir/
 /flask_session/
-/WA_SpotifyFinder_GitDb_PreGitHub/
 /_NO_BU_/
 
 .cache
-/templates/helper.txt
+/templates/helper*.txt
 lfgDbCmds.txt
 lfgDbCmdsSortUsersByDate.sql
 lfgDbCmdsUniqueContries.sql
@@ -19,6 +17,8 @@ lfgReadMe.txt
 lfgReadMePyAny.txt
 waSpotifyFinderApp.spec
 pyinstaller.exe
+requirements38.txt
+requirements39.txt
 
 
 

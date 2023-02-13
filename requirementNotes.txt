@@ -1,20 +1,15 @@
 
 # run this in a pycharm venv terminal
 # -----------------------------------
-# (venv) > pip install -r requirementsWin.txt
+# (venv) > pip install -r requirements.txt
 
 
 # originally created using with this cmd
 # --------------------------------------
-# (venv) > pip freeze > requirementsWin.txt
+# (venv) > pip freeze > requirements.txt
 
 
 # getting the dependency tree for this app
 #------------------------------------------
 # install the pipdevtree pkg into the venv
 # (venv) > pipdeptree
-
-
-# 12/10/22 upgraded to tp 3.9.2 on win10
-# ------------------------------------------
-# the service seemed to work ok using the existing requirements.txt

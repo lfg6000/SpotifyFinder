@@ -11,13 +11,13 @@ This website is a set of tools to help you organize/curate your Spotify playlist
 
 ### Technical Details
 * Server Side:
-    * Python v3.8 - server side language
-    * Flask (pkg v1.1.1) - web application framework
-    * Flask-Session  (pkg v0.3.2) - server side sessions
-    * Spotipy (pkg v2.16.1) - python wrapper around Spotify Web Client API
-    * Flask-MySqlDb (pkg v0.2.0) - flask wrapper around db connections
+    * Python - server side language
+    * Flask  - web application framework
+    * Flask-Session - server side sessions
+    * Spotipy  - python wrapper around Spotify Web Client API
+    * Flask-MySqlDb  - flask wrapper around db connections
     * MySql (server) - sql database (optional)
-    * the pkg versions specified above match the pkg versions used by the actual website
+    * see the requirements.txt file for pkg versions being used
 * Client side:
     * Html - ui elements
     * Css - ui elements styling
@@ -61,11 +61,7 @@ into your IDE.
 ### Running this Project from an IDE
   * download the project from github
   * open the project in your favorite IDE.  
-  * import these python packages
-    * Flask (pkg) - web application framework
-    * Flask-Session  (pkg) - server side sessions
-    * Spotipy (pkg) - python wrapper around Spotify Web Client API
-    * Flask-MySqlDb (pkg) - flask wrapper around db connections
+  * pip install -r requirements.txt
   * ensure the run/debug working dir is set to the project's home dir
   * edit sfCfg.json and set the first 3 values
   * use the IDE to start the project  

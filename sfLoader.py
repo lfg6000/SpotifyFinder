@@ -4,6 +4,7 @@ from operator import itemgetter
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import spotipy
+from spotipy.cache_handler import CacheHandler
 from spotipy.oauth2 import SpotifyOAuth
 from collections import Counter
 import sfConst
@@ -16,7 +17,25 @@ import sfConst
 #     'Cookie': 'session=41556fbc-1549-409a-821e-34169e2462ca',
 
 
+# ---------------------------------------------------------------
+# this was added during the upgrade from spotipy 2.16.1 to 2.22.1
+# this class is used to override the default CacheFileHandler found in spotipy/cache_handler.py
+# the override class is passed into all calls to spotipy.oauth2.SpotifyOAuth(... cache_handler = sfCacheFileHandler())
+# we do not want a .cache file with the spotify access token written to disk
+# we store the spotify access token in the session[tokeInfo] dict
+# this is because we have a session files for each user
+# the (spotipy/CacheFileHandler/.cache file) is compleytely seperate from the (Flask-Session/CacheLib/session files)
+# all the old .cache file wr errs in the pyAny err log are all related to spotipy and Not the CacheLib
+# also see notes in lfgReadMePyAny.txt
+class sfCacheFileHandler(CacheHandler):
+  def __init__(self, cache_path=None, username=None):
+     pass
 
+  def get_cached_token(self):
+    return None
+
+  def save_token_to_cache(self, token_info):
+    pass
 
 # ---------------------------------------------------------------
 class SpfLoader():
@@ -126,7 +145,9 @@ class SpfLoader():
       vPath = os.path.dirname(os.path.abspath(__file__)) + '/templates/' + 'helper.txt'
       if (os.path.isfile(vPath)):
         cfgFnd = 1
-        if (vPath.find('slipstream') != -1):
+        if (vPath.find('slipstreamcodetest') != -1):   # pyAny  slipstreamcodetest - https://slipstreamcodetest.pythonanywhere.com
+          grpKey = 'remote_server_test'
+        elif (vPath.find('slipstreamcode') != -1):     # pyAny slipstreamcode - https://www.spotifyfinder.com/
           grpKey = 'remote_server'
 
       # cfg when running from a github clone
@@ -138,7 +159,8 @@ class SpfLoader():
       if (cfgFnd == 0):
         raise Exception('Cfg file not found. Missing File: ', vPath)
 
-      # print('>>loader.loadCfgFile() path to cfg file = ' + vPath)
+      print(f">>loader.loadCfgFile() - using {grpKey} in {vPath}", flush=True)  # flush to server log file
+
       fHelper = open(vPath, "r")
       hVal = json.load(fHelper)
       this.sFlaskAppSecretKey     = hVal[grpKey]['sFlaskAppSecretKey']
@@ -157,6 +179,8 @@ class SpfLoader():
         raise Exception('Cfg file error.  sSpotifyClientId is empty. cfg file: ', vPath)
       if (this.sSpotifyClientSecret == ''):
         raise Exception('Cfg file error.  sSpotifyClientSecret is empty. cfg file: ', vPath)
+
+      print(f">>loader.loadCfgFile() - the redirectUrl:   ({this.sSpotifyRedirectUri})", flush=True)
 
       return 1
 
@@ -182,20 +206,11 @@ class SpfLoader():
       # raise Exception('throwing loader.oAuthLogin()')
       # print('>>loader.oAuthLogin()' + ',  ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-      # the pythonanywhere error log file is filling up with Spotipy warning: Couldn't read cache at: .cache
-      # spotipy oauth2.py logs this warning to the python logger because it can not rd/wr a .cache file on pythonanywhere
-      # we only do this when running on pythonanywhere by doing a path check
-      # i think this forces all python loggers created after this point to only log ERRORs
-      # so we are forcing the 'spotipy.oauth2' logger to only log errors
-      # i tried putting this at the start of the main app py file but that did not fix this
-      vPath = os.path.dirname(os.path.abspath(__file__)) + '/templates/'
-      if (vPath.find('slipstream') != -1):
-        logging.getLogger().setLevel('ERROR')
-
       spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
                                             client_secret = this.sSpotifyClientSecret,
                                             redirect_uri  = this.sSpotifyRedirectUri,
-                                            scope         = this.sSpotifyScope)
+                                            scope         = this.sSpotifyScope,
+                                            cache_handler = sfCacheFileHandler())
 
       authUrl = spoAuth.get_authorize_url()
       # print('>>authUrl = ' + authUrl)
@@ -224,7 +239,8 @@ class SpfLoader():
       spoAuth = spotipy.oauth2.SpotifyOAuth(client_id     = this.sSpotifyClientId,
                                             client_secret = this.sSpotifyClientSecret,
                                             redirect_uri  = this.sSpotifyRedirectUri,
-                                            scope         = this.sSpotifyScope)
+                                            scope         = this.sSpotifyScope,
+                                            cache_handler = sfCacheFileHandler())
       session.clear()
       code = request.args.get('code')
 
@@ -267,7 +283,8 @@ class SpfLoader():
         spoAuth = spotipy.oauth2.SpotifyOAuth(client_id=this.sSpotifyClientId,
                                               client_secret=this.sSpotifyClientSecret,
                                               redirect_uri=this.sSpotifyRedirectUri,
-                                              scope=this.sSpotifyScope)
+                                              scope=this.sSpotifyScope,
+                                              cache_handler = sfCacheFileHandler())
         tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
         print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
         # pprint.pprint(tokenInfo)
@@ -315,7 +332,7 @@ class SpfLoader():
     #   return None
 
   # ---------------------------------------------------------------
-  def loadSpotifyInfo(this, winWidth, winHeight):
+  def loadSpotifyInfo(this, winWidth, winHeight, ipRemote):
     # print('>>loader.loadSpotifyInfo()')
     try:
       # raise Exception('throwing loader.loadSpotifyInfo()')
@@ -323,7 +340,8 @@ class SpfLoader():
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
       session['mUserCountry'] = results['country']   # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-      print('>>loader.loadSpotifyInfo() usrId/usrName = ' + session['mUserId'] + '/' + session['mUserName'] + ', ' + this.getSidTruncated() + ', width = ' + str(winWidth) + ', heigth = ' + str(winHeight))
+      print(f">>loader.loadSpotifyInfo() - {ipRemote}, usrId/usrName = {session['mUserId']}/{session['mUserName']}, {this.getSidTruncated()}, width = {str(winWidth)},  heigth = ' {str(winHeight)}")
+
       return [sfConst.errNone], session['mUserId'], session['mUserName'], this.getSidTruncated()
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()

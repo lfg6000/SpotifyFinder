@@ -206,6 +206,8 @@ def Tabs():
   # goofy  scenario - usr presses a spotifyfinder.com/tab shortcut and the page is not open or is expired....users sees the retval
   #                   strings as plain txt.  shortcuts should always be www.spotifyfinder.com
   try:
+    # when a user visits this site a new session obj is created and the session['mUserId'] value will initially be ''
+    # the session object is deleted when a session timeout occurs, after a timeout this line will throw because the session obj does not exist
     id = session['mUserId']
   except Exception:
     retVal = [sfConst.errSessionTimeOut, oLoader.getDateTm(), 'Tabs()', 'Your session has expired.', 'To restart your session goto:', 'www.SpotifyFinder.com', '']
@@ -349,7 +351,11 @@ def Tabs():
         # print('>>/Tabs loadSpotifyInfo')
         winWidth = rqJson['winWidth']
         winHeight = rqJson['winHeight']
-        retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight)
+        if 'X-Real-IP' in request.headers:  # 'X-Real-IP' tag is a pyAny specific tag
+          ip = request.headers['X-Real-IP']
+        else:
+          ip = request.remote_addr
+        retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight, ip)
         # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie('session'), 'sid': sid})
 
@@ -478,11 +484,8 @@ def Tabs():
 
 #----------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-  # use_reloader=False prevents app.run() from being called twice
+  # use_reloader=False ;python codes changes not automatically picked up
 
-  # app.run(host='0.0.0.0', port=5000, debug=True)
-  # app.run(host='192.168.2.9', port=5000, debug=True)
-  # app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False) #, threaded=True)
-  # print('>>calling app.run()')
+  # depending on how this app is invoked this code may or may not run
+  print(f"calling: app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)", flush=True)
   app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False) #, threaded=True)
-  # app.run(host='192.168.2.10', port=5000, debug=True, use_reloader=False)#, threaded=True)
