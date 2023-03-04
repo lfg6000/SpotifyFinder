@@ -1247,16 +1247,23 @@ class SpfLoader():
         r += 1
 
     if modePlaylist == 'Same':
-      trigger = 'Track Id' # color flip when the track id changes
-      if modeSearch == 'Nad':  # color flip when the track name changes
-        trigger = 'Track Name'
+      if modeSearch == 'Nad':  # color flip when the track nm, artist nm or plid changes
+        lastDupTrk = dupsTrackList[0]
+        for dupTrk in dupsTrackList:
+          if lastDupTrk['Track Name'].lower() != dupTrk['Track Name'].lower() or \
+             lastDupTrk['Artist Name'].lower() != dupTrk['Artist Name'].lower() or \
+             lastDupTrk['Playlist Id'] != dupTrk['Playlist Id']:
+            clrIdx ^= 1
+          dupsClrList.append(colors[clrIdx])
+          lastDupTrk = dupTrk
 
-      lastDupTrk = dupsTrackList[0]
-      for dupTrk in dupsTrackList:
-        if lastDupTrk[trigger] != dupTrk[trigger] or lastDupTrk['Playlist Id'] != dupTrk['Playlist Id']:
-          clrIdx ^= 1
-        dupsClrList.append(colors[clrIdx])
-        lastDupTrk = dupTrk
+      if modeSearch == 'Track Id':  # color flip when the track id or plid changes
+        lastDupTrk = dupsTrackList[0]
+        for dupTrk in dupsTrackList:
+          if lastDupTrk['Track Id'] != dupTrk['Track Id'] or lastDupTrk['Playlist Id'] != dupTrk['Playlist Id']:
+            clrIdx ^= 1
+          dupsClrList.append(colors[clrIdx])
+          lastDupTrk = dupTrk
 
     return dupsClrList
 
