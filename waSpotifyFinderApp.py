@@ -275,8 +275,9 @@ def Tabs():
       if (key == 'getDupsTrackList'):
         modePlaylist = rqJson['modePlayList']
         modeSearch = rqJson['modeSearch']
+        durTimeDiff = rqJson['durTimeDiff']
         # print('>>/Tabs getDupsTrackList()')
-        retVal, dupsTrackList, numDupsMatch, dupsClrList = oLoader.getDupsTrackList(modePlaylist, modeSearch)
+        retVal, dupsTrackList, numDupsMatch, dupsClrList = oLoader.getDupsTrackList(modePlaylist, modeSearch, durTimeDiff)
         # print(gc.collect())
         return jsonify({ 'errRsp': retVal, 'dupsTrackList': dupsTrackList, 'numDupsMatch': numDupsMatch, 'dupsClrList': dupsClrList})
 

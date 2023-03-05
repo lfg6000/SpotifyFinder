@@ -357,8 +357,9 @@
   {
     // console.log('__SF__dupsTab_afLoadDupsTable()');
     console.log('__SF__dupsTab_afLoadPlTable() - vUrl - getDupsTrackList');
+    let durTimeDiff = $('#dupsTab_cbDuration').val();
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ getDupsTrackList: 'getDupsTrackList', modePlayList: vModePlaylist, modeSearch: vModeSearch }), });
+                                       body: JSON.stringify({ getDupsTrackList: 'getDupsTrackList', modePlayList: vModePlaylist, modeSearch: vModeSearch, durTimeDiff: durTimeDiff }), });
     if (!response.ok)
       tabs_throwErrHttp('dupsTab_afLoadDupsTable()', response.status, 'dupsTab_errInfo');
     else

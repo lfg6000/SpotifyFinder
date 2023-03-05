@@ -1216,11 +1216,11 @@ class SpfLoader():
       return retVal
 
   # ---------------------------------------------------------------
-  def getDupsTrackList(this, modePlaylist, modeSearch):
+  def getDupsTrackList(this, modePlaylist, modeSearch, durTimeDiff):
     # print('>>loader.getDupsTrackList()')
     try:
       # raise Exception('throwing loader.getDupsTrackList()')
-      dupsClrList = this.dupsRowBgClr(session['mDupsTrackList'], modePlaylist, modeSearch)
+      dupsClrList = this.dupsRowBgClr(session['mDupsTrackList'], modePlaylist, modeSearch, durTimeDiff)
       return [sfConst.errNone], session['mDupsTrackList'], session['mNumDupsMatch'], dupsClrList
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
@@ -1229,12 +1229,14 @@ class SpfLoader():
       return retVal, [], 0, []
 
   # ---------------------------------------------------------------
-  def dupsRowBgClr(this, dupsTrackList, modePlaylist, modeSearch):
+  def dupsRowBgClr(this, dupsTrackList, modePlaylist, modeSearch, durTimeDiff):
     # print('...tabDups.setRowBgClr()')
 
+    # bgclr is used to indicate a new match and is also used by auto select on the dups tab
     r = 0
     clrIdx = 0
     colors = [0, 1]
+    durTimeDiffInt = int(durTimeDiff) * 1000
 
     dupsClrList = []
     if len(dupsTrackList) == 0:
@@ -1247,11 +1249,12 @@ class SpfLoader():
         r += 1
 
     if modePlaylist == 'Same':
-      if modeSearch == 'Nad':  # color flip when the track nm, artist nm or plid changes
+      if modeSearch == 'Nad':  # color flip when the track nm, or artist nm, or track duraton > specfied delta or plid changes
         lastDupTrk = dupsTrackList[0]
         for dupTrk in dupsTrackList:
           if lastDupTrk['Track Name'].lower() != dupTrk['Track Name'].lower() or \
              lastDupTrk['Artist Name'].lower() != dupTrk['Artist Name'].lower() or \
+             abs(lastDupTrk['Duration'] - dupTrk['Duration']) > durTimeDiffInt or \
              lastDupTrk['Playlist Id'] != dupTrk['Playlist Id']:
             clrIdx ^= 1
           dupsClrList.append(colors[clrIdx])
