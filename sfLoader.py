@@ -1034,7 +1034,7 @@ class SpfLoader():
     #  body (json) = '{"tracks": [{"uri": "spotify:track:5dTuEVETmQ15gP2M8E5I45", "positions": 1}]}'
 
     try:
-      # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
+      # raise exception testing: see a few lines below
       # since we are no longer reloading the playlists after a remove we can nolonger use snapshot id
       # we do reload the tracklist after each delete
 
@@ -1057,6 +1057,7 @@ class SpfLoader():
           pos = spotRmTrackList[0]['positions'][0]
           tn = session['mPlTracksDict'][plId][pos]['Track Name']
 
+      # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
       time.sleep(2) # it may take a few seconds for spotify to complete the remove
 

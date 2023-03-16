@@ -359,6 +359,8 @@
     let durTimeDiff = $('#dupsTab_cbDuration').val();
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ getDupsTrackList: 'getDupsTrackList', modePlayList: vModePlaylist, modeSearch: vModeSearch, durTimeDiff: durTimeDiff }), });
+                                       // this will reproduce the error: browser's cache is using old version of this javascript file
+                                       // body: JSON.stringify({ getDupsTrackList: 'getDupsTrackList', modePlayList: vModePlaylist, modeSearch: vModeSearch }), });
     if (!response.ok)
       tabs_throwErrHttp('dupsTab_afLoadDupsTable()', response.status, 'dupsTab_errInfo');
     else

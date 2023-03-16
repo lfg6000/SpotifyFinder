@@ -8,6 +8,7 @@ errIdxCode   = 0
 errNone = 1
 
 errSessionTimeOut = -742
+errRmJavaScriptSyncErr = -420
 errSpotiyLogin = -1
 errLoadPlDict = -2
 errSetPlSelectedDict = -3

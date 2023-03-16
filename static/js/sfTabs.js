@@ -429,13 +429,32 @@
         'A session restart is needed.\n\n' +
         'Press Ok and you will be redirected to the home page.\n' +
         'Press Cancel and you will be redirected to the log viewer.\n\n' +
-        'Details:\n' +
-        '1) This error usually occurs when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n\n' +
-        '2) If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n\n\n' +
+        'The Primary reason this error occurs:\n' +
+        '- The Spotify database entry for your playlist needs to be refreshed.\n' +
+        'It is easy to do: \n' +
+        '1) Rename the playlist that has errors.\n' +
+        '2) Create a new playlist reusing the original playlist name. \n' +
+        '3) Copy all the tracks from the existing/old playlist to the new playlist.\n' +
+        '4) Use the new playlist.\n\n' +
+        'The Secondary reason why this error occurs:\n' +
+        '1) This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
+        '2) If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n' +
         'Support:\n' +
-        'If you send instructions on how to reproduce the error we will have a look.   Email: spotifyfinderapp@gmail.com\n';
+        'If the above suggestions do not work for you send an email and i will have a look.   Email: spotifyfinderapp@gmail.com\n';
     }
 
+    if (errStr.search('-420') != -1)
+    {
+      msg = 'Your browsers cache has an old javascript file.\n' +
+            'Your browsers cache needs to be cleared.\n' +
+            'Just clear the cache and nothing else.\n' +
+            'Go into the browsers settings and clear the cache.\n' +
+            'Or use windows keyboard shortcut: Control-Shift-Delete.\n' +
+            'After clearing the browsers cache restart the browser.\n\n' +
+            'Press Ok and you will be redirected to the home page.\n' +
+            'Press Cancel and you will be redirected to the error log viewer.\n\n' +
+            'For support: email error log text to: spotifyfinderapp@gmail.com\n';
+    }
 
     if (confirm(msg) == true)
     {
