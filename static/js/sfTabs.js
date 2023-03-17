@@ -435,6 +435,7 @@
         '1) Rename the playlist that has errors.\n' +
         '2) Create a new playlist reusing the original playlist name. \n' +
         '3) Copy all the tracks from the existing/old playlist to the new playlist.\n' +
+        '   - Ctl-A/Cmd-A to select all the songs then drag to new playlist.\n' +
         '4) Use the new playlist.\n\n' +
         'The Secondary reason why this error occurs:\n' +
         '1) This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
