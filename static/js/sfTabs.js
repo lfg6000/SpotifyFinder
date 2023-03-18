@@ -425,17 +425,18 @@
     console.log('splits = ', errMsgSplit);
     if (errMsgSplit[2] === "errCode: -5") // errRmTracksByPosFromSpotPlaylist = -5
     {
-      msg = 'A remove track by position error has occured.\n\n' +
+      msg = 'One or more of the tracks you selected were not removed.\n\n' +
         'A session restart is needed.\n\n' +
         'Press Ok and you will be redirected to the home page.\n' +
         'Press Cancel and you will be redirected to the log viewer.\n\n' +
-        'The Primary reason this error occurs:\n' +
-        '- The Spotify database entry for your playlist needs to be refreshed.\n' +
+        'The Primary reason for tracks not being removed:\n' +
+        '- The Spotify database entries for your playlist needs to be refreshed.\n' +
         'It is easy to do: \n' +
         '1) Rename the playlist that has errors.\n' +
         '2) Create a new playlist reusing the original playlist name. \n' +
         '3) Copy all the tracks from the existing/old playlist to the new playlist.\n' +
-        '   - Ctl-A/Cmd-A to select all the songs then drag to new playlist.\n' +
+        '   - Ctl-A/Cmd-A to select all the songs in the old playlist and\n' +
+        '      then drag them to the new playlist.\n' +
         '4) Use the new playlist.\n\n' +
         'The Secondary reason why this error occurs:\n' +
         '1) This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
