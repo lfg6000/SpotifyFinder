@@ -44,6 +44,8 @@ errPlayTracks = -32
 errRmTracksByIdFromSpotPlaylist = -33
 errRmTracksById = -34
 errRmTracksByPosSyncErr = -35
+errCreatePlaylist = -36
+errDeletePlaylist = -37
 
 
 

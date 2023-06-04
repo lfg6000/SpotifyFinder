@@ -636,6 +636,91 @@
     }
   }
 
+
+  //-----------------------------------------------------------------------------------------------
+  function plTabs_btnDelete()
+  {
+    console.log('__SF__plTabs_btnDelete()');
+    let cnt = vPlTable.rows({ selected: true }).count();
+    if (cnt == 0)
+    {
+      alert('First select a playlist before pressing delete.');
+      return;
+    }
+    if (cnt > 1)
+    {
+      alert('You can only delete one playlist at a time.');
+      return;
+    }
+
+    let plNm =  '';
+    let plId =  '';
+
+    $.each(vPlTable.rows('.selected').nodes(), function(i, item)
+    {
+      let rowData = vPlTable.row(this).data();
+      plNm =  rowData[1];
+      plId =  rowData[5];
+    });
+
+    msg = 'Please confirm that you would like to delete this playlist: \n' +
+           '   ' + plNm + '\n\n' +
+          'FYI: You can recover deleted playlists on you spotify account page.\n';
+
+    if (confirm(msg) == false)
+      return;
+
+    plTab_afDeletePlaylistSeq(plNm, plId);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afDeletePlaylistSeq(plNm, plId)
+  {
+    try
+    {
+      var deleteErr = false;
+      console.log("__SF__plTab_afDeletePlaylistSeq()");
+      vPlTabLoading = true;
+      tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
+      tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Deleting Playlist...', showStrImmed=true);
+      await tracksTab_afDeletePlaylist(plNm, plId);
+    }
+    catch(err)
+    {
+      deleteErr = true;
+      // console.log('__SF__plTab_afDeletePlaylistSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__plTab_afDeletePlaylistSeq() finally.');
+      tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
+      vPlTabLoading = false;
+      if (deleteErr == false)
+        plTabs_btnReload();
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afDeletePlaylist(plNm, plId)
+  {
+    console.log('__SF__tracksTab_afDeletePlaylist() - vUrl - CreatePlaylist');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ deletePlaylist: 'deletePlaylist',
+                                                                    plNm: plNm,
+                                                                    plId: plId,
+                                                                  }), });
+    if (!response.ok)
+      tabs_throwErrHttp('tracksTab_afDeletePlaylist()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tracksTab_afDeletePlaylist() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tracksTab_afDeletePlaylist()', reply['errRsp'], 'tracksTab_errInfo')
+    }
+  }
+
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnHelp()
   {

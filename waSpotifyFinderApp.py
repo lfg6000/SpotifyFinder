@@ -398,6 +398,20 @@ def Tabs():
             oLoader.updateDbVisitCnt(mysql, type)
           return jsonify({ 'errRsp': retVal })
 
+        if (key == 'createPlaylist'):
+          print('>>/Tabs createPlaylist()')
+          newPlNm = rqJson['newPlNm']
+          createUriTrackList = rqJson['createUriTrackList']
+          retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
+          return jsonify({ 'errRsp': retVal })
+
+        if (key == 'deletePlaylist'):
+          print('>>/Tabs deletePlaylist()')
+          plNm = rqJson['plNm']
+          plId = rqJson['plId']
+          retVal = oLoader.deletePlaylist(plNm, plId)
+          return jsonify({ 'errRsp': retVal })
+
         if (key == 'getErrLog'):
           # print('>>/Tabs getErrLog()')
           retVal, errLog = oLoader.getErrLog()

@@ -181,6 +181,7 @@ class SpfLoader():
         raise Exception('Cfg file error.  sSpotifyClientSecret is empty. cfg file: ', vPath)
 
       print(f">>loader.loadCfgFile() - the redirectUrl:   ({this.sSpotifyRedirectUri})", flush=True)
+      print(f">>loader.loadCfgFile() - the local host (http://127.0.0.1:5000)", flush=True)
 
       return 1
 
@@ -1149,7 +1150,7 @@ class SpfLoader():
 
     # if any of the tracks in the mvTrackList are already in the dest pl they are removed so we are creating dups in the dest pl
     if plIdDest not in session['mPlTracksDict']:
-      raise Exception('throwning loader.cleanMvCpTrackList() - requested tracks not found for plId = ' + plId)
+      raise Exception('throwning loader.cleanMvCpTrackList() - requested tracks not found for plId = ' + plIdDest)
 
     plTrackList = session['mPlTracksDict'].get(plIdDest)
 
@@ -1703,3 +1704,63 @@ class SpfLoader():
       retVal = [sfConst.errPlayTracks, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when trying to start playback', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal,
+
+  # ---------------------------------------------------------------
+  def createPlaylist(this, newPlNm, createUriTrackList):
+    # print('>>loader.createPlaylist()')
+    try:
+      # raise Exception('throwing loader.createPlaylist()')
+
+      nTracks = len(createUriTrackList)
+      if nTracks == 0:
+        return [sfConst.errNone]
+
+      iEnd = 0
+      iRem = nTracks
+      newPlId = ''
+      # we have to add the tracks 100 at a time so we loop until finished
+      while (iRem > 0):
+        iStart = iEnd
+        if (iRem > 100):
+          iEnd = iEnd + 100
+        else:
+          iEnd = iEnd + iRem
+
+        print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
+        addList = createUriTrackList[iStart:iEnd]
+        iRem = iRem - (iEnd - iStart)
+
+        # if this is the first loop thru the list of tracks create a new playlist
+        if newPlId == '':
+          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='sorted using spotifyFinder.com')
+          newPlId = results['id']
+
+        this.oAuthGetSpotifyObj().playlist_add_items(newPlId, addList)
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errCreatePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to create track list for selected artists.', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def deletePlaylist(this, plNm, plId):
+    # print('>>loader.deletePlaylist()')
+    try:
+      # raise Exception('throwing loader.deletePlaylist()')
+
+      if plNm == '':
+        return [sfConst.errNone]
+
+      if plId == '':
+        return [sfConst.errNone]
+
+      this.oAuthGetSpotifyObj().current_user_unfollow_playlist(plId)
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errDeletePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to delete playlist.', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal

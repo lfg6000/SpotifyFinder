@@ -758,3 +758,106 @@
     searchTab_SetSearchTextFocus();
   }
 
+    //-----------------------------------------------------------------------------------------------
+  function searchTab_btnSelectAll()
+  {
+    // console.log('__SF__searchTab_btnSelectAll()');
+    vSearchTabLoading = true;
+    let rowData;
+    var cntInvalidTrackId = 0;
+    vSearchTable.rows().every(function ()
+    {
+      let rowData = this.data();
+      // console.log('__SF__searchTab_btnSelectAll() - track id ' + rowData[7] + ', len = ' + rowData[7].length);
+      if (!rowData[8])    // !trackId tests for "", null, undefined, false, 0, NaN
+        cntInvalidTrackId++;
+      else
+        this.select();
+    });
+    vSearchTabLoading = false;
+    searchTab_updateSelectedCnt();
+  }
+
+    //-----------------------------------------------------------------------------------------------
+  function searchTab_btnClearPlNmText()
+  {
+    // console.log('__SF__searchTab_btnClearPlNmText()');
+    $("#searchTab_plNmTextInput").val('');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnCreatePlaylist()
+  {
+    // console.log('__SF__searchTab_btnCreatePlaylist()');
+    searchTab_afCreatePlaylistSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function searchTab_afCreatePlaylistSeq()
+  {
+    try
+    {
+      // console.log('__SF__searchTab_afCreatePlaylistSeq()');
+
+      done = false
+
+      if ((vSearchTable.rows({ selected: true }).count() == 0))
+      {
+        alert('At least one track must be selected to create a new playlist.');
+        return;
+      }
+
+      let vNewPlNm = $("#searchTab_plNmTextInput").val();
+      if (vNewPlNm == '')
+      {
+        alert('Please enter a name for the new playlist.');
+        return;
+      }
+
+      let plNmAlreadyExists = false;
+      let plDict = await tabs_afGetPlDict();
+      $.each(plDict, function (key, values)
+      {
+        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
+          plNmAlreadyExists = true;
+      });
+
+      if (plNmAlreadyExists == true)
+      {
+        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
+        return;
+      }
+
+      vSearchTabLoading = true;
+      tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Creating Playlist...', showStrImmed=true);
+
+      let rowData;
+      let createUriTrackList = [];
+      $.each(vSearchTable.rows('.selected').nodes(), function(i, item)
+      {
+        rowData = vSearchTable.row(this).data();
+        if (!rowData[8])    // !trackId tests for "", null, undefined, false, 0, NaN
+          cntInvalidTrackId++;
+        else
+          createUriTrackList.push(rowData[10]); // track uri
+      });
+      // console.log('searchTab_afCreatePlaylistSeq() createUriTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
+
+      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+      done = true
+    }
+    catch(err)
+    {
+      // console.log('__SF__searchTab_btnCpTracks() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__searchTab_afMvTracksSeq() finally.');
+      tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+      vSearchTabLoading = false;
+      if (done)
+        plTabs_btnReload()
+    }
+  }
+

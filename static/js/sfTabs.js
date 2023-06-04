@@ -239,6 +239,26 @@
     // }
   }
 
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afGetPlDict()
+  {
+    // console.log('__SF__tabs_afLoadPlDict()');
+    console.log('__SF__tabs_afGetPlDict() - vUrl - getPlDict');
+    let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
+                                      body: JSON.stringify({getPlDict: 'getPlDict'}),
+    });
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afGetPlDict()', response.status, 'plTab_errInfo');
+    else {
+      let reply = await response.json();
+      // console.log('__SF__tabs_afGetPlDict() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tabs_afGetPlDict()', reply['errRsp'], 'plTab_errInfo')
+      return reply['plDict']
+    }
+  }
+
   //-----------------------------------------------------------------------------------------------
   async function tabs_afRmTracksByPos(rmTrackList)
   {
@@ -256,13 +276,13 @@
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ rmTracksByPos: 'rmTracksByPos', rmTrackList: rmTrackList }), });
     if (!response.ok)
-      tabs_throwErrHttp('tabs_afRmTracksByPos()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tabs_afRmTracksByPos()', response.status, 'tabs_errInfo');
     else
     {
       let reply = await response.json();
       // console.log('__SF__tabs_afRmTracksByPos() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tabs_afRmTracksByPos()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tabs_afRmTracksByPos()', reply['errRsp'], 'tabs_errInfo')
     }
   }
 
@@ -277,13 +297,34 @@
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ mvcpTracks: 'mvcpTracks', destPlId: destPlId, trackList: trackList, type: type }), });
     if (!response.ok)
-      tabs_throwErrHttp('tabs_afMvCpTracks()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tabs_afMvCpTracks()', response.status, 'tabs_errInfo');
     else
     {
       let reply = await response.json();
       // console.log('__SF__tabs_afMvCpTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tabs_afMvCpTracks()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tabs_afMvCpTracks()', reply['errRsp'], 'tabs_errInfo')
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afCreatePlaylist(newPlNm, createUriTrackList) {
+    // console.log('__SF__tabs_afCreatePlaylist() - vUrl - CreatePlaylist');
+    let response = await fetch(vUrl, {
+      method: 'POST', headers: {'Content-Type': 'application/json',},
+      body: JSON.stringify({
+        createPlaylist: 'createPlaylist',
+        newPlNm: newPlNm,
+        createUriTrackList: createUriTrackList,
+      }),
+    });
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afCreatePlaylist()', response.status, 'tabs_errInfo');
+    else {
+      let reply = await response.json();
+      // console.log('tabs_afCreatePlaylist() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tabs_afCreatePlaylist()', reply['errRsp'], 'tabs_errInfo')
     }
   }
 
@@ -431,16 +472,13 @@
         'Press Cancel and you will be redirected to the log viewer.\n\n' +
         'The Primary reason for tracks not being removed:\n' +
         '- The Spotify database entries for your playlist needs to be refreshed.\n' +
-        'It is easy to do: \n' +
-        '1) Rename the playlist that has errors.\n' +
-        '2) Create a new playlist reusing the original playlist name. \n' +
-        '3) Copy all the tracks from the existing/old playlist to the new playlist.\n' +
-        '   - Ctl-A/Cmd-A to select all the songs in the old playlist and\n' +
-        '      then drag them to the new playlist.\n' +
-        '4) Use the new playlist.\n\n' +
+        '- The easiest way to do this:\n' +
+        '  - Recreate the playlist using the SpotifyFinder tracks tab: \n' +
+        '    1) Go to tracks tab and create a new playlist from the existing playlist.\n' +
+        '    2) Use the new playlist.\n\n' +
         'The Secondary reason why this error occurs:\n' +
-        '1) This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
-        '2) If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n' +
+        '- This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
+        '- If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n' +
         'Support:\n' +
         'If the above suggestions do not work for you send an email and i will have a look.   Email: spotifyfinderapp@gmail.com\n';
     }

@@ -772,3 +772,107 @@
       vArtistsTabLoading = false;
     }
   }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnSelectAll()
+  {
+    // console.log('__SF__artistsTab_btnSelectAll()');
+    vArtistsTabLoading = true;
+    let rowData;
+    var cntInvalidTrackId = 0;
+    vArtistTracksTable.rows().every(function ()
+    {
+      let rowData = this.data();
+      // console.log('__SF__artistsTab_btnSelectAll() - track id ' + rowData[7] + ', len = ' + rowData[7].length);
+      if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+        cntInvalidTrackId++;
+      else
+        this.select();
+    });
+    // console.log('__SF__artistsTab_btnSelectAll() - invalid track id cnt = ' + cntInvalidTrackId);
+    // vArtistTracksTable.rows().select();
+    vArtistsTabLoading = false;
+    artistsTab_updateSelectedCnt();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnClearPlNmText()
+  {
+    // console.log('__SF__artistsTab_btnClearPlNmText()');
+    $("#artistsTab_plNmTextInput").val('');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnCreatePlaylist()
+  {
+    // console.log('__SF__artistsTab_btnCreatePlaylist()');
+    artistsTab_afCreatePlaylistSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function artistsTab_afCreatePlaylistSeq()
+  {
+    try {
+      // console.log('__SF__artistsTab_afCreatePlaylistSeq()');
+      done = false
+      if ((vArtistTracksTable.rows({selected: true}).count() == 0))
+      {
+        alert('At least one track must be selected to create a new playlist.');
+        return;
+      }
+
+      let vNewPlNm = $("#artistsTab_plNmTextInput").val();
+      if (vNewPlNm == '')
+      {
+        alert('Please enter a name for the new playlist.');
+        return;
+      }
+
+      let plNmAlreadyExists = false;
+      let plDict = await tabs_afGetPlDict();
+      $.each(plDict, function (key, values)
+      {
+        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
+          plNmAlreadyExists = true;
+      });
+
+      if (plNmAlreadyExists == true)
+      {
+        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
+        return;
+      }
+
+      vArtistsTabLoading = true;
+      vArtistNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
+      tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Creating Playlist...', showStrImmed=true);
+
+      let rowData;
+      let createUriTrackList = [];
+      $.each(vArtistTracksTable.rows('.selected').nodes(), function(i, item)
+      {
+        rowData = vArtistTracksTable.row(this).data();
+        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+          cntInvalidTrackId++;
+        else
+          createUriTrackList.push(rowData[9]); // track uri
+      });
+      // console.log('artistsTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
+
+      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+      done = true
+    }
+    catch(err)
+    {
+      // console.log('__SF__artistsTab_btnCpTracks() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__artistsTab_afMvTracksSeq() finally.');
+      tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
+      vArtistNamesTable.keys.disable();
+      vArtistsTabLoading = false;
+      if (done)
+        plTabs_btnReload()
+    }
+  }
