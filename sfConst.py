@@ -46,6 +46,8 @@ errRmTracksById = -34
 errRmTracksByPosSyncErr = -35
 errCreatePlaylist = -36
 errDeletePlaylist = -37
+errSpotifyLogin = -38
+errAuthCallback = -39
 
 
 

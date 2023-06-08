@@ -202,17 +202,33 @@ def home():
 def SpotifyLogin():
   # cookieDump('SpotifyLogin', 'session')
   # cookieDump('SpotifyLogin', 'plDefault')
-  authUrl = oLoader.oAuthLogin()
-  return redirect(authUrl)
+  try:
+    authUrl = oLoader.oAuthLogin()
+    # raise Exception('throwing app.route err in SpotifyLogin()')
+    return redirect(authUrl)
+  except Exception:
+    exTyp, exObj, exTrace = sys.exc_info()
+    es = f"errSpotifyLogin():{exTrace.tb_lineno},  typ:{str(exTyp)},  obj:{str(exObj)}"
+    retVal = [sfConst.errSpotifyLogin, oLoader.getDateTm(), 'exception in SpotifyLogin()', 'login issues', es, 'redirect failed?']
+    pprint.pprint(retVal)
+    return "401- SpotifyFinder: Spotify Login Failed.  Try again."
 
 #----------------------------------------------------------------------------------------------
 @app.route("/oAuthCallback")
 def oAuthCallback():
   # cookieDump('oAuthCallback', 'session')
   # cookieDump('oAuthCallback', 'plDefault')
-  oLoader.oAuthCallback()
-  oLoader.initLoader()
-  return redirect("Tabs")
+  try:
+    oLoader.oAuthCallback()
+    oLoader.initLoader()
+    # raise Exception('throwing app.route err in oAuthCallback()')
+    return redirect("Tabs")
+  except Exception:
+    exTyp, exObj, exTrace = sys.exc_info()
+    es = f"oAuthCallback():{exTrace.tb_lineno},  typ:{str(exTyp)},  obj:{str(exObj)}"
+    retVal = [sfConst.errAuthCallback, oLoader.getDateTm(), 'exception in oAuthCallback()', 'login issues', es, 'redirect failed?']
+    pprint.pprint(retVal)
+    return "401 - SpotifyFinder: Spotify Login Failed. Try again."
 
 #----------------------------------------------------------------------------------------------
 @app.route("/Tabs", methods=['get', 'post'])
@@ -399,7 +415,7 @@ def Tabs():
           return jsonify({ 'errRsp': retVal })
 
         if (key == 'createPlaylist'):
-          print('>>/Tabs createPlaylist()')
+          # print('>>/Tabs createPlaylist()')
           newPlNm = rqJson['newPlNm']
           createUriTrackList = rqJson['createUriTrackList']
           retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
