@@ -412,13 +412,16 @@ class SpfLoader():
         visitCntMv = 0
         visitCntCp = 0
         visitCntSearch = 0
+        visitCntCreate = 0
+        visitCntDelPl = 0
         visitCntHelp = 0
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
                        (userId, userName, country,
                         int(visitCnt), int(visitCntTracks), int(visitCntDups), int(visitCntArt),
-                        int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntHelp),
+                        int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch),
+                        int(visitCntCreate), int(visitCntDelPl), int(visitCntHelp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
-                        sqlDate))
+                        sqlDate, sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
 
       mysql.connection.commit()
@@ -465,6 +468,8 @@ class SpfLoader():
         visitCntMv = user['visitCntMv']
         visitCntCp = user['visitCntCp']
         visitCntSearch = user['visitCntSearch']
+        visitCntCreate = user['visitCntCreate']
+        visitCntDelPl = user['visitCntDelPl']
         visitCntHelp = user['visitCntHelp']
 
         if (cntType == 'Tracks'):
@@ -481,11 +486,15 @@ class SpfLoader():
           visitCntCp = visitCntCp + 1
         if (cntType == 'Search'):
           visitCntSearch = visitCntSearch + 1
+        if (cntType == 'Create'):
+          visitCntCreate = visitCntCreate + 1
+        if (cntType == 'DelPl'):
+          visitCntDelPl = visitCntDelPl + 1
         if (cntType == 'Help'):
           visitCntHelp = visitCntHelp + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
-                                      (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntHelp), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntCreate=%s, visitCntDelPl=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
+                                      (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntCreate), int(visitCntDelPl), int(visitCntHelp), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()

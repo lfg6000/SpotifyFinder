@@ -189,6 +189,7 @@
 
         $('#tracksTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
 
+        await tracksTab_afIncTrackCnt();
         await tracksTab_afLoadPlNameTable();
         await tracksTab_afLoadPlTracks();
 
@@ -814,6 +815,25 @@
     vTrackUris.push(rowData[9]);
     // console.log('trackUris = ' + vTrackUris);
     await tracksTab_afPlayTracks(vTrackUris);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afIncTrackCnt()
+  {
+    // experimental code for a potential play btn feature
+
+    // console.log('__SF__tracksTab_afIncTrackCnt() - vUrl - incTrackCnt');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ incTrackCnt: 'incTrackCnt'}), });
+    if (!response.ok)
+      tabs_throwErrHttp('tracksTab_afIncTrackCnt()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tracksTab_afPlayTracks() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tracksTab_afIncTrackCnt()', reply['errRsp'], 'tracksTab_errInfo')
+    }
   }
 
   //-----------------------------------------------------------------------------------------------

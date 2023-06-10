@@ -336,6 +336,13 @@ def Tabs():
           retVal, loadedPlIds = oLoader.loadPlTracks1x(plId)
           return jsonify({ 'errRsp': retVal, 'loadedPlIds': loadedPlIds})
 
+        if (key == 'incTrackCnt'):
+          # print('>>/Tabs incTrackCnt()')
+          if (oLoader.sMySqlDbName != ''):
+            oLoader.updateDbVisitCnt(mysql, 'Tracks')
+          retVal = [sfConst.errNone]
+          return jsonify({ 'errRsp': retVal})
+
         if (key == 'getPlSelectedDict'):
           # print('>>/Tabs getPlSelectedDict')
           retVal, plSelectedDict = oLoader.getPlSelectedDict()
@@ -419,6 +426,8 @@ def Tabs():
           newPlNm = rqJson['newPlNm']
           createUriTrackList = rqJson['createUriTrackList']
           retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Create')
           return jsonify({ 'errRsp': retVal })
 
         if (key == 'deletePlaylist'):
@@ -426,6 +435,8 @@ def Tabs():
           plNm = rqJson['plNm']
           plId = rqJson['plId']
           retVal = oLoader.deletePlaylist(plNm, plId)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'DelPl')
           return jsonify({ 'errRsp': retVal })
 
         if (key == 'getErrLog'):
