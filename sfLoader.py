@@ -717,8 +717,7 @@ class SpfLoader():
         if (ownerId == session['mUserId']):
           session['mPlaylistCntUsr'] += 1
           session['mTotalTrackCntUsr'] += nTracks
-        # id = ownerNm + ' / ' + ownerId
-        id = ownerNm  # just using
+        id = ownerNm + ' / ' + ownerId
         if id not in session['mPlDictOwnersList']:
           session['mPlDictOwnersList'].append(id)
         session['mLastPlLoaded'] = item['name']

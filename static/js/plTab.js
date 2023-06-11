@@ -12,7 +12,7 @@
   var vCookie = '';
   var vSid = '';
 
-  const cbOwnerDefault = 'Select Playlists By Owners Name';
+  const cbOwnerDefault = '     Select Playlists By Owners Name / Owners Id     ';
 
   //-----------------------------------------------------------------------------------------------
   function plTab_init(tableHeight=300)
@@ -612,8 +612,7 @@
     vPlTable.rows().every(function()
     {
       rowData = this.data();
-      // if ((rowData[4] + ' / ' + rowData[6]) === curSel) // ownerName / ownerId === curSel
-      if (rowData[4] === curSel) // just using ownerName
+      if ((rowData[4] + ' / ' + rowData[6]) === curSel) // ownerName / ownerId === curSel
       {
         this.select();
         if (selectRowData === '')  // recreate the unique class name assigned to row during init
