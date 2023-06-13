@@ -885,9 +885,9 @@ class SpfLoader():
           # https://github.com/spotify/web-api/issues/989
           # https://github.com/JMPerez/spotify-dedup/issues/15
           # https://github.com/JMPerez/spotify-dedup/commit/60be94cfd91bde28fb42b02b5b8a07d585866c68
-          if 'linked_from' in track:
-            if 'uri' in track['linked_from']:
-              print(f">>loader.loadPlTracks1x() - UserId: {plValues['Playlist Owners Id']}, UserNm: {plValues['Playlist Owners Name']}, plId: {plId}, plNm: {plValues['Playlist Name']}, trackId: {track['id']}, trackNm: {track['name']}, trackPos: {(str(trackCnt)).zfill(4)}, trackUri: {track['uri']}, trackLinkedUri: {track['linked_from']['uri']}")
+          # if 'linked_from' in track:
+          #   if 'uri' in track['linked_from']:
+          #     print(f">>loader.loadPlTracks1x() - UserId: {plValues['Playlist Owners Id']}, UserNm: {plValues['Playlist Owners Name']}, plId: {plId}, plNm: {plValues['Playlist Name']}, trackId: {track['id']}, trackNm: {track['name']}, trackPos: {(str(trackCnt)).zfill(4)}, trackUri: {track['uri']}, trackLinkedUri: {track['linked_from']['uri']}")
 
           # this uriLen code is for debugging...are all the remove by pos errs occuring when the uri is not legit because spotify limits??
           # example track uri spotify:track:088m5svYOh6E6VBfLbwUqf,  prefix:tackId
@@ -1087,9 +1087,6 @@ class SpfLoader():
         if plId in session['mPlTracksDict']:
           pos = spotRmTrackList[0]['positions'][0]
           tn = session['mPlTracksDict'][plId][pos]['Track Name']
-
-      # for item in spotRmTrackList:
-      #   if len(item['uri'])
 
       # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
