@@ -189,7 +189,7 @@
 
         $('#tracksTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
 
-        await tracksTab_afIncTrackCnt();
+        // await tracksTab_afIncTrackCnt();  // did this addition cause -26/errLoadPlTracks1x
         await tracksTab_afLoadPlNameTable();
         await tracksTab_afLoadPlTracks();
 
