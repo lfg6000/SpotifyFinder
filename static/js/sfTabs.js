@@ -483,6 +483,17 @@
         '- if you are interested helping sort this out you can email me at:  spotifyfinderapp@gmail.com\n';
     }
 
+    if (errMsgSplit[2] === "errCode: -26")
+    {
+      msg = 'Spotify is having trouble returning track info.\n' +
+            'Getting track info has been failing on and off since June 10, 2023.\n' +
+            'I have contacted Spotify.\n' +
+            'Try again in a little while.\n\n' +
+            'A session restart is needed.\n' +
+            'Press Ok and you will be redirected to the home page.\n' +
+            'Press Cancel and you will be redirected to the log viewer.\n\n\n';
+    }
+
     if (errStr.search('-420') != -1)
     {
       msg = 'Your browsers cache has an old javascript file.\n' +
