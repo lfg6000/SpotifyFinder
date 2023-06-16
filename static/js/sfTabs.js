@@ -467,28 +467,45 @@
     if (errMsgSplit[2] === "errCode: -5") // errRmTracksByPosFromSpotPlaylist = -5
     {
       msg = 'One or more of the tracks you selected were not removed.\n\n' +
-        'A session restart is needed.\n\n' +
+        'I need a few users to help me sort out why this error occurs.\n' +
+        'I have not been able to reproduce this error using my Spotify playlists.\n' +
+        'If you are willing to assist with fixing this error send me an email.\n' +
+        '             spotifyfinderapp@gmail.com\n\n' +
+        'A session restart is needed.\n' +
         'Press Ok and you will be redirected to the home page.\n' +
         'Press Cancel and you will be redirected to the log viewer.\n\n\n' +
         'The Primary reason for tracks not being removed:\n' +
         '- The Spotify database entries for your playlist need to be refreshed.\n' +
-        '- The easiest way to do this refresh the Spotify database:\n' +
+        '- The easiest way to refresh the Spotify database is to:\n' +
         '  - Recreate the playlist using the SpotifyFinder Tracks tab: \n' +
         '    1) Go to the Tracks tab and create a new playlist from the existing playlist: (select playlist, select all, enter a playlist name, press create playlist)\n' +
         '    2) Use the new playlist and the remove will work ok.\n\n\n' +
         'The Secondary reason why this error occurs:\n' +
         '- This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
-        '- If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n\n' +
-        'I need your assistance reproducing this issue so I understand why this error is occurring and then fix it.\n' +
-        '- if you are interested helping sort this out you can email me at:  spotifyfinderapp@gmail.com\n';
+        '- If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n\n';
     }
+    // {
+    //   msg = 'One or more of the tracks you selected were not removed.\n\n' +
+    //     'A session restart is needed.\n\n' +
+    //     'Press Ok and you will be redirected to the home page.\n' +
+    //     'Press Cancel and you will be redirected to the log viewer.\n\n\n' +
+    //     'The Primary reason for tracks not being removed:\n' +
+    //     '- The Spotify database entries for your playlist need to be refreshed.\n' +
+    //     '- The easiest way to refresh the Spotify database is to:\n' +
+    //     '  - Recreate the playlist using the SpotifyFinder Tracks tab: \n' +
+    //     '    1) Go to the Tracks tab and create a new playlist from the existing playlist: (select playlist, select all, enter a playlist name, press create playlist)\n' +
+    //     '    2) Use the new playlist and the remove will work ok.\n\n\n' +
+    //     'The Secondary reason why this error occurs:\n' +
+    //     '- This error will occur when you have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.\n' +
+    //     '- If you change a playlist outside of SpotifyFinder, while SpotifyFinder is opened in your browser, you must press \'Reload from Spotify\' to update SpotifyFinder with the current track positons. \n\n\n' +
+    //     'I need your assistance reproducing this issue so I understand why this error is occurring and then fix it.\n' +
+    //     '- if you are interested helping sort this out you can email me at:  spotifyfinderapp@gmail.com\n';
+    // }
 
     if (errMsgSplit[2] === "errCode: -26")
     {
-      msg = 'Spotify is having trouble returning track info.\n' +
-            'Getting track info has been failing on and off since June 10, 2023.\n' +
-            'I have contacted Spotify.\n' +
-            'Try again in a little while.\n\n' +
+      msg = 'Unable to load playlist tracks because this app is hitting a Spotify rate limit.\n' +
+            'Wait 30 seconds and try again.\n' +
             'A session restart is needed.\n' +
             'Press Ok and you will be redirected to the home page.\n' +
             'Press Cancel and you will be redirected to the log viewer.\n\n\n';
