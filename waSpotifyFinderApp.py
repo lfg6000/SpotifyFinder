@@ -419,12 +419,21 @@ def Tabs():
           return jsonify({ 'errRsp': retVal })
 
         if (key == 'deletePlaylist'):
-          print('>>/Tabs deletePlaylist()')
+          # print('>>/Tabs deletePlaylist()')
           plNm = rqJson['plNm']
           plId = rqJson['plId']
           retVal = oLoader.deletePlaylist(plNm, plId)
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'DelPl')
+          return jsonify({ 'errRsp': retVal })
+
+        if (key == 'renamePlaylist'):
+          # print('>>/Tabs renamePlaylist()')
+          plId = rqJson['plId']
+          newPlNm = rqJson['newPlNm']
+          retVal = oLoader.renamePlaylist(plId, newPlNm)
+          # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+          #   oLoader.updateDbVisitCnt(mysql, 'PlNm')
           return jsonify({ 'errRsp': retVal })
 
         if (key == 'getErrLog'):

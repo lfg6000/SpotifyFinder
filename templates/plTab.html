@@ -32,14 +32,39 @@
 
 
   <div class="borderGreen2"></div>
-  <div id="plTabs_outerRow1" class="clearfix"  style="margin: 4px 0px 4px 0px;">
-    <div class="innerRowLeft rowMargin1"><select class="curPtr" id="plTabs_cbUsers" onchange="plTabs_cbPlOwnersOnChange()" title="A list of unique Owners Name/Owners Id for all the playlists in your Spotify Library.   Owners Name/Owners Id represents the owner/creator of a playlist.">Owners Name/Owners Id</select></div>
-    <div class="innerRowLeft rowMargin1"><button class="curPtr" onClick="plTabs_btnDelete()" title="Delete playlist">Delete</button></div>
-    <div class="innerRowLeft rowMargin1"><button class="curPtr" onClick="plTabs_btnSelectAll()" title="Select all the playlists (not recommended if your total track count is high)">Select All</button></div>
-    <div class="innerRowLeft rowMargin1"><button class="curPtr" onClick="plTabs_btnClearAll()" title="Unselect all the playlists">Clear All</button></div>
-    <div class="innerRowLeft rowMargin1"><button class="curPtr" onClick="plTabs_btnRestore()" title="Clear search boxes and restore original sort">Restore</button></div>
-    <div class="innerRowLeft rowMargin1"><button class="curPtr" onClick="plTabs_btnSavePlDefault()" title="Remember Selected Playlists for future visits to spotifyFinder.com">Save</button></div>
-    <div class="innerRowLeft rowMargin1"><button class="curPtr" onClick="plTabs_btnHelp()" title="View Playlist Tab Help Info">?</button></div>
+  <div id="plTabs_outerRow1" class="clearfix">
+
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playlist Selection</legend>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><select class="curPtr" id="plTabs_cbUsers" onchange="plTabs_cbPlOwnersOnChange()" title="A list of owners for all the playlists in your Spotify Library.">Owners Name</select></div>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button class="curPtr" onClick="plTabs_btnSelectAll()" title="Select all the playlists (not recommended if your total track count is high)">Select All</button></div>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button class="curPtr" onClick="plTabs_btnClearAll()" title="Unselect all the playlists">Clear All</button></div>
+        </fieldset>
+      </span>
+    </div>
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Rename Playlist</legend>
+         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="curPtr" onclick="plTab_btnRenamePlaylist()"  title="Rename a playlist.   Only one playlist can be selected.">Rename Playlist</button></div>
+         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="btnClrSearch curPtr" onclick="plTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>
+         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><input style="margin: 0px 6px 2px 0px; padding: 1px 6px 2px 6px;" size="30" id="plTab_plNmTextInput" type="text"  placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>
+        </fieldset>
+      </span>
+    </div>
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Delete Playlist</legend>
+          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 0px 2px 10px;"><button class="curPtr" onClick="plTabs_btnDelete()" title="Delete a playlist.   Only one playlist can be selected.">Delete Playlist</button></div>
+        </fieldset>
+      </span>
+    </div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onClick="plTabs_btnRestore()" title="Clear search boxes and restore original sort">Restore</button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onClick="plTabs_btnSavePlDefault()" title="Remember Selected Playlists for future visits to spotifyFinder.com">Save</button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onClick="plTabs_btnHelp()" title="View Playlist Tab Help Info">?</button></div>
   </div>
 
 

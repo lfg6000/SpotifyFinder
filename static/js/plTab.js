@@ -12,7 +12,7 @@
   var vCookie = '';
   var vSid = '';
 
-  const cbOwnerDefault = '     Select Playlists By Owners Name / Owners Id     ';
+  const cbOwnerDefault = 'Select By Owner\'s Name';
 
   //-----------------------------------------------------------------------------------------------
   function plTab_init(tableHeight=300)
@@ -64,7 +64,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight,
+      "scrollY":         tableHeight - 18,
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false, // background color of sorted column does not change
@@ -612,7 +612,8 @@
     vPlTable.rows().every(function()
     {
       rowData = this.data();
-      if ((rowData[4] + ' / ' + rowData[6]) === curSel) // ownerName / ownerId === curSel
+      // if ((rowData[4] + ' / ' + rowData[6]) === curSel) // ownerName / ownerId === curSel
+      if (rowData[4] === curSel) // just using ownerName
       {
         this.select();
         if (selectRowData === '')  // recreate the unique class name assigned to row during init
@@ -829,3 +830,102 @@
   }
 
 
+  //-----------------------------------------------------------------------------------------------
+  function plTab_btnClearPlNmText()
+  {
+    // console.log('__SF__plTab_btnClearPlNmText()');
+    $("#plTab_plNmTextInput").val('');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function plTab_btnRenamePlaylist()
+  {
+    // console.log('__SF__plTab_btnRenamePlaylist()');
+    plTab_afRenamePlaylistSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afRenamePlaylistSeq()
+  {
+    // console.log('__SF__plTab_afRenamePlaylistSeq()');
+    try
+    {
+      done = false
+      let cnt = vPlTable.rows({ selected: true }).count();
+      if (cnt == 0)
+      {
+        alert('First select a playlist before pressing rename.');
+        return;
+      }
+      if (cnt > 1)
+      {
+        alert('You can only rename one playlist at a time.');
+        return;
+      }
+
+      let vNewPlNm = $("#plTab_plNmTextInput").val();
+      if (vNewPlNm == '')
+      {
+        alert('Please enter a new name for the selected playlist.');
+        return;
+      }
+
+      let plNmAlreadyExists = false;
+      let plDict = await tabs_afGetPlDict();
+      $.each(plDict, function (key, values)
+      {
+        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
+          plNmAlreadyExists = true;
+      });
+
+      if (plNmAlreadyExists == true)
+      {
+        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
+        return;
+      }
+
+      vPlTabLoading = true;
+      tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Renaming Playlist...', showStrImmed=true);
+
+      let vPlId = '';
+      $.each(vPlTable.rows('.selected').nodes(), function(i, item)
+      {
+        let rowData = vPlTable.row(this).data();
+        vPlId =  rowData[5];
+      });
+
+      await plTab_afRenamePlaylist(vPlId, vNewPlNm);
+      done = true
+    }
+    catch(err)
+    {
+      // console.log('__SF__plTab_btnCppl() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__plTab_afMvplSeq() finally.');
+      tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
+      vPlTabLoading = false;
+      if (done)
+        plTabs_btnReload()
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afRenamePlaylist(plId, newPlNm) {
+    // console.log('__SF__plTab_afRenamePlaylist() - vUrl - CreatePlaylist');
+    let response = await fetch(vUrl, {method: 'POST', headers: {'Content-Type': 'application/json',},
+                                          body: JSON.stringify({renamePlaylist: 'renamePlaylist',
+                                                                     plId: plId,
+                                                                     newPlNm: newPlNm}),});
+    if (!response.ok)
+      tabs_throwErrHttp('plTab_afRenamePlaylist()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('plTab_afRenamePlaylist() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('plTab_afRenamePlaylist()', reply['errRsp'], 'tabs_errInfo')
+    }
+  }

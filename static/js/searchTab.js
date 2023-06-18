@@ -57,7 +57,7 @@
 
       // dom default: lfrtip; ('r', 't' provides processing, table) (no 'f, 'p', 'i' removes search btn, paging info)
       "dom":            "rt",
-      "scrollY":         tableHeight - 92,  // compensate for extra height for radio btns that the other tabs do not have
+      "scrollY":         tableHeight - 93,  // compensate for extra height for radio btns that the other tabs do not have
       "scrollCollapse":  false,
       "paging":          false,
       "orderClasses":    false, // background color of sorted column does not change
