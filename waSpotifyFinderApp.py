@@ -432,8 +432,8 @@ def Tabs():
           plId = rqJson['plId']
           newPlNm = rqJson['newPlNm']
           retVal = oLoader.renamePlaylist(plId, newPlNm)
-          # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-          #   oLoader.updateDbVisitCnt(mysql, 'PlNm')
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+             oLoader.updateDbVisitCnt(mysql, 'ReNmPl')
           return jsonify({ 'errRsp': retVal })
 
         if (key == 'getErrLog'):
