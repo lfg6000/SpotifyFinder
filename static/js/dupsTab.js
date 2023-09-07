@@ -209,15 +209,34 @@
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_radioBtnEventMode() { /* make function appear in pycharm structure list */ }
-  $('input[type=radio][name=rPlMode]').change(function()
+  $('input[type=radio][name=rPlMode]').click(function()
   {
+    if (vDupsTabLoading === true)
+    {
+      $("#dupsTab_info3").text("Duplicates Tab is loading. Please switch playlist mode when loading is complete.");
+      setTimeout(function ()
+      {
+        $("#dupsTab_info3").text('');
+      }, 4500);
+      return false;
+    }
+
     dupsTab_afFindDupsSeq();
   });
 
   //-----------------------------------------------------------------------------------------------
   function dupsTab_radioBtnEventSearch() { /* make function appear in pycharm structure list */ }
-  $('input[type=radio][name=rPlSearch]').change(function()
+  $('input[type=radio][name=rPlSearch]').click(function()
   {
+    if (vDupsTabLoading === true)
+    {
+      $("#dupsTab_info3").text("Duplicates Tab is loading. Please switch search mode when loading is complete.");
+      setTimeout(function ()
+      {
+        $("#dupsTab_info3").text('');
+      }, 4500);
+      return false;
+    }
     dupsTab_afFindDupsSeq()
   });
 
