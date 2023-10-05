@@ -109,6 +109,17 @@
     /*color: white;*/
   }
 
+  .navbarTabs button:hover {
+    background: #00fc89;
+    /*color: white;*/
+  }
+
+  .navbarTabs button {
+    background-color: #1db954;
+    cursor: pointer;
+    border: none;
+  }
+
   .tabsHatText {
     font-style: italic;
     font-size: 26px;

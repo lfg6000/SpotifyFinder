@@ -441,6 +441,42 @@
   //-----------------------------------------------------------------------------------------------
   function plTabs_btnReload()
   {
+    console.log('reload,,,,,,,,,,,,')
+    var vInfoReload = null;
+    if (vSearchTabLoading === true)
+    {
+      vInfoReload = $("#searchTab_info3");
+      console.log('plTabs_btnReload search');
+    }
+    if (vDupsTabLoading === true)
+    {
+      vInfoReload = $("#dupsTab_info3");
+      console.log('plTabs_btnReload dups');
+    }
+    if (vPlTabLoading === true)
+    {
+      vInfoReload = $("#plTab_info3");
+      console.log('plTabs_btnReload pl');
+    }
+    if (vArtistsTabLoading === true)
+    {
+      vInfoReload = $("#artistsTab_info3");
+      console.log('plTabs_btnReload artists');
+    }
+    if (vTracksTabLoading === true)
+    {
+      vInfoReload = $("#tracksTab_info3");
+      console.log('plTabs_btnReload tracks');
+    }
+    if (vInfoReload != null)
+    {
+      vInfoReload.text("Please 'Reload from Spotify' after the current load has finished.");
+      setTimeout(function ()
+      {
+        vInfoReload.text('');
+      }, 4500);
+      return;
+    }
     // called when the user presses reload from spotify
     // refetch all the playlists from spotify (loadPlDict) and reload the plTable
     // console.log("plTab_reload() - simulating a page refresh click");

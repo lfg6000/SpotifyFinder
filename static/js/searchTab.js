@@ -170,9 +170,19 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_cbxEventSearch() { /* make function appear in pycharm structure list */  }
-  $('input[type=checkbox][name=cbxSearchFields]').change(function ()
+  function searchTab_cbxEventSearchChange() { /* make function appear in pycharm structure list */  }
+  $('input[type=checkbox][name=cbxSearchFields]').click(function ()
   {
+    if (vSearchTabLoading === true)
+    {
+      $("#searchTab_info3").text("Search Tab is loading. Please switch search fields when loading is complete.");
+      setTimeout(function ()
+      {
+        $("#searchTab_info3").text('');
+      }, 4500);
+      return false;
+    }
+
     // clicking on search field cbx will trigger a search
     var cbxFound = searchTab_LoadSearchFields();
     if (cbxFound === false)
@@ -197,6 +207,16 @@
     // if the search field is cleared by a backspace or delete clear the search results
     if ((event.keyCode === 8) || (event.keyCode === 46)) // backspace || delete
     {
+      if (vSearchTabLoading === true)
+      {
+        $("#searchTab_info3").text("Search Tab is loading. Please wait until loading is complete.");
+        setTimeout(function ()
+        {
+          $("#searchTab_info3").text('');
+        }, 4500);
+        return false;
+      }
+
       fieldVal = $(this).val();
       if ((vPrevSearchFieldVal != "") && (fieldVal == ""))
         searchTab_afLoadSearchTableSeq(true);
@@ -205,6 +225,15 @@
     // do a search when the user hits enter
     if (event.keyCode === 13) // return
     {
+      if (vSearchTabLoading === true)
+      {
+        $("#searchTab_info3").text("Search Tab is loading. Please wait until loading is complete.");
+        setTimeout(function ()
+        {
+          $("#searchTab_info3").text('');
+        }, 4500);
+        return false;
+      }
       vSearchText = $(this).val();
       if (vSearchText != "")
         searchTab_afRunSearchSeq();
@@ -723,6 +752,15 @@
   function searchTab_btnSearch()
   {
     // console.log('__SF__searchTab_btnSearch()');
+    if (vSearchTabLoading === true)
+    {
+      $("#searchTab_info3").text("Search Tab is loading. Please wait until loading is complete.");
+      setTimeout(function ()
+      {
+        $("#searchTab_info3").text('');
+      }, 4500);
+      return false;
+    }
     searchTab_afRunSearchSeq();
   }
 
@@ -730,7 +768,15 @@
   function searchTab_btnSearchClear()
   {
     // console.log('__SF__searchTab_btnSearchClear()');
-    vSearchTable.clear().draw();
+    if (vSearchTabLoading === true)
+    {
+      $("#searchTab_info3").text("Search Tab is loading. Please wait until loading is complete.");
+      setTimeout(function ()
+      {
+        $("#searchTab_info3").text('');
+      }, 4500);
+      return false;
+    }    vSearchTable.clear().draw();
   }
 
   //-----------------------------------------------------------------------------------------------
