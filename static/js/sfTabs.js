@@ -329,6 +329,26 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  async function tabs_afDeletePlaylist(plNm, plId)
+  {
+    console.log('__SF__tabs_afDeletePlaylist() - vUrl - CreatePlaylist');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ deletePlaylist: 'deletePlaylist',
+                                                                    plNm: plNm,
+                                                                    plId: plId,
+                                                                  }), });
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afDeletePlaylist()', response.status, 'tracksTab_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tabs_afDeletePlaylist() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tabs_afDeletePlaylist()', reply['errRsp'], 'tracksTab_errInfo')
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
   function tabs_progBarStart(progBar, lblId, lblStr, showStrImmed = true)
   {
     // console.log('__SF__tabs_progBarStart() bar = ' + progBar + ', id = ' + lblId + ', str = ' + lblStr + ', Immed = ' + showStrImmed);

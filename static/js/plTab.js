@@ -720,7 +720,7 @@
       vPlTabLoading = true;
       tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
       tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Deleting Playlist...', showStrImmed=true);
-      await tracksTab_afDeletePlaylist(plNm, plId);
+      await tabs_afDeletePlaylist(plNm, plId);
     }
     catch(err)
     {
@@ -735,26 +735,6 @@
       vPlTabLoading = false;
       if (deleteErr == false)
         plTabs_btnReload();
-    }
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afDeletePlaylist(plNm, plId)
-  {
-    console.log('__SF__tracksTab_afDeletePlaylist() - vUrl - CreatePlaylist');
-    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ deletePlaylist: 'deletePlaylist',
-                                                                    plNm: plNm,
-                                                                    plId: plId,
-                                                                  }), });
-    if (!response.ok)
-      tabs_throwErrHttp('tracksTab_afDeletePlaylist()', response.status, 'tracksTab_errInfo');
-    else
-    {
-      let reply = await response.json();
-      // console.log('__SF__tracksTab_afDeletePlaylist() reply = ', reply);
-      if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tracksTab_afDeletePlaylist()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 
@@ -920,15 +900,23 @@
         return;
       }
 
-      vPlTabLoading = true;
-      tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Renaming Playlist...', showStrImmed=true);
-
       let vPlId = '';
+      let vPlUserId = '';
       $.each(vPlTable.rows('.selected').nodes(), function(i, item)
       {
         let rowData = vPlTable.row(this).data();
         vPlId =  rowData[5];
+        vPlUserId = rowData[6]
       });
+
+      if (vPlUserId !== vUserId)
+      {
+        alert('You can not rename a playlist you do not own.');
+        return;
+      }
+
+      vPlTabLoading = true;
+      tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Renaming Playlist...', showStrImmed=true);
 
       await plTab_afRenamePlaylist(vPlId, vNewPlNm);
       done = true

@@ -960,3 +960,112 @@
     }
   }
 
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnSaveSort()
+  {
+    // console.log('__SF__tracksTab_btnSaveSort()');
+
+    tracksTab_afSaveSortSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afSaveSortSeq()
+  {
+    // the existing playlist is not changed or deleted
+    // a new playlist is created using the existing plName + '_sorted'
+    // console.log('__SF__tracksTab_afCreatePlaylistSeq()');
+    try
+    {
+      done = false;
+
+      //---- [0] check if user owns playlist
+      let rowDataTrack0 = vPlTracksTable.row(0).data();
+      if (rowDataTrack0[10] !== vUserId)
+      {
+        alert('You can not save a sort on a playlist you do not own.');
+        return;
+      }
+
+      //---- [1] get selected playlist
+      let cnt = vPlNamesTable.rows({ selected: true }).count();
+      if (cnt != 1)
+      {
+        alert('Save sort not performed. Selected playlist count is not equal to 1.');
+        return;
+      }
+
+      $.each(vPlNamesTable.rows('.selected').nodes(), function(i, item)
+      {
+        let rowData = vPlNamesTable.row(this).data();
+        plNm =  rowData[0];
+        plId =  rowData[1];
+      });
+
+      //---- [2] make sure the user understands
+      plNmUSorted = plNm + '_unsorted'
+      msg = '! DO NOT DO THIS IF YOUR PLAYLIST HAS FOLLOWERS  OR  IS SHARED WITH OTHERS !\n' +
+            'Please confirm that you understand: \n' +
+            '  1) the existing playlist will be deleted. \n' +
+            '  2) a new playlist will be created using the existing name. \n' +
+            '  3) the resulting playlist will have a new id with the existing name.\n'+
+            '! SELECT CANCEL IF YOUR PLAYLIST HAS FOLLOWERS  OR  IS SHARED WITH OTHERS  OR  YOU ARE NOT SURE !\n';
+
+      if (confirm(msg) == false)
+        return;
+
+      //---- [3] does a plNm_unsorted already exist
+      let plNmAlreadyExists = false;
+      let plDict = await tabs_afGetPlDict();
+      $.each(plDict, function (key, values)
+      {
+        if (plNmUSorted.toLowerCase() == values['Playlist Name'].toLowerCase())
+          plNmAlreadyExists = true;
+      });
+
+      if (plNmAlreadyExists == true)
+      {
+        alert('Save Sort cancelled because a playlist with this name ' + plNmUSorted + 'already exists.');
+        return;
+      }
+
+      //---- [4] start proj bar
+      vTracksTabLoading = true;
+      vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
+      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Saving Sort...', showStrImmed=true);
+
+      //---- [5] get a list of the sorted track uris
+      let rowData;
+      let createUriTrackList = [];
+      vPlTracksTable.rows().every(function()
+      {
+        let rowData = this.data();
+        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+          cntInvalidTrackId++;
+        else
+          createUriTrackList.push(rowData[9]); // track uri
+      });
+      // console.log('tracksTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
+
+      //---- [6] create a new playlist using the sorted track uris
+      let vNewPlNm = plNm;
+      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+
+      //---- [7] delete original playlist
+      await tabs_afDeletePlaylist(plNm, plId);
+      done = true
+    }
+    catch(err)
+    {
+      // console.log('__SF__tracksTab_btnCpTracks() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
+      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
+      vPlNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vTracksTabLoading = false;
+      if (done)
+        plTabs_btnReload()
+    }
+  }
