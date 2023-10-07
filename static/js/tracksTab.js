@@ -328,7 +328,7 @@
       return;
     }
     let rowData = $('#plNamesTable').DataTable().row(indexes).data();
-    tracksTab_afLoadTracksTableSeq(plId = rowData[1], plName = rowData[0]);
+    tracksTab_afLoadTracksTableSeq(rowData[1],rowData[0]);
     // $("#tracksTab_plNmTextInput").val(rowData[0]);
   });
 
@@ -568,7 +568,7 @@
     let rowData = vPlTracksTable.row(0).data();
     // console.log('__SF__tracksTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
     vPlTracksTable.order([]); // remove sorting
-    tracksTab_afLoadTracksTableSeq(plId = rowData[8]);
+    tracksTab_afLoadTracksTableSeq(rowData[8]);
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -971,8 +971,10 @@
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afSaveSortSeq()
   {
-    // the existing playlist is not changed or deleted
-    // a new playlist is created using the existing plName + '_sorted'
+    // the existing playlist is or deleted
+    // a new playlist is created using the existing plNm with a new plId
+    // the user is warned not to do this if the pl has followers or is shared
+
     // console.log('__SF__tracksTab_afCreatePlaylistSeq()');
     try
     {
@@ -986,54 +988,29 @@
         return;
       }
 
-      //---- [1] get selected playlist
-      let cnt = vPlNamesTable.rows({ selected: true }).count();
-      if (cnt != 1)
-      {
-        alert('Save sort not performed. Selected playlist count is not equal to 1.');
-        return;
-      }
-
-      $.each(vPlNamesTable.rows('.selected').nodes(), function(i, item)
-      {
-        let rowData = vPlNamesTable.row(this).data();
-        plNm =  rowData[0];
-        plId =  rowData[1];
-      });
+      //---- [1] get plId and plNm
+      let rowDataPl = vPlNamesTable.row(vPlNameTableLastSelectedRow).data();
+      let plNm =  rowDataPl[0];
+      let plId =  rowDataPl[1];
+      // console.log('selected plNm = ' + plNm + ',  id = ' + plId);
 
       //---- [2] make sure the user understands
-      plNmUSorted = plNm + '_unsorted'
       msg = '! DO NOT DO THIS IF YOUR PLAYLIST HAS FOLLOWERS  OR  IS SHARED WITH OTHERS !\n' +
             'Please confirm that you understand: \n' +
-            '  1) the existing playlist will be deleted. \n' +
-            '  2) a new playlist will be created using the existing name. \n' +
-            '  3) the resulting playlist will have a new id with the existing name.\n'+
-            '! SELECT CANCEL IF YOUR PLAYLIST HAS FOLLOWERS  OR  IS SHARED WITH OTHERS  OR  YOU ARE NOT SURE !\n';
+            '    1) the existing playlist will be deleted. \n' +
+            '    2) a new playlist will be created using the existing name. \n' +
+            '    3) the resulting playlist will have a new id with the existing name.\n'+
+            '! SELECT CANCEL  IF YOU ARE NOT SURE !\n';
 
       if (confirm(msg) == false)
         return;
 
-      //---- [3] does a plNm_unsorted already exist
-      let plNmAlreadyExists = false;
-      let plDict = await tabs_afGetPlDict();
-      $.each(plDict, function (key, values)
-      {
-        if (plNmUSorted.toLowerCase() == values['Playlist Name'].toLowerCase())
-          plNmAlreadyExists = true;
-      });
-
-      if (plNmAlreadyExists == true)
-      {
-        alert('Save Sort cancelled because a playlist with this name ' + plNmUSorted + 'already exists.');
-        return;
-      }
-
-      //---- [4] start proj bar
+      //---- [3] start proj bar
       vTracksTabLoading = true;
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Saving Sort...', showStrImmed=true);
 
-      //---- [5] get a list of the sorted track uris
+      //---- [4] get a list of the sorted track uris
       let rowData;
       let createUriTrackList = [];
       vPlTracksTable.rows().every(function()
@@ -1046,11 +1023,10 @@
       });
       // console.log('tracksTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
 
-      //---- [6] create a new playlist using the sorted track uris
-      let vNewPlNm = plNm;
-      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+      //---- [5] create a new playlist using the sorted track uris
+      await tabs_afCreatePlaylist(plNm, createUriTrackList);
 
-      //---- [7] delete original playlist
+      //---- [6] delete original playlist
       await tabs_afDeletePlaylist(plNm, plId);
       done = true
     }
