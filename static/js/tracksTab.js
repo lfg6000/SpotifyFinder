@@ -964,23 +964,18 @@
   function tracksTab_btnSaveSort()
   {
     // console.log('__SF__tracksTab_btnSaveSort()');
-
     tracksTab_afSaveSortSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afSaveSortSeq()
   {
-    // the existing playlist is or deleted
-    // a new playlist is created using the existing plNm with a new plId
-    // the user is warned not to do this if the pl has followers or is shared
-
-    // console.log('__SF__tracksTab_afCreatePlaylistSeq()');
+    // console.log('__SF__tracksTab_afSaveSortSeq()');
     try
     {
       done = false;
 
-      //---- [0] check if user owns playlist
+      //---- check if user owns playlist
       let rowDataTrack0 = vPlTracksTable.row(0).data();
       if (rowDataTrack0[10] !== vUserId)
       {
@@ -988,60 +983,94 @@
         return;
       }
 
-      //---- [1] get plId and plNm
-      let rowDataPl = vPlNamesTable.row(vPlNameTableLastSelectedRow).data();
-      let plNm =  rowDataPl[0];
-      let plId =  rowDataPl[1];
-      // console.log('selected plNm = ' + plNm + ',  id = ' + plId);
-
-      //---- [2] make sure the user understands
-      msg = '! DO NOT DO THIS IF YOUR PLAYLIST HAS FOLLOWERS  OR  IS SHARED WITH OTHERS !\n' +
-            'Please confirm that you understand: \n' +
-            '    1) the existing playlist will be deleted. \n' +
-            '    2) a new playlist will be created using the existing name. \n' +
-            '    3) the resulting playlist will have a new id with the existing name.\n'+
-            '! SELECT CANCEL  IF YOU ARE NOT SURE !\n';
-
-      if (confirm(msg) == false)
+      if (vPlTracksTable.rows().count() > 1001)
+      {
+        alert('Save sort is only allowed on playlists with less than 1000 tracks.');
         return;
+      }
 
-      //---- [3] start proj bar
+      // for all users but me
+      // make sure the user understands
+      // 1) put a dialog explaining save sort danger
+      // 2) put a dialog requiring the user to say they have a backup
+      if (rowDataTrack0[10] !== 'slipstream422')
+      {
+        msg = 'Please confirm that you understand: \n' +
+            '  1) if this operation fails you will lose your playlist!  \n' +
+            '  2) You Need To Make a Copy/Backup of Your Playlist First.  \n' +
+            '  How Save Sort works: \n' +
+            '   - all the tracks in your playlist will be deleted, \n' +
+            '     then all the tracks will be added back to your playlist. \n' +
+            '! SELECT CANCEL: IF YOU DO NOT HAVE A COPY/BACKUP OF THIS PLAYLIST!\n';
+
+        if (confirm(msg) == false)
+          return;
+
+        // ask the user to type y
+        if (prompt("Type 'y' to confirm you have a copy/backup of your playlist.", '') != 'y')
+          return;
+      }
+
+      // start proj bar
       vTracksTabLoading = true;
       vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Saving Sort...', showStrImmed=true);
 
-      //---- [4] get a list of the sorted track uris
+      // get a list of the sorted track uris
       let rowData;
-      let createUriTrackList = [];
+      let uriTrackList = [];
       vPlTracksTable.rows().every(function()
       {
         let rowData = this.data();
         if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
           cntInvalidTrackId++;
         else
-          createUriTrackList.push(rowData[9]); // track uri
+          uriTrackList.push(rowData[9]); // track uri
       });
-      // console.log('tracksTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
+      // console.log('tracksTab_afSaveSortSeq() uriTrackList: rowData = \n' + JSON.stringify(uriTrackList, null, 4));
 
-      //---- [5] create a new playlist using the sorted track uris
-      await tabs_afCreatePlaylist(plNm, createUriTrackList);
+      // reorder playlist using the sorted track uris
+      vPlTracksTable.clear();
+      let reload = true;
+      let plId = rowDataTrack0[8]
+      await tracksTab_afReorderPlaylist(plId, uriTrackList, reload);
+      await tracksTab_afLoadTracksTable(plId);
 
-      //---- [6] delete original playlist
-      await tabs_afDeletePlaylist(plNm, plId);
       done = true
     }
     catch(err)
     {
-      // console.log('__SF__tracksTab_btnCpTracks() caught error: ', err);
+      // console.log('__SF__tracksTab_afSaveSortSeq() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
     {
-      // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
+      // console.log('__SF__tracksTab_afSaveSortSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
-      if (done)
-        plTabs_btnReload()
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afReorderPlaylist(plId, uriTrackList, reload)
+  {
+    console.log('__SF__tracksTab_afReorderPlaylistt() - vUrl - reorderPlaylist');
+    let response = await fetch(vUrl, {
+      method: 'POST', headers: {'Content-Type': 'application/json',},
+      body: JSON.stringify({
+        reorderPlaylist: 'reorderPlaylist',
+        plId: plId,
+        uriTrackList: uriTrackList,
+        reload: reload
+      }),
+    });
+    if (!response.ok)
+      tabs_throwErrHttp('tracksTab_afReorderPlaylist()', response.status, 'tabs_errInfo');
+    else {
+      let reply = await response.json();
+      // console.log('tabs_afReorderPlaylist() reply = ', reply);
+      if (reply['errRsp'][0] !== 1)
+        tabs_throwSvrErr('tracksTab_afReorderPlaylist()', reply['errRsp'], 'tabs_errInfo')
     }
   }

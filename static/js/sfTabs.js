@@ -477,8 +477,7 @@
     msg = 'An error has occured.\n' +
       'A session restart is needed.\n\n' +
       'Press Ok and you will be redirected to the home page.\n' +
-      'Press Cancel and you will be redirected to the log viewer.\n\n\n\n' +
-      'Support:\n' +
+      'Press Cancel and you will be redirected to the log viewer.\n\n' +
       'If you send instructions on how to reproduce the error we will have a look.   Email: spotifyfinderapp@gmail.com\n';
 
 
@@ -487,10 +486,11 @@
     if (errMsgSplit[2] === "errCode: -5") // errRmTracksByPosFromSpotPlaylist = -5
     {
       // a long-winded explanation for a -5 is added in infoTab_addClientLogErrMsg()
-      msg = 'One or more of the tracks you selected were not removed.\n\n' +
+      msg = 'One or more of the tracks you selected were not removed.\n' +
         'A session restart is needed.\n' +
         'Press Ok and you will be redirected to the home page.\n' +
-        'Press Cancel for a detailed explanation.\n\n';
+        'Press Cancel for a details.\n\n' +
+        'I have not been able to reproduce this error so if you want to assist email me at spotifyfinderapp@gmail.com\n';
     }
 
     if (errMsgSplit[2] === "errCode: -26")
@@ -499,7 +499,7 @@
             'Wait 30 seconds and try again.\n' +
             'A session restart is needed.\n' +
             'Press Ok and you will be redirected to the home page.\n' +
-            'Press Cancel and you will be redirected to the log viewer.\n\n\n';
+            'Press Cancel and you will be redirected to the log viewer.\n\n';
     }
 
     if (errStr.search('-420') != -1)

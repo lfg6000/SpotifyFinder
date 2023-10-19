@@ -436,6 +436,14 @@ def Tabs():
              oLoader.updateDbVisitCnt(mysql, 'ReNmPl')
           return jsonify({ 'errRsp': retVal })
 
+        if (key == 'reorderPlaylist'):
+          # print('>>/Tabs reorderPlaylist()')
+          plId = rqJson['plId']
+          uriTrackList = rqJson['uriTrackList']
+          reload = rqJson['reload']
+          retVal = oLoader.reorderPlaylist(plId, uriTrackList, reload)
+          return jsonify({ 'errRsp': retVal })
+
         if (key == 'getErrLog'):
           # print('>>/Tabs getErrLog()')
           retVal, errLog = oLoader.getErrLog()

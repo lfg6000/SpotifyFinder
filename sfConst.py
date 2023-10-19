@@ -49,6 +49,7 @@ errDeletePlaylist = -37
 errRenamePlaylist = -38
 errSpotifyLogin = -39
 errAuthCallback = -40
+errReorderPlaylst = -41
 
 
 

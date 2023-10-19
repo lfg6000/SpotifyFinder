@@ -1818,3 +1818,56 @@ class SpfLoader():
       retVal = [sfConst.errRenamePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to rename playlist.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
+
+  # ---------------------------------------------------------------
+  def reorderPlaylist(this, plId, uriTrackList, reload):
+    # print('>>loader.createPlaylist()')
+    try:
+      # raise Exception('throwing loader.reorderPlaylist()')
+
+      nTracks = len(uriTrackList)
+      if nTracks == 0:
+        return [sfConst.errNone]
+
+      iEnd = 0
+      iRem = nTracks
+      newPlId = ''
+      # we have to add the tracks 100 at a time so we loop until finished
+      while (iRem > 0):
+        iStart = iEnd
+        if (iRem > 100):
+          iEnd = iEnd + 100
+        else:
+          iEnd = iEnd + iRem
+
+        # print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
+        addList = uriTrackList[iStart:iEnd]
+        iRem = iRem - (iEnd - iStart)
+
+        if iEnd <= 100:
+          # if this is the first loop thru the list of tracks write tracks 1 to 100
+          # this is done as a Put:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
+          # as a put spotify replaces all the tracks in the playlist with what is in the addlist
+          this.oAuthGetSpotifyObj().playlist_replace_items(plId, addList)
+        else:
+          # write tracks greater than 100
+          # this is done as a Post:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
+          # as a post spotify adds the tracks in addList to the bottom of the playlist
+          this.oAuthGetSpotifyObj().playlist_add_items(plId, addList)
+
+      if (reload):
+        # give spotify some time to complete the reorder than reload the playlist
+        # see rmTracksByPosFromSpotPlaylist() for a more robust check to see if spotify is done
+        # print(f"doing reload...iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}")
+        time.sleep(4)
+        del session['mPlTracksDict'][plId]
+        retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          return retVal
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errReorderPlaylst, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'An Error occurred while reordering playlist.', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
