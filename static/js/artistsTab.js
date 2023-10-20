@@ -635,9 +635,14 @@
     // console.log('__SF__artistsTab_cbMvCpDestOnChange() val = ' + idNm[1]);
 
     let count = vArtistTracksTable.rows({ selected: true }).count();
-    if (count == '0')
+    if (count == 0)
     {
       alert('To move a track(s) you need to select a track(s).');
+      return;
+    }
+    if (count > 100)
+    {
+      alert('Spotify limits the number of tracks that can be moved at a time to 100. No tracks were moved.\n');
       return;
     }
 

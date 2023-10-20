@@ -631,6 +631,11 @@
       alert('To move a track(s) you need to select a track(s).');
       return;
     }
+    if (count > 100)
+    {
+      alert('Spotify limits the number of tracks that can be moved at a time to 100. No tracks were moved.\n');
+      return;
+    }
 
     if (idNm[0] == '0')
       alert('To move tracks you need to   Select A Destination Playlist    from the drop down combo box.');

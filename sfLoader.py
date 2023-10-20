@@ -1210,16 +1210,40 @@ class SpfLoader():
     #  header      ={'Authorization': 'Bearer BQCDSMmq3w5RrX2..............',
     #                'Content-Type': 'application/json'}
     #  body (str) = ['spotify:track:4HbaSPG6qPH8PrBch3ojya', 'spotify:track:5dTuEVETmQ15gP2M8E5I45']
-
     try:
-      # raise Exception('throwing loader.moveTracks()')
+      # moves are limited in the ui to 100 tracks because moves require rmTracksByPos
+      # copies are not limited in the ui because copies do not require rmTracksByPos
+
+      # raise Exception('throwing loader.mvcpTracks()')
       trackListCleaned = this.cleanMvCpTrackList(plIdDest, trackList)
-      if (len(trackListCleaned) > 0):
-        newSnapshotId = this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, trackListCleaned)
-        del session['mPlTracksDict'][plIdDest]
-        retVal, loadedPlIds = this.loadPlTracks1x(plIdDest)
-        if retVal[sfConst.errIdxCode] != sfConst.errNone:
-          return retVal
+      nTracks = len(trackListCleaned)
+      if nTracks == 0:
+        return [sfConst.errNone]
+
+      iEnd = 0
+      iRem = nTracks
+      newPlId = ''
+      # we have to add the tracks 100 at a time so we loop until finished
+      while (iRem > 0):
+        iStart = iEnd
+        if (iRem > 100):
+          iEnd = iEnd + 100
+        else:
+          iEnd = iEnd + iRem
+
+        # print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
+        addList = trackListCleaned[iStart:iEnd]
+        iRem = iRem - (iEnd - iStart)
+
+        # this is done as a Post:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
+        # as a post spotify adds the tracks in addList to the bottom of the playlist
+        this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, addList)
+
+      time.sleep(4)
+      del session['mPlTracksDict'][plIdDest]
+      retVal, loadedPlIds = this.loadPlTracks1x(plIdDest)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        return retVal
       return [sfConst.errNone]
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
