@@ -988,11 +988,11 @@
         return;
       }
 
-      if (vPlTracksTable.rows().count() > 1001)
-      {
-        alert('Save sort is only allowed on playlists with less than 1000 tracks.');
-        return;
-      }
+      // if (vPlTracksTable.rows().count() > 1001)
+      // {
+      //   alert('Save sort is only allowed on playlists with less than 1000 tracks.');
+      //   return;
+      // }
 
       // for all users but me
       // make sure the user understands
