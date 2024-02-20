@@ -534,7 +534,7 @@
   } );
 
   //-----------------------------------------------------------------------------------------------
-  function dupsTab_btnClearSearchPlOnClick()
+  function dupsTab_btnClearSearchPlOnClick(focusOnField = true)
   {
     //console.log('__SF__dupsTab_btnClearSearchPlOnClick()');
     // clear search boxes under pl table
@@ -545,9 +545,12 @@
       $(this).keyup();
     });
 
-    // last element edited gets focus
-    let searchInputBox = $('input[name="'+vDupsTableLastSearchCol+'"]');
-    searchInputBox.focus();
+    if (focusOnField)
+    {
+      // last element edited gets focus
+      let searchInputBox = $('input[name="' + vDupsTableLastSearchCol + '"]');
+      searchInputBox.focus();
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -617,7 +620,7 @@
   function dupsTab_btnClear()
   {
     // console.log('__SF__dupsTab_btnClear()');
-    dupsTab_btnClearSearchPlOnClick();
+    dupsTab_btnClearSearchPlOnClick(false);
     dupsTab_afLoadDupsTableSeq();
   }
 

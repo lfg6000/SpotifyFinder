@@ -5,6 +5,7 @@
   var vArtistsTabLoading = false;
   var vArtistTracksTableLastSearchCol = '';
   var vArtistNameTableLastSelectedRow = 0;
+  var vArtistNameTableInitComplete = false;
 
   //-----------------------------------------------------------------------------------------------
   function artistsTab_init(tableHeight=300)
@@ -29,7 +30,7 @@
       fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull)
       {
         // assign unique class name to each row so we can scroll to it in artistsTab_selectRow()
-        $(nRow).addClass("c" + aData[0].replace(/\W/g, '') + aData[1].replace(/\W/g, '')); // use playlist Name and Id as class name
+        $(nRow).addClass("c" + aData[0].replace(/\W/g, '') + aData[2].replace(/\W/g, '')); // use playlist Name and Id as class name
       },
 
       initComplete: function()  //col search: https://datatables.net/examples/api/multi_filter.html
@@ -55,9 +56,8 @@
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
       "order":           [],
-      keys:              {blurable: false},
-      columnDefs: [ { targets: 1, visible: false, searchable: false } ],
-      select: { style: 'single' },
+      columnDefs: [ { targets: 2, visible: false, searchable: false } ],  // col2 - artist id is invisble
+      select: { style: 'single', toggleable: false },
     });
 
     // must be before table creation
@@ -127,27 +127,32 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  function artistsTab_scrollToLastSelectedRow()
+  {
+    let rowData = vArtistNamesTable.row(vArtistNameTableLastSelectedRow).data();
+    let selectRowData = "c" + rowData[0].replace(/\W/g, '') + rowData[2].replace(/\W/g, '') // use playlist Name and Id
+    let selection = $('#artistNamesTable .' + selectRowData);
+    $(".dataTables_scrollBody").scrollTo(selection);
+  }
+
+  //-----------------------------------------------------------------------------------------------
   function artistsTab_selectRow()
   {
     // console.log('__SF__artistsTab_selectRow()');
     // issue:
-    //  - when clicking on a name row the selection is not remembered when switching back to this tab
-    //  - when arrow up/dn on a name row the selection is remembered when switching back to this tab
+    //  - when clicking on a artist name row the selection is not remembered when switching back to this tab
     // fix:
     //  - we store the last selected row and apply it when switching this tab
-    //  - focus() calls select() which calls artistsTab_afLoadArtistTracksTableSeq()
+    //  - .select() triggres artistNameTableSelect() which calls afLoadArtistTracksTableSeq()
     // console.log('__SF__artistsTab_selectRow() - focus lastSelectedRow= ' + vArtistNameTableLastSelectedRow);
-    vArtistNamesTable.cell(vArtistNameTableLastSelectedRow, 0).focus();
+    $('#artistNamesTable').DataTable().row(vArtistNameTableLastSelectedRow).select();
 
     // issue:
     //  - if you scroll the selected artist name out of view and then go to plTab and back
     //    to the artistsTab the selected aritist name is not visible
     // fix:
     //  - use scrollTo util to ensure selected artist name is viewable
-    let rowData = vArtistNamesTable.row(vArtistNameTableLastSelectedRow).data();
-    let selectRowData = "c" + rowData[0].replace(/\W/g, '') + rowData[1].replace(/\W/g, '') // use playlist Name and Id
-    let selection = $('#artistNamesTable .' + selectRowData);
-    $(".dataTables_scrollBody").scrollTo(selection);
+    artistsTab_scrollToLastSelectedRow();
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -196,12 +201,10 @@
         // - on tab switch we call artistsTab_selectRow()
         // - this invokes artistsTab_afLoadArtistTracks() and artistsTab_afLoadArtistTracksTable() via chained events
         //   --> artistsTab_selectRow()
-        //     --> artistsTab_plNameTableKeyFocus()
         //       --> artistsTab_plNameTableSelect()
         //         --> artistsTab_afLoadArtistTracksTableSeq(plId, plName)
         //           --> await artistsTab_afLoadArtistTracks(artistId = artistId)
         //           --> artistsTab_afLoadArtistTracksTable(plId, plName) this is vUrl getArtistTrackList
-        // - so we do not have to call artistsTab_afLoadArtistTracksTable() here
         // - so we do not have to call artistsTab_afLoadArtistTracksTable() here
         // await artistsTab_afLoadArtistTracks(artistId = '')
         // await artistsTab_afLoadArtistTracksTable();
@@ -225,6 +228,7 @@
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
+      vArtistNameTableInitComplete = true;
     }
   }
 
@@ -268,7 +272,8 @@
       // console.log('__SF__artistsTab_afLoadArtistNameTable() - artistDict = \n' + JSON.stringify(artistDict, null, 4));
       $.each(artistDict, function (key, value)
       {
-        vArtistNamesTable.row.add([value, key]);
+        // col0: artist name (visible),  col1: track cnt (visible),  col2: artistId (invisible)
+        vArtistNamesTable.row.add([value[0], value[1],  key]);
       })
       vArtistNamesTable.draw();
 
@@ -277,9 +282,6 @@
         // console.log('__SF__artistsTab_afLoadArtistNameTable() - the returned plSelectedDict is empty');
         return;
       }
-
-      vArtistNamesTable.cell(':eq(0)').focus();
-      // vArtistNamesTable.row(':eq(0)').select();
 
       let plSelectedDict = reply['plSelectedDict'];
       // console.log('__SF__artistsTab_afLoadArtistNameTable() - userPl = \n' + JSON.stringify(plSelectedDict, null, 4));
@@ -311,30 +313,41 @@
 
     // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - artistNamesTable row select indexes = ', indexes);
     let rowData = $('#artistNamesTable').DataTable().row(indexes).data();
-    
+    vArtistNameTableLastSelectedRow = indexes[0]
+
     // console.log('__SF__artistsTab_artistsNamesTable_onSelect() - lfg artistId = ', rowData[1]);
-    artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[1]);
+    artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[2]);
   });
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_artistNameTableKeyFocus() { /* make function appear in pycharm structure list */ }
-  $('#artistNamesTable').on('key-focus', function (e, datatable, cell)
+  function artistsTab_artistNameTableOrder() { /* make function appear in pycharm structure list */ }
+  $('#artistNamesTable').on( 'order.dt', function ()
   {
-    // console.log('__SF__artistsTab_artistNamesTableKeyFocus() - artistNamesTable key focus ');
-    if (vArtistsTabLoading === true) // needed when doing a initial load or reload of both tables
+    // console.log('__SF__artistsTab_artistNameTableOrder()');
+
+    // order is getting called before the artist tab is even loaded so we have to do an init check
+    if (vArtistNameTableInitComplete === false)
     {
-      // console.log('__SF__artistsTab_plNameTableKeyFocus() - exiting - loading is true');
+      // console.log('__SF__artistsTab_artistNameTableOrder() - exiting - init is not complete');
       return;
     }
 
-    // datatable.rows().deselect();
-    // console.log('__SF__artistsTab_plNameTableKeyFocus() - selecting row = ' + cell.index().row);
-    vArtistNameTableLastSelectedRow = cell.index().row;
-    datatable.row( cell.index().row ).select();
+    if (vArtistsTabLoading === true) // needed when doing a initial load or reload of both tables
+    {
+      // console.log('__SF__artistsTab_artistNameTableOrder() - exiting - loading is true');
+      return;
+    }
+
+    // order is called on every keystroke when editing the artistsName search box and .order() returns order[0] that is undefined
+    // let order = $('#artistNamesTable').DataTable().order();
+    // if (order[0] !== undefined && order[0] !== null)
+    //   console.log('__SF__artistsTab_artistNameTableOrder() - calling scrollTo. user hit sort on col: ' + order[0][0] + ', dir: ' + order[0][1]);
+
+    // use scrollTo to ensure selected artist name is viewable after the user did a sort on the artist name table
+    artistsTab_scrollToLastSelectedRow();
   });
 
-
-  // //-----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
   async function artistsTab_afLoadArtistTracksTableSeq(artistId = '')
   {
     try
@@ -368,7 +381,7 @@
     // console.log('__SF__artistsTab_afLoadArtistTracks() - enter')
     if (artistId === '')
     {
-      artistId = vArtistNamesTable.row(0).data()[1];
+      artistId = vArtistNamesTable.row(0).data()[2];
       // console.log('__SF__artistsTab_afLoadArtistTracks() - using first row artistId = ' + artistId);
     }
 
@@ -489,30 +502,6 @@
     artistsTab_updateSelectedCnt();
   });
 
-  // //-----------------------------------------------------------------------------------------------
-  // function artistsTab_artistTracksTableRow_onUserSelect() { /* make function appear in pycharm structure list */ }
-  // $('#artistTracksTable').on('user-select.dt', function (e, dt, type, cell, originalEvent)
-  // {
-  //   rowData = vArtistTracksTable.row(cell.node()).data()
-  //   // let rowData = vPlTracksTable.row(indexes).data();
-  //   // console.log('__SF__artistsTab_artistTracksTableRow_onUserSelect(): rowData = \n' + JSON.stringify(rowData, null, 4));
-  //   if (rowData[11] != vUserId)   // playlistOwnerId != vUserId
-  //   {
-  //      e.preventDefault();
-  //      $("#artistsTab_info3").text("Track can not be selected/removed since you are not the playlist owner.");
-  //      setTimeout(function() { $("#artistsTab_info3").text(''); }, 4500);
-  //      return;
-  //   }
-  //
-  //   // artistsTab_updateSelectedCnt(); // can not do this here since the select has yet to occur
-  // });
-
-  //-----------------------------------------------------------------------------------------------
-  // function artistsTab_artistTracksTableDeselect() { /* make function appear in pycharm structure list */ }
-  // $('#artistTracksTable').on( 'deselect.dt', function ( e, dt, type, indexes )
-  // {
-  // });
-
   //-----------------------------------------------------------------------------------------------
   function artistsTab_btnRmTracksByPos()
   {
@@ -573,29 +562,40 @@
   function artistsTab_btnClear()
   {
     // console.log('__SF__artistsTab_btnClear()');
-    artistsTab_btnClearSearchArtistNameOnClick();
-    artistsTab_btnClearSearchTracksOnClick();
-    let rowData = vArtistTracksTable.row(0).data();
-    // console.log('__SF__artistsTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
-    vArtistTracksTable.order([2, 'asc']); // go back to default, sort on playlist name
-    artistsTab_afLoadArtistTracksTableSeq(artistId = rowData[10]);
+    artistTab_afClearSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnClearSearchArtistNameOnClick()
+  async function artistTab_afClearSeq()
+  {
+    // console.log('__SF__artistsTab_afClear()');
+    vArtistsTabLoading = true;
+    artistsTab_btnClearSearchArtistNameOnClick(focusOnField=false);
+    artistsTab_btnClearSearchTracksOnClick(focusOnField=false);
+    vArtistNamesTable.order([]); // remore sorting on artistNm table
+    vArtistTracksTable.order([]); // remove sorting on track table
+    vArtistNamesTable.clear();  // remove data from artistNm table
+    await artistsTab_afLoadArtistNameTable();  // reload artistNm table
+    vArtistsTabLoading = false;
+    artistsTab_selectRow();  // this will trigger an artist track table clear and reload
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnClearSearchArtistNameOnClick(focusOnField=true)
   {
     // console.log('__SF__artistsTab_btnClearSearchArtistNameOnClick()');
-    vArtistsTabLoading = true;  // prevent any artist name selections
     let searchInputBox = $('[name="artistNamesTableSearchBox"]');
     searchInputBox.val('');
     searchInputBox.keyup();
-    searchInputBox.focus();
-    vArtistsTabLoading = false;
-    artistsTab_selectRow(); // put focus on last item found
+    if (focusOnField)
+    {
+      searchInputBox.focus();
+      artistsTab_selectRow(); // put focus on last item found
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnClearSearchTracksOnClick()
+  function artistsTab_btnClearSearchTracksOnClick(focusOnField=true)
   {
     // clear search boxes under tracks table
     $("input[name^='trackTableColSearchIB']").each(function() // clear search boxes under tracks table
@@ -604,9 +604,12 @@
       $(this).keyup();
     });
 
-    // last element edited gets focus
-    let searchInputBox = $('input[name="'+vArtistTracksTableLastSearchCol+'"]');
-    searchInputBox.focus();
+    if (focusOnField)
+    {
+      // last element edited gets focus
+      let searchInputBox = $('input[name="' + vArtistTracksTableLastSearchCol + '"]');
+      searchInputBox.focus();
+    }
   }
 
   //-----------------------------------------------------------------------------------------------

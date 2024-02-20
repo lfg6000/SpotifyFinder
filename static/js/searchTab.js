@@ -736,7 +736,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function searchTab_btnClearColSearchFieldsOnClick()
+  function searchTab_btnClearColSearchFieldsOnClick(focusOnField=true)
   {
     //console.log('__SF__searchTab_btnClearColSearchFieldsOnClick()');
 
@@ -748,9 +748,12 @@
       $(this).keyup();
     });
 
-    // last element edited gets focus
-    let searchInputBox = $('input[name="'+vSearchTableLastSearchCol+'"]');
-    searchInputBox.focus();
+    if (focusOnField)
+    {
+      // last element edited gets focus
+      let searchInputBox = $('input[name="' + vSearchTableLastSearchCol + '"]');
+      searchInputBox.focus();
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -789,7 +792,7 @@
   {
     // console.log('__SF__searchTab_btnClear()');
     vSearchTable.order([]); // remove sorting
-    searchTab_btnClearColSearchFieldsOnClick();
+    searchTab_btnClearColSearchFieldsOnClick(false);
     searchTab_afLoadSearchTableSeq(false);
   }
 

@@ -487,7 +487,7 @@
   function plTabs_btnRestore()
   {
     // console.log('__SF__plTabs_btnRestore()');
-    plTabs_btnClearSearchPlOnClick();
+    plTabs_btnClearSearchPlOnClick(false);
     plTab_afRefresh();
   }
 
@@ -525,7 +525,7 @@
     $.each(vPlTable.rows('.selected').nodes(), function(i, item)
     {
       let rowData = vPlTable.row(this).data();
-      newPlSelectedDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6] };
+      newPlSelectedDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6], 'Tracks': rowData[2] };
     });
 
     // if (Object.keys(newPlSelectedDict).length === 0)  // exit if no playlists are selected
@@ -593,7 +593,7 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  function plTabs_btnClearSearchPlOnClick()
+  function plTabs_btnClearSearchPlOnClick(focusOnField=true)
   {
     //console.log('__SF__plTabs_btnClearSearchPlNameOnClick()');
     // clear search boxes under pl table
@@ -604,9 +604,12 @@
       $(this).keyup();
     });
 
-    // last element edited gets focus
-    let searchInputBox = $('input[name="'+vPlTableLastSearchCol+'"]');
-    searchInputBox.focus();
+    if (focusOnField)
+    {
+      // last element edited gets focus
+      let searchInputBox = $('input[name="'+vPlTableLastSearchCol+'"]');
+      searchInputBox.focus();
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -806,8 +809,24 @@
     $.each(vPlTable.rows('.selected').nodes(), function(i, item)
     {
       let rowData = vPlTable.row(this).data();
-      plDefaultDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6] };
+      // replace all semicolons in plNm w/ spaces
+      // semicolons are used by plTab_getCookiePlDefault() as a pl entry separator
+      // the important part of the cookie is the plId, the plNm is not important and is there for debugging purposes
+      // example: Johannes Brahms – Brahms: Symphony No. 4; Academic Festival Overture; Tragic Overture
+      // console.log("plName = ", rowData[1])
+      plNameCleaned = rowData[1].replace(/;/g, " ");  // replace all ; w/ spaces
+      // console.log("plNameCleaned = ", plNameCleaned)
+      plDefaultDict[rowData[5]] = { 'Playlist Name': plNameCleaned, 'Playlist Owners Id': rowData[6] };
     });
+
+    // where mozilla stores the cookie fill for spotifyfinder.com
+    // C:\Users\lfg70\AppData\Roaming\Mozilla\Firefox\Profiles\x4oiq1jf.default-release-1583154523772\cookies.sqlite
+
+    // deleting the cookie file:
+    // - goto firefox-settings-privacy & security-cookies & site data-manage data
+    // - you have to reopen settings after you delete the cookie file to look see the new cookie file
+    // - when using the local test server firefox stores the cookies under 127.0.0.1
+    // - when using the pyany server firefox stores the cookies under spotifyfinder.com
 
     const d = new Date();
     d.setTime(d.getTime() + (730 * 24 * 60 * 60 * 1000));

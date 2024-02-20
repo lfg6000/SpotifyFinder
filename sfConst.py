@@ -50,6 +50,7 @@ errRenamePlaylist = -38
 errSpotifyLogin = -39
 errAuthCallback = -40
 errReorderPlaylst = -41
+errGetArtistTrackCnt = -42
 
 
 

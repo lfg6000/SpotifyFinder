@@ -1522,12 +1522,12 @@ class SpfLoader():
     try:
       # print('>>loader.getArtistDict()')
       # raise Exception('throwing loader.getArtistDict()')
-      return [sfConst.errNone], session['mArtistDict'], session['mPlSelectedDict']
+      return [sfConst.errNone], session['mArtistDict']
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errGetArtistDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal, [], []
+      return retVal, []
 
   # ---------------------------------------------------------------
   def getArtistTrackList(this):
@@ -1557,10 +1557,14 @@ class SpfLoader():
         for trkVals in plTrackList:
           if (trkVals['Artist Id'] is None):
             continue
-          toBeSortedDict[trkVals['Artist Id']] = trkVals['Artist Name']
+          toBeSortedDict[trkVals['Artist Id']] = [trkVals['Artist Name'], 0]
 
-      sortedList = sorted(toBeSortedDict.items(), key=itemgetter(1))
-      session['mArtistDict'] = collections.OrderedDict(sortedList)
+      sortedDict = dict(sorted(toBeSortedDict.items(), key=lambda item: item[1][0].lower()))
+
+      for id, values in sortedDict.items():
+        values[1] = this.getArtistTrackCnt(id)  # returns -1 if there getArtistTrackCnt(id) throws an err
+
+      session['mArtistDict'] = sortedDict  # dict['Artist Id'] = ['artist nm', trackCount]
 
       # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mArtistDict.json', 'w') as f:
       #   json.dump(session['mArtistDict'], f)
@@ -1570,6 +1574,27 @@ class SpfLoader():
       retVal = [sfConst.errLoadArtistDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to create artist list from selected playlists.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
+
+  # ---------------------------------------------------------------
+  def getArtistTrackCnt(this, artistId):
+    # print('>>loader.getArtistTrackCnt()')
+    try:
+      # raise Exception('throwing loader.getArtistTrackCnt()')
+      cnt = 0
+      plTracksDict = this.getPlTracksDict()
+      for plId, plTrackList in plTracksDict.items():
+        if plId not in session['mPlSelectedDict']:  # only look at tracks that are in the selected pl's
+          continue
+        for trkVals in plTrackList:
+          if artistId == trkVals['Artist Id']:
+            cnt += 1
+
+      return cnt
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errGetArtistTrackCnt, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Error when counting tracks for an artist.', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return -1
 
   # ---------------------------------------------------------------
   def loadArtistTrackList(this, artistId):

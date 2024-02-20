@@ -2,6 +2,15 @@
 <!-- the names are concatenated to prevent the header in this table (tracksTable) from switching to 2 rows -->
 <!-- with 2 rows in the tracksTable it will not line up with the header in the plNameTable -->
 
+<!-- we allow the row color to change in artistNamesTable when a row is selected since it is a table w/o ckboxes -->
+
+<!-- do not change row color on select, dups uses alternating colors, so we use ckboxes instead to indicate row selected -->
+<style>
+    #artistTracksTable.dataTable tbody tr.selected {
+      background-color: #FFFFFF;
+    }
+</style>
+
 
 <div class="clearfix" style="width: 100%;">
   <div style="width: 20%; float: left;">
@@ -10,11 +19,13 @@
         <thead>
           <tr>
             <th>ArtistName</th>
+            <th>N</th>
             <th></th>
           </tr>
         </thead>
         <tfoot>
           <tr>
+            <th></th>
             <th></th>
             <th></th>
           </tr>
@@ -30,7 +41,7 @@
           <tr>
             <th></th>
             <th>TrackName</th>
-            <th>PlayistName</th>
+            <th>PlaylistName</th>
             <th>AlbumName</th>
             <th>Duration</th>
             <th>Track</th>
@@ -46,7 +57,7 @@
           <tr>
             <th></th>
             <th>TrackName</th>
-            <th>PlayistName</th>
+            <th>PlaylistName</th>
             <th>AlbumName</th>
             <th>Duration</th>
             <th>Track</th>
@@ -86,7 +97,7 @@
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnSelectAll()"          title="Select all the tracks">Select All</button></div>
+    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnSelectAll()"  title="Select all the tracks for the selected artist">Select All</button></div>
     <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnClear()" title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
     <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnHelp()"  title="View Artist Tab Help Info">?</button></div>
   </div>

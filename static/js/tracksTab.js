@@ -6,6 +6,7 @@
   var vPlTracksTableLastSearchCol = '';
   var vPlNameTableLastSelectedRow = 0;
   var vLoadedPlIds = [];
+  var vPlNamesTableInitComplete = false;
 
   //-----------------------------------------------------------------------------------------------
   function tracksTab_init(tableHeight=300)
@@ -57,9 +58,8 @@
       "paging":          false,
       "orderClasses":    false,  // background color of sorted column does not change
       "order":           [],
-      keys:              {blurable: false},
-      columnDefs: [ { targets: 1, visible: false, searchable: false } ],
-      select: { style: 'single' },
+      columnDefs: [ { targets: 1, visible: false, searchable: false } ],  // plId is invisible
+      select: { style: 'single', toggleable: false },
     });
 
     // must be before table creation
@@ -128,27 +128,32 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  function tracksTab_scrollToLastSelectedRow()
+  {
+    let rowData = vPlNamesTable.row(vPlNameTableLastSelectedRow).data();
+    let selectRowData = "c" + rowData[0].replace(/\W/g, '') + rowData[1].replace(/\W/g, '') // use playlist Name and Id
+    let selection = $('#plNamesTable .' + selectRowData);
+    $(".dataTables_scrollBody").scrollTo(selection);
+  }
+
+  //-----------------------------------------------------------------------------------------------
   function tracksTab_selectRow()
   {
     // console.log('__SF__tracksTab_selectRow()');
     // issue:
     //  - when clicking on a name row the selection is not remembered when switching back to this tab
-    //  - when arrow up/dn on a name row the selection is remembered when switching back to this tab
     // fix:
     //  - we store the last selected row and apply it when switching this tab
-    //  - focus() calls select() which calls artistsTab_afLoadArtistTracksTableSeq()
+    //  - .select() calls plNameTableSelect() which calls afLoadTracksTableSeq()
     // console.log('__SF__tracksTab_selectRow() - focus - lastSelectedRow = ' + vPlNameTableLastSelectedRow);
-    vPlNamesTable.cell(vPlNameTableLastSelectedRow, 0).focus();
+    $('#plNamesTable').DataTable().row(vPlNameTableLastSelectedRow).select();
 
     // issue:
     //  - if you scroll the selected pl name out of view and then go to plTab and back
     //    to the tracksTab the selected pl name is not visible
     // fix:
     //  - use scrollTo util to ensure selected pl name is viewable
-    let rowData = vPlNamesTable.row(vPlNameTableLastSelectedRow).data();
-    let selectRowData = "c" + rowData[0].replace(/\W/g, '') + rowData[1].replace(/\W/g, '') // use playlist Name and Id
-    let selection = $('#plNamesTable .' + selectRowData);
-    $(".dataTables_scrollBody").scrollTo(selection);
+    tracksTab_scrollToLastSelectedRow();
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -222,26 +227,9 @@
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
+      vPlNamesTableInitComplete = true;
     }
   }
-
-  // //-----------------------------------------------------------------------------------------------
-  // async function tracksTab_afLoadPlTracks()
-  // {
-  //   // console.log('__SF__tracksTab_afLoadPlTracks()');
-  //   console.log('__SF__tracksTab_afLoadPlTracks() - vUrl - loadPlTracks');
-  //   let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-  //                                      body: JSON.stringify({ loadPlTracks: 'loadPlTracks' }), });
-  //   if (!response.ok)
-  //     tabs_throwErrHttp('tracksTab_afLoadPlTracks()', response.status, 'tracksTab_errInfo');
-  //   else
-  //   {
-  //     let reply = await response.json();
-  //     // console.log('__SF__tracksTab_afLoadPlTracks() reply = ', reply);
-  //     if (reply['errRsp'][0] !== 1)
-  //       tabs_throwSvrErr('tracksTab_afLoadPlTracks()', reply['errRsp'], 'tracksTab_errInfo')
-  //   }
-  // }
 
   //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadPlTracks()
@@ -289,7 +277,8 @@
     // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDict = \n' + JSON.stringify(plSelectedDict, null, 4));
     $.each(plSelectedDict, function (key, values)
     {
-      vPlNamesTable.row.add([values['Playlist Name'], key]);
+      // col0: plNm (visible),  col1: key/plId (invisble),  col2: # of tracks (visible)i
+      vPlNamesTable.row.add([values['Playlist Name'], key, values['Tracks']]);
     })
     vPlNamesTable.draw();
 
@@ -298,9 +287,6 @@
       // console.log('__SF__tracksTab_afLoadPlNameTable() - the returned plSelectedDict is empty');
       return;
     }
-
-    vPlNamesTable.cell(':eq(0)').focus();
-    // vPlNamesTable.row(':eq(0)').select();
 
     // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + JSON.stringify(plSelectedDict, null, 4));
     $.each(plSelectedDict, function (key, item)
@@ -328,42 +314,40 @@
       return;
     }
     let rowData = $('#plNamesTable').DataTable().row(indexes).data();
+    vPlNameTableLastSelectedRow = indexes[0]
     tracksTab_afLoadTracksTableSeq(rowData[1],rowData[0]);
     // $("#tracksTab_plNmTextInput").val(rowData[0]);
   });
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_plNameTableKeyFocus() { /* make function appear in pycharm structure list */ }
-  $('#plNamesTable').on('key-focus', function (e, datatable, cell)
+  function tracksTab_plNameTableOrder() { /* make function appear in pycharm structure list */ }
+  $('#plNamesTable').on( 'order.dt', function ()
   {
-    // console.log('__SF__tracksTab_plNameTableRow_onFocus() - plNamesTable key focus ');
-    if (vTracksTabLoading === true) // needed when doing a initial load or reload of both tables
+    // console.log('__SF__tracksTab_plNameTableOrder()');
+
+    // order is getting called before the tracks tab is even loaded so we have to do an init check
+    if (vPlNamesTableInitComplete === false)
     {
-      // console.log('__SF__tracksTab_plNameTableRow_onFocus() - exiting - loading is true');
+      // console.log('__SF__tracksTab_plNameTableOrder() - exiting - init is not complete');
       return;
     }
-    // datatable.rows().deselect();
-    // console.log('__SF__tracksTab_plNameTableRow_onFocus() - selecting row = ' + cell.index().row);
-    vPlNameTableLastSelectedRow = cell.index().row;
-    datatable.row( cell.index().row ).select();
+
+    if (vTracksTabLoading === true) // needed when doing a initial load or reload of both tables
+    {
+      // console.log('__SF__tracksTab_plNameTableOrder() - exiting - loading is true');
+      return;
+    }
+
+    // order is called on every keystroke when editing the plName search box and .order() returns order[0] that is undefined
+    // let order = $('#plNamesTable').DataTable().order();
+    // if (order[0] !== undefined && order[0] !== null)
+    //   console.log('__SF__tracksTab_plNameTableOrder() - calling scrollTo. user hit sort on col: ' + order[0][0] + ', dir: ' + order[0][1]);
+
+    // use scrollTo to ensure selected pl name is viewable after the user did a sort on the pl name table
+    tracksTab_scrollToLastSelectedRow();
   });
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_tracksTab_plNmTextInputKeyDown() { /* make function appear in pycharm structure list */ }
-  $("#tracksTab_plNmTextInput").on('keydown', function (event)
-  {
-    // console.log('__SF__tracksTab_tracksTab_plNmTextInputKeyDown()');
-    if (vTracksTabLoading === true) // needed when doing a initial load or reload of both tables
-    {
-      // console.log('__SF__tracksTab_plNameTableRow_onFocus() - exiting - loading is true');
-      return;
-    }
-    // remove focus from plNamesTable so arrow keys work inside the tracksTab_plNmTextInput field
-    // the arrow keys normally move thru plNamesTable list selecting which tracks to show
-    vPlNamesTable.cell.blur();
-  });
-
-  // //-----------------------------------------------------------------------------------------------
   async function tracksTab_afLoadTracksTableSeq(plId, plName)
   {
     try
@@ -563,29 +547,40 @@
   function tracksTab_btnClear()
   {
     // console.log('__SF__tracksTab_btnClear()');
-    tracksTab_btnClearSearchPlNameOnClick();
-    tracksTab_btnClearSearchTracksOnClick();
-    let rowData = vPlTracksTable.row(0).data();
-    // console.log('__SF__tracksTab_btnReload() - plNameTable rowData = \n' + JSON.stringify(rowData, null, 4));
-    vPlTracksTable.order([]); // remove sorting
-    tracksTab_afLoadTracksTableSeq(rowData[8]);
+    tracksTab_afClearSeq();
   }
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnClearSearchPlNameOnClick()
+  async function tracksTab_afClearSeq()
+  {
+    // console.log('__SF__tracksTab_afClear()');
+    vTracksTabLoading = true;
+    tracksTab_btnClearSearchPlNameOnClick(false);
+    tracksTab_btnClearSearchTracksOnClick(false);
+    vPlNamesTable.order([]);
+    vPlTracksTable.order([]);
+    vPlNamesTable.clear();  // clear the plNm table
+    await tracksTab_afLoadPlNameTable();  // reload plNm table
+    vTracksTabLoading = false;
+    tracksTab_selectRow();  // this will trigger a track table clear and reload
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnClearSearchPlNameOnClick(focusOnField=true)
   {
     // console.log('__SF__tracksTab_btnClearSearchPlNameOnClick()');
-    vTracksTabLoading = true; // prevent any pl name selections
     let searchInputBox = $('[name="plNamesTableSearchBox"]');
     searchInputBox.val('');
     searchInputBox.keyup();
-    searchInputBox.focus();
-    vTracksTabLoading = false;
-    tracksTab_selectRow(); // put focus on last item found
+    if (focusOnField)
+    {
+      searchInputBox.focus();
+      tracksTab_selectRow(); // put focus on last item found
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnClearSearchTracksOnClick()
+  function tracksTab_btnClearSearchTracksOnClick(focusOnField=true)
   {
     // clear search boxes under tracks table
     $("input[name^='trackTableColSearchIB']").each(function() // clear search boxes under tracks table
@@ -594,9 +589,12 @@
       $(this).keyup();
     });
 
-    // last element edited gets focus
-    let searchInputBox = $('input[name="'+vPlTracksTableLastSearchCol+'"]');
-    searchInputBox.focus();
+    if (focusOnField)
+    {
+      // last element edited gets focus
+      let searchInputBox = $('input[name="'+vPlTracksTableLastSearchCol+'"]');
+      searchInputBox.focus();
+    }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -650,7 +648,7 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq()');
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vPlNamesTable.keys.disable();  // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Moving Tracks...', showStrImmed=true);
 
       let rmTrackList = [];
@@ -693,7 +691,7 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }
@@ -728,7 +726,7 @@
     {
       // console.log('__SF__tracksTab_afCpTracksSeq()');
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vPlNamesTable.keys.disable();  // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Coping Tracks...', showStrImmed=true);
 
       let cpTrackList = [];
@@ -761,7 +759,7 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }
@@ -958,7 +956,7 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
       if (done)
         plTabs_btnReload()
@@ -1052,7 +1050,7 @@
     {
       // console.log('__SF__tracksTab_afSaveSortSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
+      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }

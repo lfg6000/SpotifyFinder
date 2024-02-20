@@ -247,17 +247,6 @@
 
   td { font-size: 14px; }
 
-  /* white background for selected item */
-  table.dataTable tbody tr.selected {
-      background-color: #FFFFFF !important;
-  }
-
-  /* thinner box around focus item */
-  table.dataTable tbody th.focus,
-  table.dataTable tbody td.focus {
-    box-shadow: inset 0px 0px 0px 1px green;
-  }
-
   /* dup table row color */
   .clrDup {
     background-color: #E4F7F7 !important;

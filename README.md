@@ -11,7 +11,7 @@ This website is a set of tools to help you organize/curate your Spotify playlist
 
 ### Technical Details
 * Server Side:
-    * Python - server side language
+    * Python - server side language (requires python 3.7 or later)
     * Flask  - web application framework
     * Flask-Session - server side sessions
     * Spotipy  - python wrapper around Spotify Web Client API
