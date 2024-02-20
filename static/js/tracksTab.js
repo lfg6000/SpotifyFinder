@@ -174,7 +174,6 @@
 
       if (vLastPlSelectionCntrTracksTab !== curPlSelectionCntr)
       {
-        vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
         vLastPlSelectionCntrTracksTab = curPlSelectionCntr;
         vPlNameTableLastSelectedRow = 0;
         vTracksTabLoading = true;
@@ -225,7 +224,6 @@
     {
       // console.log('__SF__tracksTab_afActivate() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
       vPlNamesTableInitComplete = true;
     }
@@ -354,7 +352,6 @@
     {
       // console.log('__SF__tracksTab_afLoadTracksTableSeq() - plId = ' + plId);
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vPlTracksTable.clear();//.draw(); draw causes annoying flash
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Loading Tracks...', showStrImmed=false);
 
@@ -370,7 +367,6 @@
     {
       // console.log('__SF__tracksTab_afLoadTracksTableSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }
@@ -503,7 +499,6 @@
     {
       // console.log('__SF__tracksTab_afRmTracksByPosSeq()');
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Removing Tracks...', showStrImmed=true);
 
       let rmTrackList = [];
@@ -538,7 +533,6 @@
     {
       // console.log('__SF__tracksTab_afRmTracksByPosSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }
@@ -648,7 +642,6 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq()');
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Moving Tracks...', showStrImmed=true);
 
       let rmTrackList = [];
@@ -691,7 +684,6 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }
@@ -726,7 +718,6 @@
     {
       // console.log('__SF__tracksTab_afCpTracksSeq()');
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Coping Tracks...', showStrImmed=true);
 
       let cpTrackList = [];
@@ -759,7 +750,6 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }
@@ -929,7 +919,6 @@
       }
 
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Creating Playlist...', showStrImmed=true);
 
       let rowData;
@@ -956,7 +945,6 @@
     {
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
       if (done)
         plTabs_btnReload()
@@ -1016,7 +1004,6 @@
 
       // start proj bar
       vTracksTabLoading = true;
-      vPlNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Saving Sort...', showStrImmed=true);
 
       // get a list of the sorted track uris
@@ -1050,7 +1037,6 @@
     {
       // console.log('__SF__tracksTab_afSaveSortSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vPlNamesTable.keys.enable();   // prevent plNamesTable from showing wrong playlist when user holds down up/dn arrows
       vTracksTabLoading = false;
     }
   }

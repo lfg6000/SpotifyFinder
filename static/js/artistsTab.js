@@ -173,7 +173,6 @@
 
       if (vLastPlSelectionCntrArtistsTab !== curPlSelectionCntr)
       {
-        vArtistNamesTable.keys.disable();
         vLastPlSelectionCntrArtistsTab = curPlSelectionCntr;
         vArtistNameTableLastSelectedRow = 0;
         vArtistsTabLoading = true;
@@ -226,7 +225,6 @@
     {
       // console.log('__SF__artistsTab_afActivate() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
       vArtistNameTableInitComplete = true;
     }
@@ -354,7 +352,6 @@
     {
       // console.log('__SF__artistsTab_afLoadArtistTracksTableSeq() - artistId = ' + artistId);
       vArtistsTabLoading = true;
-      vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistTracksTable.clear();//.draw(); draw causes annoying flash
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Loading Tracks...', showStrImmed=false);
 
@@ -370,7 +367,6 @@
     {
       // console.log('__SF__artistsTab_afLoadArtistTracksTableSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
     }
   }
@@ -516,7 +512,6 @@
     {
       // console.log('__SF__artistsTab_afRmTracksByPosSeq()');
       vArtistsTabLoading = true;
-      vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Removing Tracks...', showStrImmed=true);
 
       let rmTrackList = [];
@@ -553,7 +548,6 @@
     {
       // console.log('__SF__artistsTab_afRmTracksByPosSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
     }
   }
@@ -662,7 +656,6 @@
     {
       // console.log('__SF__artistsTab_afMvTracksSeq()');
       vArtistsTabLoading = true;
-      vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Moving Tracks...', showStrImmed=true);
 
       let rmTrackList = [];
@@ -707,7 +700,6 @@
     {
       // console.log('__SF__artistsTab_afMvTracksSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
     }
   }
@@ -742,7 +734,6 @@
     {
       // console.log('__SF__artistsTab_afCpTracksSeq()');
       vArtistsTabLoading = true;
-      vArtistNamesTable.keys.disable();  // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Coping Tracks...', showStrImmed=true);
 
       let cpTrackList = [];
@@ -776,7 +767,6 @@
     {
       // console.log('__SF__artistsTab_afCpTracksSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistNamesTable.keys.enable();   // prevent artistTracksTable from showing wrong playlist when user holds down up/dn arrows
       vArtistsTabLoading = false;
     }
   }
@@ -851,7 +841,6 @@
       }
 
       vArtistsTabLoading = true;
-      vArtistNamesTable.keys.disable();  // prevent tracksTable from showing wrong playlist when user holds down up/dn arrows
       tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Creating Playlist...', showStrImmed=true);
 
       let rowData;
@@ -878,7 +867,6 @@
     {
       // console.log('__SF__artistsTab_afMvTracksSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistNamesTable.keys.disable();
       vArtistsTabLoading = false;
       if (done)
         plTabs_btnReload()
