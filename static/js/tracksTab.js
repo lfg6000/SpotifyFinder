@@ -271,12 +271,13 @@
     // vPlNamesTable.clear().draw(); // this does not work well here
 
     let plSelectedDict = await tracksTab_afLoadPlSelectedDict();
+    let plDict = await tabs_afGetPlDict();
 
     // console.log('__SF__tracksTab_loadPlNameTable() - plSelectedDict = \n' + JSON.stringify(plSelectedDict, null, 4));
     $.each(plSelectedDict, function (key, values)
     {
-      // col0: plNm (visible),  col1: key/plId (invisble),  col2: # of tracks (visible)i
-      vPlNamesTable.row.add([values['Playlist Name'], key, values['Tracks']]);
+      // col0: plNm (visible),  col1: key/plId (invisble),  col2: # of tracks (visible)
+      vPlNamesTable.row.add([values['Playlist Name'], key, plDict[key]['Tracks']]);
     })
     vPlNamesTable.draw();
 
@@ -401,6 +402,7 @@
         tabs_throwSvrErr('tracksTab_afLoadTracksTable()', reply['errRsp'], 'tracksTab_errInfo')
 
       let trackList = reply['trackList']
+      // console.log('__SF__tracksTab_afLoadTracksTable() - trackList = \n' + JSON.stringify(trackList, null, 4));
       $.each(trackList, function (key, tVals)
       {
         vPlTracksTable.row.add(['', tVals['Track Name'], tVals['Artist Name'], tVals['Album Name'], tVals['Duration Hms'],
@@ -517,10 +519,12 @@
       if (Object.keys(rmTrackList).length === 0)
         return;
 
-      vPlTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__tracksTab_afRmTracksByPosSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      vPlNamesTable.clear();
+      vPlTracksTable.clear();//.draw(); draw causes annoying flash
       await tabs_afRmTracksByPos(rmTrackList);
-      await tracksTab_afLoadTracksTable(pl=rowData[8]);
+      await tracksTab_afLoadPlNameTable();
+      await tracksTab_afLoadTracksTable(plid=rowData[8]);
     }
     catch(err)
     {
@@ -534,6 +538,7 @@
       // console.log('__SF__tracksTab_afRmTracksByPosSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vTracksTabLoading = false;
+      tracksTab_selectRow()
     }
   }
 
@@ -665,13 +670,15 @@
       if (Object.keys(rmTrackList).length === 0)
         return;
 
-      vPlTracksTable.clear();//.draw(); draw causes annoying flash
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
       // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      vPlNamesTable.clear();//.draw(); draw causes annoying flash
+      vPlTracksTable.clear();//.draw(); draw causes annoying flash
       await tabs_afMvCpTracks(destPlId, mvTrackList, 'Mv');
       await tabs_afRmTracksByPos(rmTrackList);
-      await tracksTab_afLoadTracksTable(pl=rowData[8]);
+      await tracksTab_afLoadPlNameTable()
+      await tracksTab_afLoadTracksTable(plid=rowData[8]);
     }
     catch(err)
     {
@@ -685,6 +692,7 @@
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vTracksTabLoading = false;
+      tracksTab_selectRow()
     }
   }
 
@@ -734,12 +742,14 @@
       if (Object.keys(cpTrackList).length === 0)
         return;
 
-      vPlTracksTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
-      // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
-      // console.log('__SF__tracksTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      // console.log('__SF__tracksTab_afCpTracksSeq() destPlId = \n' + JSON.stringify(destPlId, null, 4));
+      // console.log('__SF__tracksTab_afCpTracksSeq() destPlName  = \n' + JSON.stringify(destPlName, null, 4));
+      // console.log('__SF__tracksTab_afCpTracksSeq() cpTrackList  = \n' + JSON.stringify(cpTrackList, null, 4));
       await tabs_afMvCpTracks(destPlId, cpTrackList, 'Cp');
-      await tracksTab_afLoadTracksTable(pl=rowData[8]);
+      vPlNamesTable.clear();//.draw(); draw causes annoying flash
+      vPlTracksTable.clear();//.draw(); draw causes annoying flash
+      await tracksTab_afLoadPlNameTable()
+      await tracksTab_afLoadTracksTable(plid=rowData[8]);
     }
     catch(err)
     {
@@ -751,6 +761,7 @@
       // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
       tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
       vTracksTabLoading = false;
+      tracksTab_selectRow()
     }
   }
 

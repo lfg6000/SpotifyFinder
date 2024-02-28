@@ -525,7 +525,7 @@
     $.each(vPlTable.rows('.selected').nodes(), function(i, item)
     {
       let rowData = vPlTable.row(this).data();
-      newPlSelectedDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6], 'Tracks': rowData[2] };
+      newPlSelectedDict[rowData[5]] = { 'Playlist Name': rowData[1], 'Playlist Owners Id': rowData[6] };
     });
 
     // if (Object.keys(newPlSelectedDict).length === 0)  // exit if no playlists are selected

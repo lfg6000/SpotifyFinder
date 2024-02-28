@@ -530,11 +530,13 @@
       if (Object.keys(rmTrackList).length === 0)
         return;
 
-      vArtistTracksTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__artistsTab_afRmTracksByPosSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      // console.log('__SF__artistsTab_afRmTracksByPosSeq() rmTrackList: = \n' + JSON.stringify(rmTrackList, null, 4));
+      vArtistNamesTable.clear();
+      vArtistTracksTable.clear();
       await tabs_afRmTracksByPos(rmTrackList);
-      await artistsTab_afLoadArtistTracks(artistId=rowData[10])
-      vArtistTracksTable.clear();        //.draw(); draw causes annoying flash
+      await artistsTab_afLoadArtistNames();
+      await artistsTab_afLoadArtistNameTable();
+      await artistsTab_afLoadArtistTracks(artistId=rowData[10]);
       await artistsTab_afLoadArtistTracksTable();
     }
     catch(err)
@@ -549,6 +551,7 @@
       // console.log('__SF__artistsTab_afRmTracksByPosSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistsTabLoading = false;
+      artistsTab_selectRow();
     }
   }
 
@@ -680,13 +683,16 @@
       if (Object.keys(rmTrackList).length === 0)
         return;
 
-      vArtistTracksTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
-      // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
-      // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      // console.log('__SF__artistsTab_afMvTracksSeq() destPlId: = \n' + JSON.stringify(destPlId, null, 4));
+      // console.log('__SF__artistsTab_afMvTracksSeq() mvTrackList: = \n' + JSON.stringify(mvTrackList, null, 4));
+      // console.log('__SF__artistsTab_afMvTracksSeq() rmTrackList: = \n' + JSON.stringify(rmTrackList, null, 4));
+      vArtistNamesTable.clear();
+      vArtistTracksTable.clear();
       await tabs_afMvCpTracks(destPlId, mvTrackList, 'Mv');
       await tabs_afRmTracksByPos(rmTrackList);
-      await artistsTab_afLoadArtistTracks(rowData[10]) // artist id
+      await artistsTab_afLoadArtistNames();
+      await artistsTab_afLoadArtistNameTable();
+      await artistsTab_afLoadArtistTracks(rowData[10]); // artist id
       await artistsTab_afLoadArtistTracksTable();
     }
     catch(err)
@@ -701,6 +707,7 @@
       // console.log('__SF__artistsTab_afMvTracksSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistsTabLoading = false;
+      artistsTab_selectRow();
     }
   }
 
@@ -750,12 +757,14 @@
       if (Object.keys(cpTrackList).length === 0)
         return;
 
-      vArtistTracksTable.clear();//.draw(); draw causes annoying flash
-      // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(destPlId, null, 4));
-      // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(mvTrackList, null, 4));
-      // console.log('__SF__artistsTab_afCpTracksSeq() rmTrackList: rowData = \n' + JSON.stringify(rmTrackList, null, 4));
+      // console.log('__SF__artistsTab_afCpTracksSeq() destPlId: = \n' + JSON.stringify(destPlId, null, 4));
+      // console.log('__SF__artistsTab_afCpTracksSeq() cpTrackList: = \n' + JSON.stringify(cpTrackList, null, 4));
+      vArtistNamesTable.clear();
+      vArtistTracksTable.clear();
       await tabs_afMvCpTracks(destPlId, cpTrackList, 'Cp');
-      await artistsTab_afLoadArtistTracks(rowData[10]) // artist id
+      await artistsTab_afLoadArtistNames();
+      await artistsTab_afLoadArtistNameTable();
+      await artistsTab_afLoadArtistTracks(artistId=rowData[10]);
       await artistsTab_afLoadArtistTracksTable();
     }
     catch(err)
@@ -768,6 +777,7 @@
       // console.log('__SF__artistsTab_afCpTracksSeq() finally.');
       tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
       vArtistsTabLoading = false;
+      artistsTab_selectRow();
     }
   }
 

@@ -1237,6 +1237,11 @@ class SpfLoader():
 
         # this is done as a Post:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
         # as a post spotify adds the tracks in addList to the bottom of the playlist
+
+        # lfg_work_dir\spotipyMod_Cp_NoUrisProvidedErr.py
+        # addDict = {'uris': addList}
+        # this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, addDict)
+
         this.oAuthGetSpotifyObj().playlist_add_items(plIdDest, addList)
 
       time.sleep(4)
@@ -1522,7 +1527,7 @@ class SpfLoader():
     try:
       # print('>>loader.getArtistDict()')
       # raise Exception('throwing loader.getArtistDict()')
-      return [sfConst.errNone], session['mArtistDict']
+      return [sfConst.errNone], session['mArtistDict'], session['mPlSelectedDict']
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errGetArtistDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]

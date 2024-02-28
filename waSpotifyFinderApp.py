@@ -304,8 +304,8 @@ def Tabs():
 
         if (key == 'getArtistDict'):
           # print('>>/Tabs getArtistDict()')
-          retVal, artistDict = oLoader.getArtistDict()
-          return jsonify({ 'errRsp': retVal, 'artistDict': artistDict })
+          retVal, artistDict, plSelectedDict = oLoader.getArtistDict()
+          return jsonify({ 'errRsp': retVal, 'artistDict': artistDict, 'plSelectedDict': plSelectedDict})
 
         if (key == 'loadArtistTrackList'):
           artistId = rqJson['artistId']
