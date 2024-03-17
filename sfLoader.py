@@ -46,11 +46,8 @@ class SpfLoader():
     this.sSpotifyScope += 'playlist-read-collaborative '
     this.sSpotifyScope += 'playlist-modify-public '
     this.sSpotifyScope += 'playlist-modify-private '
-    this.sSpotifyScope += 'user-read-private '             # for country code
-
-    # experimental code for a potential play btn feature
-    # this.sSpotifyScope += 'user-read-playback-state '
-    # this.sSpotifyScope += 'user-modify-playback-state '
+    this.sSpotifyScope += 'user-modify-playback-state '    # for playback controls
+    this.sSpotifyScope += 'user-read-private '             # for country code, product: 'free' 'premium'
 
     this.sFlaskAppSecretKey    = ''
     this.sSpotifyClientId        = ''
@@ -341,9 +338,10 @@ class SpfLoader():
       session['mUserId'] = results['id']
       session['mUserName'] = results['display_name']
       session['mUserCountry'] = results['country']   # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-      print(f">>loader.loadSpotifyInfo() - {ipRemote}, usrId/usrName = {session['mUserId']}/{session['mUserName']}, {this.getSidTruncated()}, width = {str(winWidth)},  heigth = ' {str(winHeight)}")
+      session['mUserProduct'] = results['product']   # two known values are: 'free' and 'premium'
+      print(f">>loader.loadSpotifyInfo() - {ipRemote}, usrId/usrName/product = {session['mUserId']}/{session['mUserName']}/{session['mUserProduct']}, {this.getSidTruncated()}, width = {str(winWidth)},  heigth = ' {str(winHeight)}")
 
-      return [sfConst.errNone], session['mUserId'], session['mUserName'], this.getSidTruncated()
+      return [sfConst.errNone], session['mUserId'], session['mUserName'], session['mUserProduct'], this.getSidTruncated()
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errSpotifyInfo, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to get spotify info.', str(exTyp), str(exObj)]
@@ -357,7 +355,7 @@ class SpfLoader():
     # using db is optional. the app works fine w/o a db.
     # if this.sMySqlDbName is empty we are not using a db so we just return
 
-    # this web app does not use google analytics or any other tracking utilities
+    # this web app site does not use google analytics or any other tracking utilities
     # but we do want to know how many unique users actually use the web app
     # so we have a MySql table to count unique visits
 
@@ -383,6 +381,7 @@ class SpfLoader():
 
       userId = session['mUserId']
       userName = session['mUserName']
+      product = session['mUserProduct']  # needs a user-read-private permission
       country = session['mUserCountry']  # needs a user-read-private permission, # country codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistCnt = len(session['mPlDict'])
       playlistCntUsr = session['mPlaylistCntUsr']
@@ -396,12 +395,10 @@ class SpfLoader():
       user = cursor.fetchone()
       if user:
         visitCnt = user['visitCnt'] + 1
-        # country can be removed after a while.
-        # country was added after 197 user entries were created
-        # so get the country of an existing user we need to set country here for now
-        # once all the existing users visit the site we can remove country because it is set on the first visit also
-        cursor.execute("UPDATE uniqueUsers SET country=%s, visitCnt=%s, playlistCnt=%s, playlistCntUsr=%s, totalTrackCnt=%s, totalTrackCntUsr=%s, lastVisit=%s WHERE userId=%s",
-                       (country, int(visitCnt), int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr), sqlDate, userId))
+        # note both product and country columns were added to the db after the db was created and brought online
+        # so we set both product and country everytime to add this info if the user row was created prior to these cols being added
+        cursor.execute("UPDATE uniqueUsers SET product=%s, country=%s, visitCnt=%s, playlistCnt=%s, playlistCntUsr=%s, totalTrackCnt=%s, totalTrackCntUsr=%s, lastVisit=%s WHERE userId=%s",
+                       (product, country, int(visitCnt), int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr), sqlDate, userId))
         # print('>>loader.updateDbUniqueSpotifyInfo - inc existing user')
       else:
         visitCnt = 1
@@ -415,13 +412,14 @@ class SpfLoader():
         visitCntCreate = 0
         visitCntDelPl = 0
         visitCntReNmPl = 0
+        visitCntPlay = 0
         visitCntHelp = 0
 
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
-                       (userId, userName, country,
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+                       (userId, userName, product, country,
                         int(visitCnt), int(visitCntTracks), int(visitCntDups), int(visitCntArt),
                         int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch),
-                        int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntHelp),
+                        int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntPlay), int(visitCntHelp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
                         sqlDate, sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
@@ -473,6 +471,7 @@ class SpfLoader():
         visitCntCreate = user['visitCntCreate']
         visitCntDelPl = user['visitCntDelPl']
         visitCntReNmPl = user['visitCntReNmPl']
+        visitCntPlay = user['visitCntPlay']
         visitCntHelp = user['visitCntHelp']
 
         if (cntType == 'Tracks'):
@@ -495,11 +494,13 @@ class SpfLoader():
           visitCntDelPl = visitCntDelPl + 1
         if (cntType == 'ReNmPl'):
           visitCntReNmPl = visitCntReNmPl + 1
+        if (cntType == 'Play'):
+          visitCntPlay = visitCntPlay + 1
         if (cntType == 'Help'):
           visitCntHelp = visitCntHelp + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntCreate=%s, visitCntDelPl=%s, visitCntReNmPl=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
-                                      (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntHelp), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntCreate=%s, visitCntDelPl=%s, visitCntReNmPl=%s, visitCntPlay=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
+                                  (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntPlay), int(visitCntHelp), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()
@@ -711,6 +712,7 @@ class SpfLoader():
           nTracks = 0
 
         session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
+                                          'Playlist Uri': item['uri'],
                                           'Playlist Name': item['name'],
                                           'Playlist Owners Name': ownerNm,
                                           'Playlist Owners Id': ownerId,
@@ -1769,32 +1771,6 @@ class SpfLoader():
       this.addErrLogEntry(retVal)
       return retVal
 
-
-
-  # ---------------------------------------------------------------
-  def playTracks(this, trackUris):
-    # print('>>loader.playTracks()')
-    try:
-      # experimental code for a potential play btn feature
-
-      # raise Exception('throwing loader.playTracks()')
-
-      # print('>>loader.playTracks() - making a call to spotify')
-      # this.oAuthGetSpotifyObj().start_playback(context_uri='spotify:playlist:6rfB2pTNv61ec3LiBV5SaK', uris=trackUris)
-
-      # need to pass in a device id    (spotifyfinder app would need to get a list of device ids)
-      # need to pass in a playlist uri (spotifyfinder app would need to add playlist uri to the return track info)
-      #                                (this is needed for the Prj_Wifi_Display so it can display a playlist name, wdaLoader.getCurrentlyPlaying needs a playlist)
-      # need to pass in an array of track uri's  (
-      this.oAuthGetSpotifyObj().start_playback(device_id='307f858f43f7fc5961086511711646cac4455a4a', context_uri='spotify:playlist:0A4Apj44H0qVVyDdShxS9C')
-
-      return [sfConst.errNone]
-    except Exception:
-      exTyp, exObj, exTrace = sys.exc_info()
-      retVal = [sfConst.errPlayTracks, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when trying to start playback', str(exTyp), str(exObj)]
-      this.addErrLogEntry(retVal)
-      return retVal,
-
   # ---------------------------------------------------------------
   def createPlaylist(this, newPlNm, createUriTrackList):
     # print('>>loader.createPlaylist()')
@@ -1925,3 +1901,96 @@ class SpfLoader():
       retVal = [sfConst.errReorderPlaylst, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'An Error occurred while reordering playlist.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal
+
+  # ---------------------------------------------------------------
+  def playTracks(this, contextUri, trackUris):
+    try:
+      # 'https://api.spotify.com/v1/me/player/play'
+
+      # not a premium user error...the ui prevents non premium users using playback controls
+      # http status: 403, code:-1 - https://api.spotify.com/v1/me/player/play:
+      #  Player command failed: Premium required, reason: PREMIUM_REQUIRED
+
+      # no active spotify device...the user gets a dlg if this error occurs
+      # http status: 404, code:-1 - https://api.spotify.com/v1/me/player/play:
+      #  Player command failed: No active device found, reason: NO_ACTIVE_DEVICE
+
+      # raise Exception('throwing loader.playTracks()')
+
+      # three invocations
+      #   - context uri                  - start playing a playlist (not used - too confusing - different scenarios produced different results)
+      #   - trackUris                    - play selected tracks (not used - too confusing - different scenarios produced different results)
+      #   - no contextUri & no trackUri  - play whatever is next in the queue (used)
+      # we not pass a device id which tells spotify to use the currently active device
+
+      # print('>>loader.playTracks() - making a call to spotify')
+      if (contextUri != ''):
+        this.oAuthGetSpotifyObj().start_playback(context_uri=contextUri)
+      elif (len(trackUris) > 0):
+          this.oAuthGetSpotifyObj().start_playback(uris=trackUris)
+      else:
+        this.oAuthGetSpotifyObj().start_playback()
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errPlayTrack, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when issuing play tracks request', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def pauseTrack(this):
+    try:
+      # 'https://api.spotify.com/v1/me/player/pause'
+
+      # raise Exception('throwing loader.pauseTrack()')
+
+      # if you do not pass a device id then spotify will you use the currently active device
+      # print('>>loader.pauseTrack() - making a call to spotify')
+      this.oAuthGetSpotifyObj().pause_playback()
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errPauseTrack, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when issuing pause track request', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def nextTrack(this):
+    try:
+      # 'https://api.spotify.com/v1/me/player/next'
+
+      # raise Exception('throwing loader.nextTrack()')
+
+      # if you do not pass a device id then spotify will you use the currently active device
+      # print('>>loader.nextTrack() - making a call to spotify')
+      this.oAuthGetSpotifyObj().next_track()
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errNextTrack, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when issuing next track request', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def addToQueue(this, trackUris):
+    try:
+      # 'https://api.spotify.com/v1/me/player/queue'
+
+      # raise Exception('throwing loader.addToQueue()')
+
+      # if you do not pass a device id then spotify will you use the currently active device
+      # if you get a contextUri that means a playlist will be started
+      # only one track can be added at a time
+      # print('>>loader.addToQueue() - making a call to spotify')
+      for uri in trackUris:
+        this.oAuthGetSpotifyObj().add_to_queue(uri)
+        time.sleep(.25) # if you add tracks to fast some tracks will get missed
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errAddToQueue, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'error when issuing play add to queue request', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+

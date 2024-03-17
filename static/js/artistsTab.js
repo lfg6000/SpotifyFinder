@@ -179,6 +179,7 @@
 
         // this works better if the clear tables are here instead of being inside async calls
         // we are reloading both tables so we empty them out
+        artistsTab_setupPlaybackControls();
         vArtistNamesTable.clear().draw();
         vArtistTracksTable.clear().draw();
         $('#artistsTab_cbMvCpDest').empty();
@@ -290,8 +291,8 @@
           idNm = key + '::::' + item['Playlist Name'];
           // console.log('__SF__artistsTab_afLoadArtistNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
           plNm = item['Playlist Name'];
-          if (plNm.length > 44)
-            plNm = plNm.slice(0, 44) + '...';
+          if (plNm.length > 84)
+            plNm = plNm.slice(0, 84) + '...';
           $('#artistsTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
         }
       });
@@ -485,7 +486,7 @@
   function artistsTab_artistsTracksTableSelect() { /* make function appear in pycharm structure list */ }
   $('#artistTracksTable').on('select.dt', function ( e, dt, type, indexes )
   {
-    // console.log('__SF__tracksTab_tracksTab_artistTracksTableSelect() - artistTracksTable row select');
+    // console.log('__SF__artistsTab_artistsTab_artistTracksTableSelect() - artistTracksTable row select');
     // this method is called after the checkbox has been selected so we update the selected count
     artistsTab_updateSelectedCnt();
   });
@@ -880,5 +881,157 @@
       vArtistsTabLoading = false;
       if (done)
         plTabs_btnReload()
+    }
+  }
+
+    //-----------------------------------------------------------------------------------------------
+  function artistsTab_setupPlaybackControls()
+  {
+    // enable/disable the playback btns
+    let btn = [$('#artistsTab_PlayTracks'), $('#artistsTab_PauseTrack'), $('#artistsTab_NextTrack'), $('#artistsTab_AddToQueue')];
+
+    btn.forEach((btn) =>
+    {
+      if (vUserProduct != 'premium')
+      {
+        btn.css('opacity', '0.2');
+        btn.prop("disabled", true);  // disabled on free accounts
+      }
+      else
+      {
+        btn.css('opacity', '1.0');
+        btn.prop("disabled", false); // enabled on premium accounts
+      }
+    });
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnAddToQueue()
+  {
+    // btn is disabled if account is not premium
+    artistsTab_afAddToQueueSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function artistsTab_afAddToQueueSeq()
+  {
+    try
+    {
+      // console.log('__SF__artistsTab_afAddToQueueSeq() - enter');
+      let count = vArtistTracksTable.rows({ selected: true }).count();
+      if (count == 0)
+      {
+        alert('Select one or more tracks and then press add to queue.');
+        return;
+      }
+
+      vArtistsTabLoading = true;
+      tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Adding tracks to queue...', showStrImmed=false);
+
+      let trackUris = [];
+      let rowData;
+      let cntr = 0;
+      $.each(vArtistTracksTable.rows('.selected').nodes(), function (i, item)
+      {
+        rowData = vArtistTracksTable.row(this).data();
+        trackUris.push(rowData[9]); // track uri
+        // limited to 20 tracks because the spotify api only allows adding one track at a time to the queue
+        // if you call this api too fast it will miss tracks so the loader.addToQueue() has a delay between calls to spotify
+        cntr++;
+        if (cntr === 20)
+          return false;
+      });
+
+      // console.log('trackuris = ' + trackUris);
+      let retVal = await tabs_afAddToQueue(trackUris)
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__artistsTab_afAddToQueueSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__artistsTab_afAddToQueueSeq() finally');
+      tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
+      vArtistsTabLoading = false;
+    }
+
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnPlayTracks()
+  {
+    // btn is disabled if account is not premium
+    artistsTab_afPlayTracksSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function artistsTab_afPlayTracksSeq()
+  {
+    try
+    {
+      let contextUri = '';
+      let trackUris = [];
+      let retVal = await tabs_afPlayTracks(contextUri, trackUris) // pressing play on spotify
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__artistsTab_afPlayTracksSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnPauseTrack()
+  {
+    // btn is disabled if account is not premium
+    artistsTab_afPauseTrackSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function artistsTab_afPauseTrackSeq()
+  {
+    try
+    {
+      let retVal = await tabs_afPauseTrack()
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__artistsTab_afPauseTrackSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnNextTrack()
+  {
+    // btn is disabled if account is not premium
+    artistsTab_afNextTrackSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function artistsTab_afNextTrackSeq()
+  {
+    try
+    {
+      let retVal = await tabs_afNextTrack()
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__artistsTab_afNextTrackSeq() caught error: ', err);
+      tabs_errHandler(err);
     }
   }

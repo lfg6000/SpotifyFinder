@@ -114,6 +114,7 @@
         await tracksTab_afLoadPlTracks();
 
         tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Searching...', showStrImmed=true);
+        searchTab_setupPlaybackControls();
         await searchTab_afClearSearchTrackList();
         await searchTab_afRunSearch();
         await searchTab_afLoadSearchTable();
@@ -402,10 +403,10 @@
         $.each(plSelectedDict, function (key, item) {
           if (item['Playlist Owners Id'] === vUserId) {
             idNm = key + '::::' + item['Playlist Name'];
-            // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
+            // console.log('__SF__searchTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
             plNm = item['Playlist Name'];
-            if (plNm.length > 44)
-              plNm = plNm.slice(0, 44) + '...';
+            if (plNm.length > 84)
+              plNm = plNm.slice(0, 84) + '...';
             $('#searchTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
           }
         });
@@ -915,3 +916,153 @@
     }
   }
 
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_setupPlaybackControls()
+  {
+    // enable/disable the playback btns
+    let btn = [$('#searchTab_PlayTracks'), $('#searchTab_PauseTrack'), $('#searchTab_NextTrack'), $('#searchTab_AddToQueue')];
+
+    btn.forEach((btn) =>
+    {
+      if (vUserProduct != 'premium')
+      {
+        btn.css('opacity', '0.2');
+        btn.prop("disabled", true);  // disabled on free accounts
+      }
+      else
+      {
+        btn.css('opacity', '1.0');
+        btn.prop("disabled", false); // enabled on premium accounts
+      }
+    });
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnAddToQueue()
+  {
+    // btn is disabled if account is not premium
+    searchTab_afAddToQueueSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function searchTab_afAddToQueueSeq()
+  {
+    try
+    {
+      // console.log('__SF__searchTab_afAddToQueueSeq() - enter');
+      let count = vSearchTable.rows({ selected: true }).count();
+      if (count == 0)
+      {
+        alert('Select one or more tracks and then press add to queue.');
+        return;
+      }
+
+      vSearchTabLoading = true;
+      tabs_progBarStart('searchTab_progBar', 'searchTab_progStat1', 'Adding tracks to queue...', showStrImmed=true);
+
+      let trackUris = [];
+      let rowData;
+      let cntr = 0;
+      $.each(vSearchTable.rows('.selected').nodes(), function (i, item)
+      {
+        rowData = vSearchTable.row(this).data();
+        trackUris.push(rowData[10]); // track uri
+        // limited to 20 tracks because the spotify api only allows adding one track at a time to the queue
+        // if you call this api too fast it will miss tracks so the loader.addToQueue() has a delay between calls to spotify
+        cntr++;
+        if (cntr === 20)
+          return false;
+      });
+
+      // console.log('trackuris = ' + trackUris);
+      let retVal = await tabs_afAddToQueue(trackUris)
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__searchTab_afAddToQueueSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__searchTab_afAddToQueueSeq() - finally');
+      tabs_progBarStop('searchTab_progBar', 'searchTab_progStat1', '');
+      vSearchTabLoading = false;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnPlayTracks()
+  {
+    // btn is disabled if account is not premium
+    searchTab_afPlayTracksSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function searchTab_afPlayTracksSeq()
+  {
+    try
+    {
+      let contextUri = '';
+      let trackUris = [];
+      let retVal = await tabs_afPlayTracks(contextUri, trackUris) // pressing play on spotify
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__searchTab_afPlayTracksSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnPauseTrack()
+  {
+    // btn is disabled if account is not premium
+    searchTab_afPauseTrackSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function searchTab_afPauseTrackSeq()
+  {
+    try
+    {
+      let retVal = await tabs_afPauseTrack()
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__searchTab_afPauseTrackSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function searchTab_btnNextTrack()
+  {
+    // btn is disabled if account is not premium
+    searchTab_afNextTrackSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function searchTab_afNextTrackSeq()
+  {
+    try
+    {
+      let retVal = await tabs_afNextTrack()
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__searchTab_afNextTrackSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }

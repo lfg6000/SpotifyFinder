@@ -338,13 +338,140 @@
                                                                     plId: plId,
                                                                   }), });
     if (!response.ok)
-      tabs_throwErrHttp('tabs_afDeletePlaylist()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('tabs_afDeletePlaylist()', response.status, 'tabs_errInfo');
     else
     {
       let reply = await response.json();
       // console.log('__SF__tabs_afDeletePlaylist() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tabs_afDeletePlaylist()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('tabs_afDeletePlaylist()', reply['errRsp'], 'tabs_errInfo')
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afAddToQueue(trackUris)
+  {
+    // see tabs_afPlayTracks() for notes on errors
+    // play/pause/next/add to queue all require spotify premium account...the ui btn should have been disabled...
+    if (vUserProduct != 'premium')
+      return;
+
+    let response = await fetch(vUrl, {
+                                method: 'POST', headers: {'Content-Type': 'application/json',},
+                                body: JSON.stringify({addToQueue: 'addToQueue',
+                                                           trackUris: trackUris})});
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afAddToQueue()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      if (reply['errRsp'][0] !== 1)
+      {
+        // we do not throw because an error here does affect anything else
+        console.log('tabs_afAddToQueue - error reply = ', reply['errRsp']);
+        if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
+          return 'Add to Queue request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+      }
+      return '';
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afPlayTracks(contextUri='', trackUris = [])
+  {
+    // possible errors
+    // - not a premium user error
+    //   http status: 403, code:-1 - https://api.spotify.com/v1/me/player/play:
+    //     Player command failed: Premium required, reason: PREMIUM_REQUIRED
+
+    // - not active spotify device
+    //   http status: 404, code:-1 - https://api.spotify.com/v1/me/player/play:
+    //    Player command failed: No active device found, reason: NO_ACTIVE_DEVICE
+
+    // how to force a NO_ACTIVE_DEVICE error
+    // - open the spotify app on your phone
+    // - select the phone as the active playback device
+    // - hit play in the spotify app on your phone
+    // - close the spotify app on your phone
+    // - hit play in the spotifyFinder app
+    // - you will see a Play request failed err msg
+
+    // play/pause/next/add to queue all require spotify premium account...the ui btn should have been disabled...
+    if (vUserProduct != 'premium')
+      return;
+
+    let response = await fetch(vUrl, {
+                                method: 'POST', headers: {'Content-Type': 'application/json',},
+                                body: JSON.stringify({playTracks: 'playTracks',
+                                                           contextUri: contextUri,
+                                                           trackUris: trackUris})});
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afPlayTracks()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      if (reply['errRsp'][0] !== 1)
+      {
+        // we do not throw because an error here does affect anything else
+        console.log('tabs_afPlayTracks - error reply  = ', reply['errRsp']);
+        if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
+          return 'Play request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+      }
+      return '';
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afNextTrack()
+  {
+    // see tabs_afPlayTracks() for notes on errors
+    // play/pause/next/add to queue all require spotify premium account...the ui btn should have been disabled...
+    if (vUserProduct != 'premium')
+      return;
+
+    let response = await fetch(vUrl, {
+                                method: 'POST', headers: {'Content-Type': 'application/json',},
+                                body: JSON.stringify({nextTrack: 'nextTrack'})});
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afNextTrack()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      if (reply['errRsp'][0] !== 1)
+      {
+        // we do not throw because an error here does affect anything else
+        console.log('tabs_afNextTrack - error reply = ', reply['errRsp']);
+        if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
+          return 'Next track request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+      }
+      return '';
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afPauseTrack()
+  {
+    // see tabs_afPlayTracks() for notes on errors
+    // play/pause/next/add to queue all require spotify premium account...the ui btn should have been disabled...
+    if (vUserProduct != 'premium')
+      return;
+
+    let response = await fetch(vUrl, {
+                                method: 'POST', headers: {'Content-Type': 'application/json',},
+                                body: JSON.stringify({pauseTrack: 'pauseTrack'})});
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afPauseTrack()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      if (reply['errRsp'][0] !== 1)
+      {
+        // we do not throw because an error here does affect anything else
+        console.log('tabs_afPauseTrack - error reply = ', reply['errRsp']);
+        if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
+          return 'Next track request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+      }
+      return '';
     }
   }
 

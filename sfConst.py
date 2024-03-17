@@ -51,6 +51,10 @@ errSpotifyLogin = -39
 errAuthCallback = -40
 errReorderPlaylst = -41
 errGetArtistTrackCnt = -42
+errAddToQueue = -43
+errPlayTrack = -44
+errPauseTrack = -45
+errNextTrack = -46
 
 
 

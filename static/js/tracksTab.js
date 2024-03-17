@@ -193,6 +193,7 @@
 
         $('#tracksTab_cbMvCpDest').append($('<option>', { value: '0::::str2', text : cbMvDestDefault }));
 
+        tracksTab_setupPlaybackControls();
         await tracksTab_afIncTrackCnt();
         await tracksTab_afLoadPlNameTable();
         await tracksTab_afLoadPlTracks();
@@ -295,8 +296,8 @@
         idNm = key + '::::' + item['Playlist Name'];
         // console.log('__SF__tracksTab_afLoadPlNameTable() - userPl = \n' + key + ', ' + item['Playlist Name']);
         plNm = item['Playlist Name'];
-        if (plNm.length > 44)
-          plNm = plNm.slice(0, 44) + '...';
+        if (plNm.length > 84)
+          plNm = plNm.slice(0, 84) + '...';
         $('#tracksTab_cbMvCpDest').append($('<option>', {value: idNm, text: plNm}));
       }
     });
@@ -810,18 +811,6 @@
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afBtnPlay()
-  {
-    // experimental code for a potential play btn feature
-
-    let vTrackUris = [];
-    let rowData = vPlTracksTable.row(10).data();
-    vTrackUris.push(rowData[9]);
-    // console.log('trackUris = ' + vTrackUris);
-    await tracksTab_afPlayTracks(vTrackUris);
-  }
-
-  //-----------------------------------------------------------------------------------------------
   async function tracksTab_afIncTrackCnt()
   {
     // experimental code for a potential play btn feature
@@ -837,25 +826,6 @@
       // console.log('__SF__tracksTab_afPlayTracks() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afIncTrackCnt()', reply['errRsp'], 'tracksTab_errInfo')
-    }
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afPlayTracks(trackUris)
-  {
-    // experimental code for a potential play btn feature
-
-    // console.log('__SF__tracksTab_afPlayTracks() - vUrl - playTracks');
-    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
-                                       body: JSON.stringify({ playTracks: 'playTracks', trackUris: trackUris }), });
-    if (!response.ok)
-      tabs_throwErrHttp('tracksTab_afPlayTracks()', response.status, 'tracksTab_errInfo');
-    else
-    {
-      let reply = await response.json();
-      // console.log('__SF__tracksTab_afPlayTracks() reply = ', reply);
-      if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tracksTab_afPlayTracks()', reply['errRsp'], 'tracksTab_errInfo')
     }
   }
 
@@ -1072,5 +1042,157 @@
       // console.log('tabs_afReorderPlaylist() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afReorderPlaylist()', reply['errRsp'], 'tabs_errInfo')
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_setupPlaybackControls()
+  {
+    // enable/disable the playback btns
+    let btn = [$('#tracksTab_PlayTracks'), $('#tracksTab_PauseTrack'), $('#tracksTab_NextTrack'), $('#tracksTab_AddToQueue')];
+
+    btn.forEach((btn) =>
+    {
+      if (vUserProduct != 'premium')
+      {
+        btn.css('opacity', '0.2');
+        btn.prop("disabled", true);  // disabled on free accounts
+      }
+      else
+      {
+        btn.css('opacity', '1.0');
+        btn.prop("disabled", false); // enabled on premium accounts
+      }
+    });
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnAddToQueue()
+  {
+    // btn is disabled if account is not premium
+    tracksTab_afAddToQueueSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afAddToQueueSeq()
+  {
+    try
+    {
+      // console.log('__SF__tracksTab_afAddToQueueSeq() enter');
+      let count = vPlTracksTable.rows({ selected: true }).count();
+      if (count == 0)
+      {
+        alert('Select one or more tracks and then press add to queue.');
+        return;
+      }
+
+      // start proj bar
+      vTracksTabLoading = true;
+      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Adding tracks to queue...', showStrImmed=true);
+
+      let trackUris = [];
+      let rowData;
+      let cntr = 0;
+      $.each(vPlTracksTable.rows('.selected').nodes(), function (i, item)
+      {
+        rowData = vPlTracksTable.row(this).data();
+        trackUris.push(rowData[9]); // track uri
+        // limited to 20 tracks because the spotify api only allows adding one track at a time to the queue
+        // if you call this api too fast it will miss tracks so the loader.addToQueue() has a delay between calls to spotify
+        cntr++;
+        if (cntr === 20)
+          return false;
+      });
+
+      // console.log('trackuris = ' + trackUris);
+      let retVal = await tabs_afAddToQueue(trackUris)
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__tracksTab_afAddToQueueSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__tracksTab_afAddToQueueSeq() finally');
+      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
+      vTracksTabLoading = false;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnPlayTracks()
+  {
+    // btn is disabled if account is not premium
+    tracksTab_afPlayTracksSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afPlayTracksSeq()
+  {
+    try
+    {
+      let contextUri = '';
+      let trackUris = [];
+      let retVal = await tabs_afPlayTracks(contextUri, trackUris) // pressing play on spotify
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__tracksTab_afPlayTracksSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnPauseTrack()
+  {
+    // btn is disabled if account is not premium
+    tracksTab_afPauseTrackSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afPauseTrackSeq()
+  {
+    try
+    {
+      let retVal = await tabs_afPauseTrack()
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__tracksTab_afPauseTrackSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnNextTrack()
+  {
+    // btn is disabled if account is not premium
+    tracksTab_afNextTrackSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afNextTrackSeq()
+  {
+    try
+    {
+      let retVal = await tabs_afNextTrack()
+      if (retVal == '')
+        return;
+      alert(retVal)
+    }
+    catch(err)
+    {
+      console.log('__SF__tracksTab_afNextTrackSeq() caught error: ', err);
+      tabs_errHandler(err);
     }
   }

@@ -330,8 +330,8 @@
         {
           idNm = tvals['Playlist Id'] + '::::' + tvals['Playlist Name'];
           plNm = tvals['Playlist Name'];
-          if (plNm.length > 44)
-            plNm = plNm.slice(0, 44) + '...';
+          if (plNm.length > 84)
+            plNm = plNm.slice(0, 84) + '...';
           // console.log('dupsTab_setupRmPlId() - idNm = \n' + idNm + ',   plNm = ' + plNm);
           cbRmPlId.append($('<option>', {value: idNm, text: plNm}));
         }
@@ -887,13 +887,13 @@
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ rmTracksById: 'removeTracks', plId: plId, rmTrackList: rmTrackList, reload: reload}), });
     if (!response.ok)
-      tabs_throwErrHttp('dupsTab_afRmTracksById()', response.status, 'tracksTab_errInfo');
+      tabs_throwErrHttp('dupsTab_afRmTracksById()', response.status, 'dupsTab_errInfo');
     else
     {
       let reply = await response.json();
       // console.log('__SF__dupsTab_afRmTracksById() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('dupsTab_afRmTracksById()', reply['errRsp'], 'tracksTab_errInfo')
+        tabs_throwSvrErr('dupsTab_afRmTracksById()', reply['errRsp'], 'dupsTab_errInfo')
     }
   }
 

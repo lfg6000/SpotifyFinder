@@ -1,6 +1,6 @@
 
-<!-- the names are concatenated to prevent the header in this table (tracksTable) from switching to 2 rows -->
-<!-- with 2 rows in the tracksTable it will not line up with the header in the plNameTable -->
+<!-- the names are concatenated to prevent the header in this table (artistsTable) from switching to 2 rows -->
+<!-- with 2 rows in the artistsTable it will not line up with the header in the plNameTable -->
 
 <!-- we allow the row color to change in artistNamesTable when a row is selected since it is a table w/o ckboxes -->
 
@@ -76,29 +76,40 @@
 
   <div class="borderGreen2"></div>
   <div id="artistsTab_outerRow1" class="clearfix">
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
+    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
     <div class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist</legend>
-          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button class="curPtr" onclick="artistsTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>
-          <div class="innerRowLeft" style="margin: 2px  0px 0px -8px; padding: 0px 6px 2px 6px;"><button class="curPtr" onclick="artistsTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
-          <div class="innerRowLeft" style="margin: 2px -6px 0px -4px; padding: 0px 6px 2px 6px;"><select class="curPtr" id="artistsTab_cbMvCpDest" title="Destination playlist for a move or copy operation.">Select a destination playlist</select></div>
+          <div class="innerRowLeft" style="margin: 2px 0px 3px 4px;"><button class="curPtr" onclick="artistsTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>
+          <div class="innerRowLeft" style="margin: 2px 0px 3px 4px;"><button class="curPtr" onclick="artistsTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
+          <div class="innerRowLeft" style="margin: 3px 2px 0px 4px;"><select class="curPtr" style="width: 250px;" id="artistsTab_cbMvCpDest" title="Destination playlist for a move or copy operation.">Select a destination playlist</select></div>
         </fieldset>
       </span>
     </div>
     <div class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
           <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Create Playlist</legend>
          <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="curPtr" onclick="artistsTab_btnCreatePlaylist()"  title="Create a new playlist from the selected tracks. You can use the table colunm headers to sort the tracks prior creating a new playlist.">Create Playlist</button></div>
          <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="btnClrSearch curPtr" onclick="artistsTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><input style="margin: 0px 6px 2px 0px; padding: 1px 6px 2px 6px;" size="30" id="artistsTab_plNmTextInput" type="text"  placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>
+         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><input style="margin: 0px 2px 2px 0px; padding: 1px 6px 2px 6px;" size="25" id="artistsTab_plNmTextInput" type="text"  placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnSelectAll()"  title="Select all the tracks for the selected artist">Select All</button></div>
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnClear()" title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
-    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnHelp()"  title="View Artist Tab Help Info">?</button></div>
+    <div class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playback</legend>
+          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="artistsTab_btnAddToQueue()"  id="artistsTab_AddToQueue"  title="Add to Queue. &#10;Add up to 20 selected tracks to the Spotify queue. &#10;The currently playing track will finish before Spotify plays the tracks you added. &#10;You can view your queue in the Spotify phone app. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-list"></i></button></div>
+          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="artistsTab_btnPlayTracks()"  id="artistsTab_PlayTracks"  title="Play. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-play"></i></button></div>
+          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="artistsTab_btnPauseTrack()"  id="artistsTab_PauseTrack"  title="Pause. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-pause"></i></button></div>
+          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="artistsTab_btnNextTrack()"   id="artistsTab_NextTrack"   title="Next. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature equires a Spotify Premium account."><i class="fa fa-step-forward"></i></button></div>
+        </fieldset>
+      </span>
+    </div>
+    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnSelectAll()"  title="Select all the tracks for the selected artist">Select All</button></div>
+    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnClear()" title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
+    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="artistsTab_btnHelp()"  title="View Artist Tab Help Info">?</button></div>
   </div>
 

@@ -244,15 +244,6 @@ def Tabs():
 
       # gc.collect()
       try:
-        if (key == 'playTracks'):
-          # experimental code for a potential play btn feature
-          # print('>>/Tabs playTrack()')
-          trackUris = rqJson['trackUris']
-          retVal = oLoader.playTracks(trackUris);
-          # if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-          #   oLoader.updateDbVisitCnt(mysql, 'Help')
-          return jsonify({ 'errRsp': retVal })
-
         if (key == 'runSearch'):
           # print('>>/Tabs runSearch()')
           ckTrackName = rqJson['ckTrackName']
@@ -361,8 +352,8 @@ def Tabs():
             ip = request.headers['X-Real-IP']
           else:
             ip = request.remote_addr
-          retVal, userId, userName, sid = oLoader.loadSpotifyInfo(winWidth, winHeight, ip)
-          return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'cookie': getCookie('session'), 'sid': sid})
+          retVal, userId, userName, userProduct, sid = oLoader.loadSpotifyInfo(winWidth, winHeight, ip)
+          return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'userProduct': userProduct, 'cookie': getCookie('session'), 'sid': sid})
 
         if (key == 'loadPlDictBatch'):
           idx = rqJson['idx']
@@ -457,6 +448,38 @@ def Tabs():
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'Help')
           return jsonify({ 'errRsp': retVal, 'htmlInfo': htmlStr })
+
+        if (key == 'playTracks'):
+          # print('>>/Tabs playTrack()')
+          contextUri = rqJson['contextUri']
+          trackUris = rqJson['trackUris']
+          retVal = oLoader.playTracks(contextUri, trackUris);
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Play')
+          return jsonify({ 'errRsp': retVal })
+
+        if (key == 'nextTrack'):
+          # print('>>/Tabs nextTrack()')
+          retVal = oLoader.nextTrack();
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Play')
+          return jsonify({ 'errRsp': retVal })
+
+        if (key == 'pauseTrack'):
+          # print('>>/Tabs pauseTrack()')
+          retVal = oLoader.pauseTrack();
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Play')
+          return jsonify({ 'errRsp': retVal })
+
+        if (key == 'addToQueue'):
+          # print('>>/Tabs addToQueue()')
+          trackUris = rqJson['trackUris']
+          retVal = oLoader.addToQueue(trackUris);
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Play')
+          return jsonify({ 'errRsp': retVal })
+
 
         # - this is the error in the logs when a route return nothing....
         #   File "C:\Users\lfg70\.aa\LFG_Code\Python\WA_SpotifyFinder\venv\Lib\site-packages\flask\app.py", line 2097, in make_response

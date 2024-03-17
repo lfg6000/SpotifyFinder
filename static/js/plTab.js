@@ -9,6 +9,7 @@
 
   var vUserId = '';
   var vUserName = '';
+  var vUserProduct = '';
   var vCookie = '';
   var vSid = '';
 
@@ -70,7 +71,8 @@
       "orderClasses":    false, // background color of sorted column does not change
       "order":           [],
       columnDefs: [ { targets: 0, className: 'select-checkbox', orderable: false },
-                    { targets: 6, visible: false, searchable: false } ],
+                    { targets: 6, visible: false, searchable: false },
+                    { targets: 7, visible: false, searchable: false } ],
       select: { style: 'multi' }
     });
   }
@@ -193,6 +195,7 @@
 
       vUserId = reply['userId'];
       vUserName = reply['userName']
+      vUserProduct = reply['userProduct']
       vCookie = reply['cookie']
       vSid = reply['sid']
       // console.log('__SF__plTabs_loadSpotifyInfo() - \n   userId = ' + vUserId + ',\n   userName = ' + vUserName + ',\n   cookie = ' + vCookie + ',\n   sid = ' + vSid);
@@ -281,13 +284,15 @@
       {
         // if (val['Playlist Owners Id'] === 'd821vfpc7iz90kbxig72n533l')
         if (val['Playlist Owners Id'] === vUserId)
-          vPlTable.row.add(['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id']]);
+          //                0   1:vis                 2:vis          3:vis          4:vis                        5:vis               6:invisible                7:invisible
+          vPlTable.row.add(['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id'], val['Playlist Uri']]);
       });
       $.each(plDict, function(key, val)
       {
         // if (val['Playlist Owners Id'] !== 'd821vfpc7iz90kbxig72n533l')
         if (val['Playlist Owners Id'] !== vUserId)
-          vPlTable.row.add(['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id']]);
+          //                0   1:vis                 2:vis          3:vis          4:vis                        5:vis               6:invisible                7:invisible
+          vPlTable.row.add(['', val['Playlist Name'], val['Tracks'], val['Public'], val['Playlist Owners Name'], val['Playlist Id'], val['Playlist Owners Id'], val['Playlist Uri']]);
       });
       vPlTable.draw();
 
