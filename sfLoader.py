@@ -156,7 +156,7 @@ class SpfLoader():
       if (cfgFnd == 0):
         raise Exception('Cfg file not found. Missing File: ', vPath)
 
-      print(f">>loader.loadCfgFile() - using {grpKey} in {vPath}", flush=True)  # flush to server log file
+      print(f">>loader.loadCfgFile() - using grpKey: {grpKey}', this cfg is located in {vPath}", flush=True)  # flush to server log file
 
       fHelper = open(vPath, "r")
       hVal = json.load(fHelper)
@@ -178,7 +178,7 @@ class SpfLoader():
         raise Exception('Cfg file error.  sSpotifyClientSecret is empty. cfg file: ', vPath)
 
       print(f">>loader.loadCfgFile() - the redirectUrl:   ({this.sSpotifyRedirectUri})", flush=True)
-      print(f">>loader.loadCfgFile() - the local host (http://127.0.0.1:5000)", flush=True)
+      # print(f">>loader.loadCfgFile() - the local host (http://127.0.0.1:5000)", flush=True)
 
       return 1
 
