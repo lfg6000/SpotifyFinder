@@ -17,7 +17,7 @@
   {
     // console.log("dupsTab_initPlTab() - dupsTable ready()");
 
-    // after a refresh put the radio btns back into the initial state (needed for firefox)
+    // after a clear put the radio btns back into the initial state (needed for firefox)
     $(rPlModeAcross).prop('checked',true);
     $(rPlSearchId).prop('checked',true);
 
