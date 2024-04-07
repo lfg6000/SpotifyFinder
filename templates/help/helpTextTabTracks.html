@@ -20,6 +20,7 @@
     <ul>
       <li><span style="font-size: 11pt;">tracks with a checkmark present will be removed from the associated playlist</span></li>
       <li><span style="font-size: 11pt;">you can not remove tracks <span class="spul">from</span> a playlist you do not own</span></li>
+      <li><span style="font-size: 11pt;">if you get remove errrors have a look at the 'SF_Refreshing a Playlist to Fix Remove Errors' Help page.</span></li>
     </ul>
 
     <h3>Move Selected Tracks (button)</h3>
@@ -70,7 +71,7 @@
       </ol>
     </ul>
 
-    <h3>Save Sort (button)</h3>
+    <h3>Sort (button)</h3>
     <ul>
       <li><span style="font-size: 11pt;">used the column headers in the tracks table to change the sort of an existing playlist.</span></li>
       <li><span style="font-size: 11pt;">the sort you select will become spotify's default sort order.</span></li>
@@ -84,6 +85,25 @@
         <li><span style="font-size: 11pt;">click on Save Sort</span></li>
       </ol>
     </ul>
+
+    <h3>How the Sort Button Works</h3>
+      <ol type="1">
+        <li><span style="font-size: 11pt;">it verfies you own the playlist (you can not sort a playlist you do not own).</span></li>
+        <li><span style="font-size: 11pt;">it makes a backup copy of the playlist.</span></li>
+          <ol type="a">
+            <li><span style="font-size: 11pt;">the backup playlist name will be: original playlist name appended with 'Sort_Backup_[date]_[time].</span></li>
+            <li><span style="font-size: 11pt;">the backup playlist will show up in your list of playlists.</span></li>
+            <li><span style="font-size: 11pt;">if the backup fails the sort is terminated and the original playlist is not modified.</span></li>
+          </ol>
+        <li><span style="font-size: 11pt;">it removes all the tracks from the original playlist.</span></li>
+        <li><span style="font-size: 11pt;">it adds all the tracks back to the original playlist using the new sort order.</span></li>
+        <li><span style="font-size: 11pt;">once you are satisfied with the sort you can delete the backup playlist.</span></li>
+        <li><span style="font-size: 11pt;">note: In the unlikely event that step 4 fails you will need to use the Spotify app to copy the tracks in the backup to the original playlist.</span></li>
+      </ol>
+      <ul>
+        <li><span style="font-size: 11pt;">the above steps will preserve the original playlist id.</span></li>
+        <li><span style="font-size: 11pt;">this is needed in cases where the playlist has been shared or is being followed.</span></li>
+      </ul>
 
     <h3>Playback Controls (4 buttons)</h3>
     <ul>

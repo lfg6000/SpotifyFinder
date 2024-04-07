@@ -244,7 +244,128 @@ def Tabs():
 
       # gc.collect()
       try:
-        if (key == 'runSearch'):
+        if (key == 'loadPlDictBatch'):
+          idx = rqJson['idx']
+          clearTracksDict = rqJson['clearTracksDict']
+          retVal, nPlRxd = oLoader.loadPlDictBatch(idx, clearTracksDict)
+          # print('>>/Tabs loadPlDictBatch() idx = ' + str(idx) + ', nPlRxd = ' + str(nPlRxd))
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '') and (nPlRxd < 50) and (clearTracksDict == True)):
+            oLoader.updateDbUniqueSpotifyInfo(mysql)
+          return jsonify({ 'errRsp': retVal, 'nPlRxd': nPlRxd })
+
+        elif (key == 'getPlDict'):
+          # print('>>/Tabs getPlDict')
+          retVal, plDict, nPlaylists, nTracks, userList = oLoader.getPlDict()
+          return jsonify({ 'errRsp': retVal, 'plDict': plDict , 'NPlaylists': nPlaylists, 'NTracks': nTracks, 'userList': userList })
+
+        elif (key == 'loadPlTracks1x'):
+          # print('>>/Tabs loadPlTracks1x()')
+          plId = rqJson['plId']
+          retVal, loadedPlIds = oLoader.loadPlTracks1x(plId)
+          return jsonify({ 'errRsp': retVal, 'loadedPlIds': loadedPlIds})
+
+        elif (key == 'getTrackList'):
+          plId = rqJson['plId']
+          # print('>>/Tabs getTrackList() - plId = ' + plId)
+          retVal, trackList, duration = oLoader.getTrackList(plId)
+          return jsonify({ 'errRsp': retVal, 'trackList': trackList, 'plDuration': duration})
+
+        elif (key == 'incTrackCnt'):
+          # print('>>/Tabs incTrackCnt()')
+          if (oLoader.sMySqlDbName != ''):
+            oLoader.updateDbVisitCnt(mysql, 'Tracks')
+          retVal = [sfConst.errNone]
+          return jsonify({ 'errRsp': retVal})
+
+        elif (key == 'getPlSelectedDict'):
+          # print('>>/Tabs getPlSelectedDict')
+          retVal, plSelectedDict = oLoader.getPlSelectedDict()
+          return jsonify({ 'errRsp': retVal, 'plSelectedDict': plSelectedDict })
+
+        elif (key == 'getPlSelectedDictNotLoaded'):
+          # print('>>/Tabs getPlSelectedDictNotLoaded')
+          retVal, plSelectedDictNotLoaded = oLoader.getPlSelectedDictNotLoaded()
+          return jsonify({ 'errRsp': retVal, 'plSelectedDictNotLoaded': plSelectedDictNotLoaded })
+
+        elif (key == 'setPlSelectedDict'):
+          # print('>>/Tabs setPlSelectedDict()')
+          newPlSelectedDict = rqJson['newPlSelectedDict']
+          retVal = oLoader.setPlSelectedDict(newPlSelectedDict)
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'loadSpotifyInfo'):
+          # print('>>/Tabs loadSpotifyInfo')
+          winWidth = rqJson['winWidth']
+          winHeight = rqJson['winHeight']
+          if 'X-Real-IP' in request.headers:  # 'X-Real-IP' tag is a pyAny specific tag
+            ip = request.headers['X-Real-IP']
+          else:
+            ip = request.remote_addr
+          retVal, userId, userName, userProduct, sid = oLoader.loadSpotifyInfo(winWidth, winHeight, ip)
+          return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'userProduct': userProduct, 'cookie': getCookie('session'), 'sid': sid})
+
+        elif (key == 'rmTracksByPos'):  # uses both track id and track position
+          # print('>>/Tabs rmTracksByPos()')
+          rmTrackList = rqJson['rmTrackList']
+          # pprint.pprint(rmTracksList)  # pprint sorts on key
+          retVal, plNm = oLoader.rmTracksByPos(rmTrackList)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Rm')
+          return jsonify({ 'errRsp': retVal, 'plNm': plNm })
+
+        elif (key == 'rmTracksById'): # uses track id
+          # print('>>/Tabs rmTracksById()')
+          plId = rqJson['plId']
+          rmTrackList = rqJson['rmTrackList']
+          reload = rqJson['reload']
+          # pprint.pprint(rmTracksList)  # pprint sorts on key
+          retVal = oLoader.rmTracksById(plId, rmTrackList, reload)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Rm')
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'findDups'):
+          modePlaylist = rqJson['modePlaylist']
+          modeSearch = rqJson['modeSearch']
+          durTimeDiff = rqJson['durTimeDiff']
+          # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch + ', durTimeDiff = ' + durTimeDiff)
+          retVal = oLoader.findDups(modePlaylist, modeSearch, durTimeDiff)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Dups')
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'getDupsTrackList'):
+          modePlaylist = rqJson['modePlayList']
+          modeSearch = rqJson['modeSearch']
+          durTimeDiff = rqJson['durTimeDiff']
+          # print('>>/Tabs getDupsTrackList()')
+          retVal, dupsTrackList, numDupsMatch, dupsClrList = oLoader.getDupsTrackList(modePlaylist, modeSearch, durTimeDiff)
+          return jsonify({ 'errRsp': retVal, 'dupsTrackList': dupsTrackList, 'numDupsMatch': numDupsMatch, 'dupsClrList': dupsClrList})
+
+        elif (key == 'loadArtistDict'):
+          # print('>>/Tabs loadArtistDict()')
+          retVal = oLoader.loadArtistDict()
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Art')
+          return jsonify({ 'errRsp': retVal})
+
+        elif (key == 'getArtistDict'):
+          # print('>>/Tabs getArtistDict()')
+          retVal, artistDict, plSelectedDict = oLoader.getArtistDict()
+          return jsonify({ 'errRsp': retVal, 'artistDict': artistDict, 'plSelectedDict': plSelectedDict})
+
+        elif (key == 'loadArtistTrackList'):
+          artistId = rqJson['artistId']
+          # print('>>/Tabs loadArtistTrackList() - artistId = ' + artistId)
+          retVal = oLoader.loadArtistTrackList(artistId)
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'getArtistTrackList'):
+          # print('>>/Tabs getArtistTrackList()')
+          retVal, artistTrackList = oLoader.getArtistTrackList()
+          return jsonify({ 'errRsp': retVal, 'artistTrackList': artistTrackList})
+
+        elif (key == 'runSearch'):
           # print('>>/Tabs runSearch()')
           ckTrackName = rqJson['ckTrackName']
           ckArtistName = rqJson['ckArtistName']
@@ -258,137 +379,17 @@ def Tabs():
             oLoader.updateDbVisitCnt(mysql, 'Search')
           return jsonify({ 'errRsp': retVal })
 
-        if (key == 'getSearchTrackList'):
+        elif (key == 'getSearchTrackList'):
           # print('>>/Tabs getNameSearchTrackList()')
           retVal, searchTrackList, numSearchMatches, plSelectedDict, numTracksInSelectedPl = oLoader.getSearchTrackList()
           return jsonify({ 'errRsp': retVal, 'searchTrackList': searchTrackList, 'numSearchMatches': numSearchMatches, 'plSelectedDict': plSelectedDict, 'numTracksInSelectedPl': numTracksInSelectedPl })
 
-        if (key == 'clearSearchTrackList'):
+        elif (key == 'clearSearchTrackList'):
           # print('>>/Tabs clearSearchTrackList()')
           retVal = oLoader.clearSearchTrackList()
           return jsonify({ 'errRsp': retVal })
 
-        if (key == 'findDups'):
-          modePlaylist = rqJson['modePlaylist']
-          modeSearch = rqJson['modeSearch']
-          durTimeDiff = rqJson['durTimeDiff']
-          # print('>>/Tabs findDups() - modePlaylist = ' + modePlaylist + ', modeSearch = ' + modeSearch + ', durTimeDiff = ' + durTimeDiff)
-          retVal = oLoader.findDups(modePlaylist, modeSearch, durTimeDiff)
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-            oLoader.updateDbVisitCnt(mysql, 'Dups')
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'getDupsTrackList'):
-          modePlaylist = rqJson['modePlayList']
-          modeSearch = rqJson['modeSearch']
-          durTimeDiff = rqJson['durTimeDiff']
-          # print('>>/Tabs getDupsTrackList()')
-          retVal, dupsTrackList, numDupsMatch, dupsClrList = oLoader.getDupsTrackList(modePlaylist, modeSearch, durTimeDiff)
-          return jsonify({ 'errRsp': retVal, 'dupsTrackList': dupsTrackList, 'numDupsMatch': numDupsMatch, 'dupsClrList': dupsClrList})
-
-        if (key == 'loadArtistDict'):
-          # print('>>/Tabs loadArtistDict()')
-          retVal = oLoader.loadArtistDict()
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-            oLoader.updateDbVisitCnt(mysql, 'Art')
-          return jsonify({ 'errRsp': retVal})
-
-        if (key == 'getArtistDict'):
-          # print('>>/Tabs getArtistDict()')
-          retVal, artistDict, plSelectedDict = oLoader.getArtistDict()
-          return jsonify({ 'errRsp': retVal, 'artistDict': artistDict, 'plSelectedDict': plSelectedDict})
-
-        if (key == 'loadArtistTrackList'):
-          artistId = rqJson['artistId']
-          # print('>>/Tabs loadArtistTrackList() - artistId = ' + artistId)
-          retVal = oLoader.loadArtistTrackList(artistId)
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'getArtistTrackList'):
-          # print('>>/Tabs getArtistTrackList()')
-          retVal, artistTrackList = oLoader.getArtistTrackList()
-          return jsonify({ 'errRsp': retVal, 'artistTrackList': artistTrackList})
-
-        if (key == 'loadPlTracks1x'):
-          # print('>>/Tabs loadPlTracks1x()')
-          plId = rqJson['plId']
-          retVal, loadedPlIds = oLoader.loadPlTracks1x(plId)
-          return jsonify({ 'errRsp': retVal, 'loadedPlIds': loadedPlIds})
-
-        if (key == 'incTrackCnt'):
-          # print('>>/Tabs incTrackCnt()')
-          if (oLoader.sMySqlDbName != ''):
-            oLoader.updateDbVisitCnt(mysql, 'Tracks')
-          retVal = [sfConst.errNone]
-          return jsonify({ 'errRsp': retVal})
-
-        if (key == 'getPlSelectedDict'):
-          # print('>>/Tabs getPlSelectedDict')
-          retVal, plSelectedDict = oLoader.getPlSelectedDict()
-          return jsonify({ 'errRsp': retVal, 'plSelectedDict': plSelectedDict })
-
-        if (key == 'getPlSelectedDictNotLoaded'):
-          # print('>>/Tabs getPlSelectedDictNotLoaded')
-          retVal, plSelectedDictNotLoaded = oLoader.getPlSelectedDictNotLoaded()
-          return jsonify({ 'errRsp': retVal, 'plSelectedDictNotLoaded': plSelectedDictNotLoaded })
-
-        if (key == 'getTrackList'):
-          plId = rqJson['plId']
-          # print('>>/Tabs getTrackList() - plId = ' + plId)
-          retVal, trackList, duration = oLoader.getTrackList(plId)
-          return jsonify({ 'errRsp': retVal, 'trackList': trackList, 'plDuration': duration})
-
-        if (key == 'setPlSelectedDict'):
-          # print('>>/Tabs setPlSelectedDict()')
-          newPlSelectedDict = rqJson['newPlSelectedDict']
-          retVal = oLoader.setPlSelectedDict(newPlSelectedDict)
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'loadSpotifyInfo'):
-          # print('>>/Tabs loadSpotifyInfo')
-          winWidth = rqJson['winWidth']
-          winHeight = rqJson['winHeight']
-          if 'X-Real-IP' in request.headers:  # 'X-Real-IP' tag is a pyAny specific tag
-            ip = request.headers['X-Real-IP']
-          else:
-            ip = request.remote_addr
-          retVal, userId, userName, userProduct, sid = oLoader.loadSpotifyInfo(winWidth, winHeight, ip)
-          return jsonify({ 'errRsp': retVal, 'userId': userId, 'userName': userName, 'userProduct': userProduct, 'cookie': getCookie('session'), 'sid': sid})
-
-        if (key == 'loadPlDictBatch'):
-          idx = rqJson['idx']
-          retVal, nPlRxd = oLoader.loadPlDictBatch(idx)
-          # print('>>/Tabs loadPlDictBatch() idx = ' + str(idx) + ', nPlRxd = ' + str(nPlRxd))
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '') and (nPlRxd < 50)):
-            oLoader.updateDbUniqueSpotifyInfo(mysql)
-          return jsonify({ 'errRsp': retVal, 'nPlRxd': nPlRxd })
-
-        if (key == 'getPlDict'):
-          # print('>>/Tabs getPlDict')
-          retVal, plDict, nPlaylists, nTracks, userList = oLoader.getPlDict()
-          return jsonify({ 'errRsp': retVal, 'plDict': plDict , 'NPlaylists': nPlaylists, 'NTracks': nTracks, 'userList': userList })
-
-        if (key == 'rmTracksByPos'):  # uses both track id and track position
-          # print('>>/Tabs rmTracksByPos()')
-          rmTrackList = rqJson['rmTrackList']
-          # pprint.pprint(rmTracksList)  # pprint sorts on key
-          retVal = oLoader.rmTracksByPos(rmTrackList)
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-            oLoader.updateDbVisitCnt(mysql, 'Rm')
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'rmTracksById'): # uses track id
-          # print('>>/Tabs rmTracksById()')
-          plId = rqJson['plId']
-          rmTrackList = rqJson['rmTrackList']
-          reload = rqJson['reload']
-          # pprint.pprint(rmTracksList)  # pprint sorts on key
-          retVal = oLoader.rmTracksById(plId, rmTrackList, reload)
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-            oLoader.updateDbVisitCnt(mysql, 'Rm')
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'mvcpTracks'):
+        elif (key == 'mvcpTracks'):
           # print('>>/Tabs mvcpTracks()')
           destPlId = rqJson['destPlId']
           trackList = rqJson['trackList']
@@ -400,47 +401,12 @@ def Tabs():
             oLoader.updateDbVisitCnt(mysql, type)
           return jsonify({ 'errRsp': retVal })
 
-        if (key == 'createPlaylist'):
-          # print('>>/Tabs createPlaylist()')
-          newPlNm = rqJson['newPlNm']
-          createUriTrackList = rqJson['createUriTrackList']
-          retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-            oLoader.updateDbVisitCnt(mysql, 'Create')
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'deletePlaylist'):
-          # print('>>/Tabs deletePlaylist()')
-          plNm = rqJson['plNm']
-          plId = rqJson['plId']
-          retVal = oLoader.deletePlaylist(plNm, plId)
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-            oLoader.updateDbVisitCnt(mysql, 'DelPl')
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'renamePlaylist'):
-          # print('>>/Tabs renamePlaylist()')
-          plId = rqJson['plId']
-          newPlNm = rqJson['newPlNm']
-          retVal = oLoader.renamePlaylist(plId, newPlNm)
-          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
-             oLoader.updateDbVisitCnt(mysql, 'ReNmPl')
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'reorderPlaylist'):
-          # print('>>/Tabs reorderPlaylist()')
-          plId = rqJson['plId']
-          uriTrackList = rqJson['uriTrackList']
-          reload = rqJson['reload']
-          retVal = oLoader.reorderPlaylist(plId, uriTrackList, reload)
-          return jsonify({ 'errRsp': retVal })
-
-        if (key == 'getErrLog'):
+        elif (key == 'getErrLog'):
           # print('>>/Tabs getErrLog()')
           retVal, errLog = oLoader.getErrLog()
           return jsonify({ 'errRsp': retVal, 'errLog': errLog })
 
-        if (key == 'getInfoHtml'):
+        elif (key == 'getInfoHtml'):
           # print('>>/Tabs getInfoHtml()')
           fnRq = rqJson['infoRq']
           retVal, htmlStr = oLoader.getInfoHtml(fnRq);
@@ -449,7 +415,7 @@ def Tabs():
             oLoader.updateDbVisitCnt(mysql, 'Help')
           return jsonify({ 'errRsp': retVal, 'htmlInfo': htmlStr })
 
-        if (key == 'playTracks'):
+        elif (key == 'playTracks'):
           # print('>>/Tabs playTrack()')
           contextUri = rqJson['contextUri']
           trackUris = rqJson['trackUris']
@@ -458,27 +424,75 @@ def Tabs():
             oLoader.updateDbVisitCnt(mysql, 'Play')
           return jsonify({ 'errRsp': retVal })
 
-        if (key == 'nextTrack'):
+        elif (key == 'nextTrack'):
           # print('>>/Tabs nextTrack()')
           retVal = oLoader.nextTrack();
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'Play')
           return jsonify({ 'errRsp': retVal })
 
-        if (key == 'pauseTrack'):
+        elif (key == 'pauseTrack'):
           # print('>>/Tabs pauseTrack()')
           retVal = oLoader.pauseTrack();
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'Play')
           return jsonify({ 'errRsp': retVal })
 
-        if (key == 'addToQueue'):
+        elif (key == 'addToQueue'):
           # print('>>/Tabs addToQueue()')
           trackUris = rqJson['trackUris']
           retVal = oLoader.addToQueue(trackUris);
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'Play')
           return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'deletePlaylist'):
+          # print('>>/Tabs deletePlaylist()')
+          plNm = rqJson['plNm']
+          plId = rqJson['plId']
+          retVal = oLoader.deletePlaylist(plNm, plId)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'DelPl')
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'renamePlaylist'):
+          # print('>>/Tabs renamePlaylist()')
+          plId = rqJson['plId']
+          newPlNm = rqJson['newPlNm']
+          retVal = oLoader.renamePlaylist(plId, newPlNm)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+             oLoader.updateDbVisitCnt(mysql, 'ReNmPl')
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'createPlaylist'):
+          # print('>>/Tabs createPlaylist()')
+          newPlNm = rqJson['newPlNm']
+          createUriTrackList = rqJson['createUriTrackList']
+          retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+            oLoader.updateDbVisitCnt(mysql, 'Create')
+          return jsonify({ 'errRsp': retVal })
+
+        elif (key == 'refreshPlaylist'):
+          # print('>>/Tabs refreshPlaylist()')
+          plId = rqJson['plId']
+          plNm = rqJson['plNm']
+          reload = rqJson['reload']
+          retVal, buPlNm = oLoader.refreshPlaylist(plNm, plId, reload)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+             oLoader.updateDbVisitCnt(mysql, 'RefreshPl')
+          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm })
+
+        elif (key == 'sortPlaylist'):
+          # print('>>/Tabs sortPlaylist()')
+          plId = rqJson['plId']
+          plNm = rqJson['plNm']
+          reload = rqJson['reload']
+          uriTrackListSorted = rqJson['uriTrackListSorted']
+          retVal, buPlNm = oLoader.sortPlaylist(plNm, plId, uriTrackListSorted, reload)
+          if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
+             oLoader.updateDbVisitCnt(mysql, 'SortPl')
+          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm })
 
 
         # - this is the error in the logs when a route return nothing....

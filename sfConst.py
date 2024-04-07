@@ -49,12 +49,23 @@ errDeletePlaylist = -37
 errRenamePlaylist = -38
 errSpotifyLogin = -39
 errAuthCallback = -40
-errReorderPlaylst = -41
-errGetArtistTrackCnt = -42
-errAddToQueue = -43
-errPlayTrack = -44
-errPauseTrack = -45
-errNextTrack = -46
+errGetArtistTrackCnt = -41
+errAddToQueue = -42
+errPlayTrack = -43
+errPauseTrack = -44
+errNextTrack = -45
+errWrPlaylist = -46
+errSortPlaylist = -47                       # if you change this name or value you to update the javascript code
+errSortPlaylistBu = -48                     # if you change this name or value you to update the javascript code
+errSortPlaylistWr = -49                     # if you change this name or value you to update the javascript code
+errSortPlaylistReLd = -50                   # if you change this name or value you to update the javascript code
+errRefreshPlaylist = -51                    # if you change this name or value you to update the javascript code
+errRefreshPlaylistLd = -52                  # if you change this name or value you to update the javascript code
+errRefreshPlaylistBu = -53                  # if you change this name or value you to update the javascript code
+errRefreshPlaylistWr = -54                  # if you change this name or value you to update the javascript code
+errRefreshPlaylistReLd = -55                # if you change this name or value you to update the javascript code
+errReloadPlaylist = -56                     # if you change this name or value you to update the javascript code
+
 
 
 

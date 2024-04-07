@@ -99,15 +99,6 @@
     {
       // console.log('__SF__dupsTab_activate()');
       // console.log('__SF__dupsTab_activate() - lastCnt = ' + vLastPlSelectionCntrDupsTab + ', curCnt = ' + curPlSelectionCntr);
-
-      // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
-      let t0;
-      if (vShowExeTm == 1)
-      {
-        $("#dupsTab_ExeTm").text(0);
-        t0 = Date.now();
-      }
-
       if (vLastPlSelectionCntrDupsTab !== curPlSelectionCntr)
       {
         vLastPlSelectionCntrDupsTab = curPlSelectionCntr;
@@ -155,13 +146,6 @@
         await tracksTab_afLoadPlTracks();
         await dupsTab_afFindDups();
         await dupsTab_afLoadDupsTable();
-
-        if (vShowExeTm == 1)
-        {
-          exeTm = Math.floor((Date.now() - t0) / 1000);
-          $("#dupsTab_ExeTm").text(exeTm);
-        }
-        // console.log('__SF__dupsTab_afActivate() - loading done - exit');
       }
     }
     catch(err)
@@ -294,7 +278,7 @@
     else
     {
       let reply = await response.json();
-      // console.log('__SF__dupsTab_afLoadPlDict() reply = ', reply);
+      // console.log('__SF__dupsTab_afFindDups() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('dupsTab_afFindDups()', reply['errRsp'], 'dupsTab_errInfo')
     }
@@ -746,7 +730,7 @@
   //-----------------------------------------------------------------------------------------------
   function dupsTab_cbRmPlIdOnChange()
   {
-    console.log('__SF__dupsTab_cbRmPlIdOnChange() - enter')
+    // console.log('__SF__dupsTab_cbRmPlIdOnChange() - enter')
     let curSel = $('#dupsTab_cbRmPlId option:selected').text();
     if (curSel === cbRmTracksById)
       return;
@@ -758,13 +742,13 @@
     // });
     vDupsTable.rows().deselect();
 
-    console.log('__SF__dupsTab_cbRmPlIdOnChange() - exit')
+    // console.log('__SF__dupsTab_cbRmPlIdOnChange() - exit')
   }
 
   //-----------------------------------------------------------------------------------------------
   async function dupsTab_btnRmTracksByIdOnClick()
   {
-    console.log('__SF__dupsTab_btnRmTracksById()')
+    // console.log('__SF__dupsTab_btnRmTracksById()')
 
     let cbRmPlId = $('#dupsTab_cbRmPlId')
     let curSel = $('#dupsTab_cbRmPlId option:selected').text();
@@ -795,7 +779,7 @@
   {
     try
     {
-      console.log('__SF__dupsTab_afRmTracksByIdSeq()');
+      // console.log('__SF__dupsTab_afRmTracksByIdSeq()');
       vDupsTabLoading = true;
 
       tabs_progBarStart('dupsTab_progBar', 'dupsTab_progStat1', 'Removing Tracks...', showStrImmed = true);

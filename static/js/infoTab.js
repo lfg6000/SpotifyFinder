@@ -43,6 +43,9 @@
       case 'helpTextAbout.html':
         $('#infoTab_btnAppInfo').focus();
         break;
+      case 'helpTextRemoveErrors.html':
+        $('#infoTab_btnRemoveErrors').focus();
+        break;
       case 'helpTextTabPl.html':
         $('#infoTab_btnPlaylistInfo').focus();
         break;
@@ -111,6 +114,12 @@
   }
 
   //-----------------------------------------------------------------------------------------------
+  function infoTab_btnRemoveErrors()
+  {
+    infoTab_afLoadInfo('helpTextRemoveErrors.html');
+  }
+
+  //-----------------------------------------------------------------------------------------------
   function infoTab_btnPlaylistInfo()
   {
     infoTab_afLoadInfo('helpTextTabPl.html');
@@ -175,25 +184,6 @@
 
     let arrErrStrs = [];
     errStr = errObj.message;
-    if (errStr.search('errCode: -5,') != -1) //  server error: errRmTracksByPosFromSpotPlaylist
-    {
-      arrErrStrs.push("Explanation Start - Remove Track Error:");
-      arrErrStrs.push("  The Primary reason why this error occurs:");
-      arrErrStrs.push("    - The Spotify database needs to be refreshed.");
-      arrErrStrs.push("    - You can do this by recreating the playlist using Spotify.");
-      arrErrStrs.push("    - After a refresh the remove will probably work fine.");
-      arrErrStrs.push(" ");
-      arrErrStrs.push("  The Secondary reason why this error occurs:");
-      arrErrStrs.push("    - You have SpotifyFinder opened in your browser and you change the playlist in the Spotify App.");
-      arrErrStrs.push("    - press 'Reload from Spotify' to update SpotifyFinder with the current track positons.");
-      arrErrStrs.push(" ");
-      arrErrStrs.push("  I have not been able to reproduce this error using my Spotify playlists.");
-      arrErrStrs.push("  If you are willing to assist with fixing this error send me an email: ");
-      arrErrStrs.push("    spotifyfinderapp@gmail.com");
-      arrErrStrs.push("Explanation End");
-      arrErrStrs.push(" ");
-      arrErrStrs.push(" ");
-    }
 
     arrErrStrs.push((new Date().toLocaleString()).replace(',',' '));
     let errName = 'ErrorName: ' + errObj.name;

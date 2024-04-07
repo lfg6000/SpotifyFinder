@@ -10,8 +10,9 @@
   var vLblId = null;
   var vSpotifyRmLimit = 100;
   var vSpotifyRmLimitMsg = "Spotify limit: max of 100 tracks per request.";
-  var vShowExeTm = 0;
   const cbMvDestDefault = '     Select A Destination Playlist     ';
+  var vRmByPosErrPlNm = 'not found (c)';
+  var vSessionRestartNeeded = false;  // after an err and the user went to a log or help page do a session reset on the next tab select
 
 
   //-----------------------------------------------------------------------------------------------
@@ -86,6 +87,30 @@
 
       if (tabName !== 'Info') // allow tab switch to info page on err even if loading is true
       {
+        // console.log('__SF__tabs_afSwitchTabs() - enter', evt, tabName);
+
+        // after an err and the user went to a log or help page do a session reset on the next tab select
+        if (vSessionRestartNeeded == true)
+        {
+          msg = 'Due to a previous error a session restart is needed.\n\n' +
+                'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+          return;
+        }
+
+        if (vTotalTracksSelected > 25000)
+        {
+          // see plTabs_updateSelectedCntInfo()
+          msg = 'The maximum number of tracks that can be loaded is 25,000.\n' +
+                'With the currently selected playlists  ' + vTotalTracksSelected + '  tracks will need to be loaded.\n' +
+                'You must reduce the number of tracks to be loaded by selecting fewer playlists\n\n';
+          alert(msg);
+          return;
+        }
+
         if ((tabName !== 'PlayLists') && (vPlTabActivated === 0))
         {
           // let the initial load of the plTab complete before allowing a switch to another tab
@@ -166,7 +191,7 @@
       // console.log('__SF__tabs_afSwitchTabs() - switching tab to = ' + tabName);
       // var cookies = document.cookie; // only works if SESSION_COOKIE_HTTPONLY is false
       // console.log('__SF__cookies = ', cookies)
-      $('#artistTab_hint').hide();
+      $('#searchTab_hint').hide();
 
       if (vLastPlSelectionCntr !== vCurPlSelectionCntr)
       {
@@ -262,6 +287,7 @@
   //-----------------------------------------------------------------------------------------------
   async function tabs_afRmTracksByPos(rmTrackList)
   {
+    vRmByPosErrPlNm = 'unknown playlist name (c)';  // used in err dlg to tell user the plNm with the remove error
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
@@ -282,7 +308,11 @@
       let reply = await response.json();
       // console.log('__SF__tabs_afRmTracksByPos() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
+      {
+        if ('plNm' in reply)
+           vRmByPosErrPlNm = reply['plNm']
         tabs_throwSvrErr('tabs_afRmTracksByPos()', reply['errRsp'], 'tabs_errInfo')
+      }
     }
   }
 
@@ -331,7 +361,7 @@
   //-----------------------------------------------------------------------------------------------
   async function tabs_afDeletePlaylist(plNm, plId)
   {
-    console.log('__SF__tabs_afDeletePlaylist() - vUrl - CreatePlaylist');
+    console.log('__SF__tabs_afDeletePlaylist() - vUrl - DeletePlaylist');
     let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
                                        body: JSON.stringify({ deletePlaylist: 'deletePlaylist',
                                                                     plNm: plNm,
@@ -346,6 +376,20 @@
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tabs_afDeletePlaylist()', reply['errRsp'], 'tabs_errInfo')
     }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tabs_partialReloadVarReset()
+  {
+    // used by plTab: rename, delete, & refresh to reload the mPlDict to avoid wiping out mPlTracksDict and mPlSelectedDict
+    vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
+    vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
+    vPlNameTableLastSelectedRow = 0;
+    vArtistNameTableLastSelectedRow = 0;
+    vSearchText = '';
+    vPrevSearchFieldVal = '';
+    vArtistNameTableInitComplete = false;
+    vPlNamesTableInitComplete = false;
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -368,9 +412,10 @@
       if (reply['errRsp'][0] !== 1)
       {
         // we do not throw because an error here does affect anything else
-        console.log('tabs_afAddToQueue - error reply = ', reply['errRsp']);
+        // console.log('tabs_afAddToQueue - error reply = ', reply['errRsp']);
         if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
           return 'Add to Queue request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+        return 'Spotify denied the Add to Queue request. '
       }
       return '';
     }
@@ -413,9 +458,10 @@
       if (reply['errRsp'][0] !== 1)
       {
         // we do not throw because an error here does affect anything else
-        console.log('tabs_afPlayTracks - error reply  = ', reply['errRsp']);
+        // console.log('tabs_afPlayTracks - error reply  = ', reply['errRsp']);
         if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
           return 'Play request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+        return 'Spotify denied the Play request. '
       }
       return '';
     }
@@ -440,9 +486,10 @@
       if (reply['errRsp'][0] !== 1)
       {
         // we do not throw because an error here does affect anything else
-        console.log('tabs_afNextTrack - error reply = ', reply['errRsp']);
+        // console.log('tabs_afNextTrack - error reply = ', reply['errRsp']);
         if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
           return 'Next track request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+        return 'Spotify denied the Next Track request. '
       }
       return '';
     }
@@ -467,9 +514,10 @@
       if (reply['errRsp'][0] !== 1)
       {
         // we do not throw because an error here does affect anything else
-        console.log('tabs_afPauseTrack - error reply = ', reply['errRsp']);
+        // console.log('tabs_afPauseTrack - error reply = ', reply['errRsp']);
         if (reply['errRsp'][8].includes('NO_ACTIVE_DEVICE'))
           return 'Next track request failed because there is no active Spotify device.  \nYou must have a Spotify App open and playing for this to work.'
+        return 'Spotify denied the Pause request. '
       }
       return '';
     }
@@ -575,6 +623,9 @@
   {
     // console.log('__SF__tabs_errHandler() err = ', err.message);
 
+    // we set vHtmlInfoFn goto clientlog or remove errors help page if user hits cancel
+    vHtmlInfoFn = 'clientLog';
+
     // console.log('__SF__tabs_errHandler() stackTrace = ', stacktrace());
     // st = printStackTrace();
     // console.log('__SF__tabs_errHandler() stackTrace = ', st);
@@ -592,7 +643,7 @@
       vAborting = 1;
       alert(msg);
       let urlSpotifyFinderStartPage = window.location.origin;
-      location.replace(urlSpotifyFinderStartPage);
+      location.replace(urlSpotifyFinderStartPage);  // goto home page
       return;
     }
 
@@ -600,6 +651,9 @@
       return;
 
     vAborting = 1;
+
+    // after an err and the user went to a log or help page do a session reset on the next tab select
+    vSessionRestartNeeded = true;
 
     msg = 'An error has occured.\n' +
       'A session restart is needed.\n\n' +
@@ -612,12 +666,15 @@
     console.log('splits = ', errMsgSplit);
     if (errMsgSplit[2] === "errCode: -5") // errRmTracksByPosFromSpotPlaylist = -5
     {
+      vHtmlInfoFn = 'helpTextRemoveErrors.html';
       // a long-winded explanation for a -5 is added in infoTab_addClientLogErrMsg()
-      msg = 'One or more of the tracks you selected were not removed.\n' +
-        'A session restart is needed.\n' +
-        'Press Ok and you will be redirected to the home page.\n' +
-        'Press Cancel for a details.\n\n' +
-        'I have not been able to reproduce this error so if you want to assist email me at spotifyfinderapp@gmail.com\n';
+      msg = 'One or more of the tracks you selected were not removed from this\n' +
+            'Playlist:  ' + vRmByPosErrPlNm + '.\n\n' +
+            'There are 2 ways to fix Remove Errors.\n' +
+            'Press Ok to see how to fix Remove Errors .\n';
+      alert(msg);
+      $("#btnInfoTab")[0].click();
+      return;
     }
 
     if (errMsgSplit[2] === "errCode: -26")
@@ -634,23 +691,21 @@
       msg = 'Your browsers cache has an old javascript file.\n' +
             'Your browsers cache needs to be cleared.\n' +
             'Just clear the cache and nothing else.\n' +
-            'Go into the browsers settings and clear the cache.\n' +
-            'Or use windows keyboard shortcut: Control-Shift-Delete.\n' +
             'After clearing the browsers cache restart the browser.\n\n' +
             'Press Ok and you will be redirected to the home page.\n' +
-            'Press Cancel and you will be redirected to the error log viewer.\n\n' +
-            'For support: email error log text to: spotifyfinderapp@gmail.com\n';
+            'Press Cancel and you will be redirected to the error log viewer.\n\n';
     }
 
     if (confirm(msg) == true)
     {
       let urlSpotifyFinderStartPage = window.location.origin;
-      location.replace(urlSpotifyFinderStartPage);
+      location.replace(urlSpotifyFinderStartPage); // goto home page
+      return;
     }
     else
     {
       // console.log('__SF__tabs_errHandler() cancel - goto info tab ');
-      vHtmlInfoFn = 'clientLog';
+      // we set vHtmlInfoFn goto clientlog or remove errors help page if user hits cancel
       $("#btnInfoTab")[0].click();
     }
   }

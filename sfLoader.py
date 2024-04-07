@@ -156,7 +156,7 @@ class SpfLoader():
       if (cfgFnd == 0):
         raise Exception('Cfg file not found. Missing File: ', vPath)
 
-      print(f">>loader.loadCfgFile() - using grpKey: {grpKey}', this cfg is located in {vPath}", flush=True)  # flush to server log file
+      # print(f">>loader.loadCfgFile() - using grpKey: {grpKey}', this cfg is located in {vPath}", flush=True)  # flush to server log file
 
       fHelper = open(vPath, "r")
       hVal = json.load(fHelper)
@@ -177,7 +177,7 @@ class SpfLoader():
       if (this.sSpotifyClientSecret == ''):
         raise Exception('Cfg file error.  sSpotifyClientSecret is empty. cfg file: ', vPath)
 
-      print(f">>loader.loadCfgFile() - the redirectUrl:   ({this.sSpotifyRedirectUri})", flush=True)
+      # print(f">>loader.loadCfgFile() - the redirectUrl:   ({this.sSpotifyRedirectUri})", flush=True)
       # print(f">>loader.loadCfgFile() - the local host (http://127.0.0.1:5000)", flush=True)
 
       return 1
@@ -284,7 +284,7 @@ class SpfLoader():
                                               scope=this.sSpotifyScope,
                                               cache_handler = sfCacheFileHandler())
         tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
-        print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
+        # print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
         # pprint.pprint(tokenInfo)
 
       tokenValid = True
@@ -412,14 +412,17 @@ class SpfLoader():
         visitCntCreate = 0
         visitCntDelPl = 0
         visitCntReNmPl = 0
+        visitCntRefreshPl = 0
+        visitCntSortPl = 0
         visitCntPlay = 0
         visitCntHelp = 0
 
-        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
+        cursor.execute('INSERT INTO uniqueUsers VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )',
                        (userId, userName, product, country,
                         int(visitCnt), int(visitCntTracks), int(visitCntDups), int(visitCntArt),
                         int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch),
-                        int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntPlay), int(visitCntHelp),
+                        int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl),
+                        int(visitCntRefreshPl), int(visitCntSortPl), int(visitCntPlay), int(visitCntHelp),
                         int(playlistCnt), int(playlistCntUsr), int(totalTrackCnt), int(totalTrackCntUsr),
                         sqlDate, sqlDate))
         # print('>>loader.updateDbUniqueSpotifyInfo - add new user')
@@ -471,36 +474,42 @@ class SpfLoader():
         visitCntCreate = user['visitCntCreate']
         visitCntDelPl = user['visitCntDelPl']
         visitCntReNmPl = user['visitCntReNmPl']
+        visitCntRefreshPl = user['visitCntRefreshPl']
+        visitCntSortPl = user['visitCntSortPl']
         visitCntPlay = user['visitCntPlay']
         visitCntHelp = user['visitCntHelp']
 
         if (cntType == 'Tracks'):
           visitCntTracks = visitCntTracks + 1
-        if (cntType == 'Dups'):
+        elif (cntType == 'Dups'):
           visitCntDups = visitCntDups + 1
-        if (cntType == 'Art'):
+        elif (cntType == 'Art'):
           visitCntArt = visitCntArt + 1
-        if (cntType == 'Rm'):
+        elif (cntType == 'Rm'):
           visitCntRm = visitCntRm + 1
-        if (cntType == 'Mv'):
+        elif (cntType == 'Mv'):
           visitCntMv = visitCntMv + 1  # every mv also does a rm
-        if (cntType == 'Cp'):
+        elif (cntType == 'Cp'):
           visitCntCp = visitCntCp + 1
-        if (cntType == 'Search'):
+        elif (cntType == 'Search'):
           visitCntSearch = visitCntSearch + 1
-        if (cntType == 'Create'):
+        elif (cntType == 'Create'):
           visitCntCreate = visitCntCreate + 1
-        if (cntType == 'DelPl'):
+        elif (cntType == 'DelPl'):
           visitCntDelPl = visitCntDelPl + 1
-        if (cntType == 'ReNmPl'):
+        elif (cntType == 'ReNmPl'):
           visitCntReNmPl = visitCntReNmPl + 1
-        if (cntType == 'Play'):
+        elif (cntType == 'RefreshPl'):
+          visitCntRefreshPl = visitCntRefreshPl + 1
+        elif (cntType == 'SortPl'):
+          visitCntSortPl = visitCntSortPl + 1
+        elif (cntType == 'Play'):
           visitCntPlay = visitCntPlay + 1
-        if (cntType == 'Help'):
+        elif (cntType == 'Help'):
           visitCntHelp = visitCntHelp + 1
 
-        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntCreate=%s, visitCntDelPl=%s, visitCntReNmPl=%s, visitCntPlay=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
-                                  (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntPlay), int(visitCntHelp), sqlDate, userId))
+        cursor.execute("UPDATE uniqueUsers SET visitCntTracks=%s, visitCntDups=%s, visitCntArt=%s, visitCntRm=%s, visitCntMv=%s, visitCntCp=%s, visitCntSearch=%s, visitCntCreate=%s, visitCntDelPl=%s, visitCntReNmPl=%s, visitCntRefreshPl=%s, visitCntSortPl=%s, visitCntPlay=%s, visitCntHelp=%s, lastVisit=%s WHERE userId=%s",
+                                  (int(visitCntTracks), int(visitCntDups), int(visitCntArt), int(visitCntRm), int(visitCntMv), int(visitCntCp), int(visitCntSearch), int(visitCntCreate), int(visitCntDelPl), int(visitCntReNmPl), int(visitCntRefreshPl), int(visitCntSortPl), int(visitCntPlay), int(visitCntHelp), sqlDate, userId))
         mysql.connection.commit()
 
       cursor.close()
@@ -603,7 +612,32 @@ class SpfLoader():
     try:
       # print('>>loader.getPlDict()')
       # raise Exception('throwing loader.getPlDict()')
-      return [sfConst.errNone], session['mPlDict'], len(session['mPlDict']), session['mTotalTrackCnt'], session['mPlDictOwnersList']
+
+      # session['mPlDict'] is a dictionary of playlist dictionaries that looks like this:
+      # session['mPlDict']['plId'] = {'Playlist Id': plId, 'Playlist Uri': uri, 'Playlist Name': plNm, 'Playlist Owners Name': ownerNm,
+      #                               'Playlist Owners Id': ownerId, 'Public': pub, 'Snapshot Id': snapid], 'Tracks': nTrks, 'Duration': dur}
+
+      # in late march of 2024 spotify stopped returning the list of playlists using the order set in the Spotify App UI
+      # the playlist order returned by spotify was a jumbled mess so now we sort the playlists alphabetically
+
+      # we get each playlist dict and put it into a list of playlist dicts
+      listOfPl = []
+      for id, pl in session['mPlDict'].items():
+        listOfPl.append(pl)
+
+      # we sort the list of playlist dicts by plNm and Owner Id
+      # sortedListOfPl = sorted(listOfPl, key=lambda x: (x['Playlist Name'].lower(), x['Playlist Owners Id']))  # case insensitive
+      sortedListOfPl = sorted(listOfPl, key=lambda x: (x['Playlist Name'], x['Playlist Owners Id']))
+
+      # we put the sorted list pl dicts back into a dictionary of playlist dictionaries
+      sortedPlDict = {}
+      for pl in sortedListOfPl:
+        sortedPlDict[pl['Playlist Id']] = pl
+
+      return [sfConst.errNone], sortedPlDict, len(sortedPlDict), session['mTotalTrackCnt'], session['mPlDictOwnersList']
+
+      # previously we just returned what we rxd from spotify because the order followed the users Spotify UI order
+      # return [sfConst.errNone], session['mPlDict'], len(session['mPlDict']), session['mTotalTrackCnt'], session['mPlDictOwnersList']
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errGetPlDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
@@ -611,78 +645,27 @@ class SpfLoader():
       return retVal, [], 0, 0, []
 
   # ---------------------------------------------------------------
-  # def loadPlDict(this, clean=True):
-  #   # print('>>loader.loadPlDict()')
-  #
-  #   try:
-  #     # raise Exception('throwing loader.loadPlDict() - playlist dict load error')
-  #
-  #     # clear dict if this a reload
-  #     session['mPlDict'].clear()
-  #     session['mTotalTrackCnt'] = 0
-  #
-  #     if clean == True:
-  #       session['mPlSelectedDict'].clear()
-  #       session['mPlTracksDict'].clear()
-  #
-  #     idx = 0
-  #     done = False
-  #     while (done == False):
-  #       # spotify only returns 50 playlists at a time so we loop until we have them all
-  #       # 'https://api.spotify.com/v1/me/playlists'
-  #       results = this.oAuthGetSpotifyObj().current_user_playlists(limit=50, offset=idx)
-  #       # print('>>num playlist fetched = ' + str(len(results['items'])))
-  #       if (len(results['items']) < 50):
-  #         done = True
-  #
-  #       for i, item in enumerate(results['items']):
-  #         pub = 'Public' if item['public'] == True else 'Private'
-  #         ownerId = item['owner']['id']
-  #         ownerNm = item['owner']['display_name']
-  #         session['mPlDict'][item['id']] = {'Playlist Id': item['id'],
-  #                                           'Playlist Name': item['name'],
-  #                                           'Playlist Owners Name': ownerNm,
-  #                                           'Playlist Owners Id': ownerId,
-  #                                           'Public': pub,
-  #                                           'Snapshot Id': item['snapshot_id'],
-  #                                           'Tracks': str(item['tracks']['total']),
-  #                                           'Duration': '0'}
-  #         session['mTotalTrackCnt'] += item['tracks']['total']
-  #         if (ownerId == session['mUserId']):
-  #           session['mPlaylistCntUsr'] += 1
-  #           session['mTotalTrackCntUsr'] += item['tracks']['total']
-  #         id = ownerNm + ' / ' + ownerId
-  #         if id not in session['mPlDictOwnersList']:
-  #           session['mPlDictOwnersList'].append(id)
-  #       idx += 50
-  #       if (idx > 699):
-  #         break;
-  #
-  #     # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlDict.json', 'w') as f:
-  #     #   json.dump(session['mPlDict'], f)
-  #     return [sfConst.errNone]
-  #   except Exception:
-  #     exTyp, exObj, exTrace = sys.exc_info()
-  #     retVal = [sfConst.errLoadPlDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading Playlists Failed', str(exTyp), str(exObj)]
-  #     this.addErrLogEntry(retVal)
-  #     return retVal
-
-  # ---------------------------------------------------------------
-  def loadPlDictBatch(this, idx):
-    # print('>>loader.loadPlDict()')
-
+  def loadPlDictBatch(this, idx, clearTracksDict):
+    # print('>>loader.loadPlDictBatch()')
     try:
       # raise Exception('throwing loader.loadPlDict() - playlist dict load error')
 
       # clear dict if this a reload
       if (idx == 0):
+        # print(f"clearTracksDict = {clearTracksDict}")
         session['mPlDict'].clear()
         session['mTotalTrackCnt'] = 0
         session['mTotalTrackCntUsr'] = 0
         session['mPlaylistCnt'] = 0
         session['mPlaylistCntUsr'] = 0
-        session['mPlSelectedDict'].clear()
-        session['mPlTracksDict'].clear()
+
+        # used by plTab rename, delete, refresh
+        # used by the search tab, artist tab, tracks tab when doing a create
+        # used by the tracks tab when doing a sort
+        # to avoid wiping the the previously loaded tracks
+        if clearTracksDict == True:
+          session['mPlTracksDict'].clear()
+          session['mPlSelectedDict'].clear()
 
         session['mPlDictOwnersList'].clear()
         session['mDupsTrackList'].clear()
@@ -777,6 +760,7 @@ class SpfLoader():
     # print('>>loader.setPlSelectedDict()')
     try:
       # raise Exception('throwing loader.setPlSelectedDict()')
+      # print(f"setPlSelectedDict() = {newPlSelDict}")
       session['mPlSelectedDict'].clear()
       session['mPlSelectedDict'] = newPlSelDict.copy()
       # pprint.pprint(session['mPlSelectedDict']) # pprint sorts on key
@@ -799,7 +783,6 @@ class SpfLoader():
     return session['mPlTracksDict']
 
   # ---------------------------------------------------------------
-  # def loadPlTracks1x(this, plId, updateTrackCnt=0):
   def loadPlTracks1x(this, plId):
     # print('>>loader.loadPlTracks1x()')
 
@@ -913,15 +896,6 @@ class SpfLoader():
         idx += 100
         # print('track fetch loop idx = ', idx)
 
-      # # updateTrackCnt is non zero during a Rm, Mp, Cp operation
-      # # at one time updateTrackCnt was necessary because spotify was not returning unavailable tracks here, but # tracks in the get Pl call
-      # # included unavailable tracks. this meant the number tracks on the plTab and the trackCnt here would not match. so we could not use
-      # trackCnt and we had to just inc/dec the pl 'tracks' value to reflect the rm/mv/cp
-      # if (updateTrackCnt != 0):
-      #   nTracks = int(plValues['Tracks'])
-      #   nTracks += updateTrackCnt;
-      #   plValues['Tracks'] = str(nTracks)
-
       # it now appears we are getting unavailable tracks so the trackCnt will now match the pl tracks value
       plValues['Tracks'] = trackCnt
 
@@ -948,93 +922,6 @@ class SpfLoader():
       retVal = [sfConst.errLoadPlTracks1x, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading tracks for selected playlists failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, []
-
-  # # ---------------------------------------------------------------
-  # def loadPlTracks(this):
-  #   # print('>>loader.loadPlTracks()')
-  #   # mPlTracksDict['plId'] = trackList[]
-  #   #   - one trackList[] for each playlist
-  #   # trackList[] = each list entry is dict of track values
-  #   #   - one track dict in the list for each track in the playlist
-  #   #   - we are using a list because because a single playlist can have duplicates
-  #
-  #   try:
-  #     # raise Exception('throwing loader.loadPlTracks()')
-  #     plTracksAlreadyLoaded = 0
-  #     for plSelectedId, plSelectedDictVals in session['mPlSelectedDict'].items():
-  #       if plSelectedId in session['mPlTracksDict']:  # did we already loaded the tracks for the pl
-  #         # print('>>loader.loadPlTracks() - skipping tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
-  #         plTracksAlreadyLoaded += 1
-  #         continue
-  #
-  #       # print('>>loader.loadPlTracks() - fetching tracks in ' + plSelectedId + ', ' + plSelectedDictVals['Playlist Name'])
-  #
-  #       idx = 0
-  #       dur = 0
-  #       done = False
-  #       tracksList = []
-  #
-  #       # lots of tracks have an available_markets list with 0 entries but not all
-  #       # maybe we need to pass a market param (country code) in the .playlist_items() call and get back track linking info
-  #
-  #       plValues = session['mPlDict'].get(plSelectedId)  # need the ownerName and ownerId
-  #       trackCnt = 0
-  #       while (False == done):
-  #         # spotify only returns 100 tracks at a time so we loop until we have them all
-  #         # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
-  #         # tracks = this.oAuthGetSpotifyObj().user_playlist_tracks(playlist_id=plId)
-  #         # 'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
-  #
-  #         tracks = this.oAuthGetSpotifyObj().playlist_items(plSelectedId, limit=100, offset=idx)
-  #         if (len(tracks['items']) < 100):
-  #           done = True
-  #
-  #         for item in tracks['items']:
-  #           if (item['track'] is None):
-  #             continue;
-  #
-  #           track = item['track']
-  #           # we do not have the users countryCode because we do not ask for that permission
-  #           # if countryCode not in track['available_markets']:
-  #           #   continue
-  #
-  #           # a daily wellness playlist from spotify had a podcast episode in the middle of a bunch of songs
-  #           # we are ignoring podcast episodes.  track['type'] can be 'track' or 'episode'
-  #           if (track['type'] != 'track'):  # a daily wellness playlist from spotify had a
-  #             continue
-  #           tracksList.append({'Track Id': track['id'],
-  #                              'Playlist Id': plSelectedId,
-  #                              'Playlist Name': plValues['Playlist Name'],
-  #                              'Track Name': track['name'],
-  #                              'Track Position': (str(trackCnt)).zfill(4),
-  #                              'Album Name': track['album']['name'],
-  #                              'Album Id': track['album']['id'],
-  #                              'Artist Name': track['artists'][0]['name'],
-  #                              'Artist Id': track['artists'][0]['id'],
-  #                              'Duration': track['duration_ms'],
-  #                              'Duration Hms': this.msToHms(track['duration_ms'], 0),
-  #                              'Track Uri': track['uri'],
-  #                              'Playlist Owners Name': plValues['Playlist Owners Name'],
-  #                              'Playlist Owners Id': plValues['Playlist Owners Id']
-  #                              })
-  #
-  #           trackCnt += 1
-  #           dur += item['track']['duration_ms']
-  #         idx += 100
-  #         # print('track fetch loop idx = ', idx)
-  #
-  #       plValues['Duration'] = this.msToHms(dur, 1)
-  #       session['mPlTracksDict'][plSelectedId] = tracksList
-  #     # print('>>loader.loadPlTracks() - plTracksAlreadyLoaded = ' + str(plTracksAlreadyLoaded))
-  #
-  #     # with open('C:/Users/lfg70/.aa/LFG_Code/Python/Prj_SpotifyFinder/.lfg_work_dir/mPlTracksDict.json', 'w') as f:
-  #     #   json.dump(session['mPlTracksDict'], f)
-  #     return [sfConst.errNone]
-  #   except Exception:
-  #     exTyp, exObj, exTrace = sys.exc_info()
-  #     retVal = [sfConst.errLoadPlTracks, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Loading tracks for selected playlists failed', str(exTyp), str(exObj)]
-  #     this.addErrLogEntry(retVal)
-  #     return retVal
 
   # ---------------------------------------------------------------
   def getTrackList(this, plId):
@@ -1079,7 +966,7 @@ class SpfLoader():
 
       # plNm, pub, tn are fetched to make a more informative error msg
       pub = 'not found'
-      plNm = 'not found'
+      plNm = 'unknown playlist name (b)'
       tn = f"rm list len = {len(spotRmTrackList)}"
 
       # cntr, done, origPlLen are used to determine if the remove has completed
@@ -1123,19 +1010,19 @@ class SpfLoader():
 
       # did the while loadPlTracks1x have an error
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
-        return retVal
+        return retVal, plNm
 
       if (cntr >= maxRetries):
         retVal = [sfConst.errRmTracksByPosSyncErr, this.getDateTm(), f"{this.fNm(this)}", f"Invalid track count after remove: expected({origPlLen - len(spotRmTrackList)}), actual({len(session['mPlTracksDict'][plId])})",f"we asked for the pl {cntr} times before throwing this error.", "n/a"]
         this.addErrLogEntry(retVal)
-        return retVal
+        return retVal, plNm
 
-      return [sfConst.errNone]
+      return [sfConst.errNone], plNm
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Remove tracks from spotify playlist ({pub}:{plNm}:{tn}) by pos failed", str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal
+      return retVal, plNm
 
   # ---------------------------------------------------------------
   def isTrackByPosInSpotRmTrackList(this, spotRmTrackList, trackUri, trackPosition):
@@ -1152,6 +1039,7 @@ class SpfLoader():
 
     try:
       # raise Exception('throwing loader.rmTracksByPos()')
+      plNm = 'unknown playlist name (a)'
       plIdsCompleted = []
       spotRmTrackList = []
       # raise Exception('throwing loader.rmTracksByPos()')
@@ -1168,16 +1056,18 @@ class SpfLoader():
             spotRmTrackList.append({'uri': item2['Track Uri'], 'positions': [int(item2['Track Position'])]})
 
         # remove tracks for this unique plId
-        retVal = this.rmTracksByPosFromSpotPlaylist(curPlId, spotRmTrackList)
+        retVal, plNm = this.rmTracksByPosFromSpotPlaylist(curPlId, spotRmTrackList)
         if retVal[sfConst.errIdxCode] != sfConst.errNone:
-          return retVal
+          return retVal, plNm
         plIdsCompleted.append(curPlId)
-      return [sfConst.errNone]
+
+      return [sfConst.errNone], plNm
+
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errRmTracksByPos, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Remove tracks from playlist by pos failed', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal
+      return retVal, plNm
 
   # ---------------------------------------------------------------
   # ---------------------------------------------------------------
@@ -1772,45 +1662,6 @@ class SpfLoader():
       return retVal
 
   # ---------------------------------------------------------------
-  def createPlaylist(this, newPlNm, createUriTrackList):
-    # print('>>loader.createPlaylist()')
-    try:
-      # raise Exception('throwing loader.createPlaylist()')
-
-      nTracks = len(createUriTrackList)
-      if nTracks == 0:
-        return [sfConst.errNone]
-
-      iEnd = 0
-      iRem = nTracks
-      newPlId = ''
-      # we have to add the tracks 100 at a time so we loop until finished
-      while (iRem > 0):
-        iStart = iEnd
-        if (iRem > 100):
-          iEnd = iEnd + 100
-        else:
-          iEnd = iEnd + iRem
-
-        # print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
-        addList = createUriTrackList[iStart:iEnd]
-        iRem = iRem - (iEnd - iStart)
-
-        # if this is the first loop thru the list of tracks create a new playlist
-        if newPlId == '':
-          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='sorted using spotifyFinder.com')
-          newPlId = results['id']
-
-        this.oAuthGetSpotifyObj().playlist_add_items(newPlId, addList)
-
-      return [sfConst.errNone]
-    except Exception:
-      exTyp, exObj, exTrace = sys.exc_info()
-      retVal = [sfConst.errCreatePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to create track list for selected artists.', str(exTyp), str(exObj)]
-      this.addErrLogEntry(retVal)
-      return retVal
-
-  # ---------------------------------------------------------------
   def deletePlaylist(this, plNm, plId):
     # print('>>loader.deletePlaylist()')
     try:
@@ -1822,7 +1673,17 @@ class SpfLoader():
       if plId == '':
         return [sfConst.errNone]
 
+      # print(f"delete pl    plNm = {plNm}, plId= {plId}")
       this.oAuthGetSpotifyObj().current_user_unfollow_playlist(plId)
+
+      if plId in session['mPlDict']:
+        del session['mPlDict'][plId]
+
+      if plId in session['mPlSelectedDict']:
+        del session['mPlSelectedDict'][plId]
+
+      if plId in session['mPlTracksDict']:
+        del session['mPlTracksDict'][plId]
 
       return [sfConst.errNone]
     except Exception:
@@ -1835,13 +1696,24 @@ class SpfLoader():
   def renamePlaylist(this, plId, newPlNm):
     # print('>>loader.renamePlaylist()')
     try:
-      # raise Exception('throwing loader.deletePlaylist()')
+      # print(f"renamePlaylist - newPlNm = {newPlNm}")
+      # raise Exception('throwing loader.renamePlaylist()')
       if newPlNm == '':
         return [sfConst.errNone]
       if plId == '':
         return [sfConst.errNone]
 
       this.oAuthGetSpotifyObj().playlist_change_details(plId, name=newPlNm)
+
+      if plId in session['mPlDict']:
+        del session['mPlDict'][plId]
+
+      if plId in session['mPlSelectedDict']:
+        del session['mPlSelectedDict'][plId]
+
+      if plId in session['mPlTracksDict']:
+        del session['mPlTracksDict'][plId]
+
       return [sfConst.errNone]
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
@@ -1849,58 +1721,6 @@ class SpfLoader():
       this.addErrLogEntry(retVal)
       return retVal
 
-  # ---------------------------------------------------------------
-  def reorderPlaylist(this, plId, uriTrackList, reload):
-    # print('>>loader.createPlaylist()')
-    try:
-      # raise Exception('throwing loader.reorderPlaylist()')
-
-      nTracks = len(uriTrackList)
-      if nTracks == 0:
-        return [sfConst.errNone]
-
-      iEnd = 0
-      iRem = nTracks
-      newPlId = ''
-      # we have to add the tracks 100 at a time so we loop until finished
-      while (iRem > 0):
-        iStart = iEnd
-        if (iRem > 100):
-          iEnd = iEnd + 100
-        else:
-          iEnd = iEnd + iRem
-
-        # print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
-        addList = uriTrackList[iStart:iEnd]
-        iRem = iRem - (iEnd - iStart)
-
-        if iEnd <= 100:
-          # if this is the first loop thru the list of tracks write tracks 1 to 100
-          # this is done as a Put:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
-          # as a put spotify replaces all the tracks in the playlist with what is in the addlist
-          this.oAuthGetSpotifyObj().playlist_replace_items(plId, addList)
-        else:
-          # write tracks greater than 100
-          # this is done as a Post:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
-          # as a post spotify adds the tracks in addList to the bottom of the playlist
-          this.oAuthGetSpotifyObj().playlist_add_items(plId, addList)
-
-      if (reload):
-        # give spotify some time to complete the reorder than reload the playlist
-        # see rmTracksByPosFromSpotPlaylist() for a more robust check to see if spotify is done
-        # print(f"doing reload...iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}")
-        time.sleep(4)
-        del session['mPlTracksDict'][plId]
-        retVal, loadedPlIds = this.loadPlTracks1x(plId)
-        if retVal[sfConst.errIdxCode] != sfConst.errNone:
-          return retVal
-
-      return [sfConst.errNone]
-    except Exception:
-      exTyp, exObj, exTrace = sys.exc_info()
-      retVal = [sfConst.errReorderPlaylst, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'An Error occurred while reordering playlist.', str(exTyp), str(exObj)]
-      this.addErrLogEntry(retVal)
-      return retVal
 
   # ---------------------------------------------------------------
   def playTracks(this, contextUri, trackUris):
@@ -1994,3 +1814,230 @@ class SpfLoader():
       this.addErrLogEntry(retVal)
       return retVal
 
+  # ---------------------------------------------------------------
+  def createPlaylist(this, newPlNm, createUriTrackList):
+    # print('>>loader.createPlaylist()')
+    try:
+      # raise Exception('throwing loader.createPlaylist()')
+
+      nTracks = len(createUriTrackList)
+      if nTracks == 0:
+        return [sfConst.errNone]
+
+      iEnd = 0
+      iRem = nTracks
+      newPlId = ''
+      # we have to add the tracks 100 at a time so we loop until finished
+      while (iRem > 0):
+        iStart = iEnd
+        if (iRem > 100):
+          iEnd = iEnd + 100
+        else:
+          iEnd = iEnd + iRem
+
+        # print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
+        addList = createUriTrackList[iStart:iEnd]
+        iRem = iRem - (iEnd - iStart)
+
+        # if this is the first loop thru the list of tracks create a new playlist
+        if newPlId == '':
+          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='sorted using spotifyFinder.com')
+          newPlId = results['id']
+
+        this.oAuthGetSpotifyObj().playlist_add_items(newPlId, addList)
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errCreatePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f'Failed to create playlist: {newPlNm}', str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def wrPlaylist(this, plNm, plId, uriTrackList):
+    # print('>>loader.wrPlaylist()')
+    try:
+      # used when doing a refresh or a sort
+      # raise Exception('throwing loader.wrPlaylist()')
+
+      nTracks = len(uriTrackList)
+      if nTracks == 0:
+        return [sfConst.errNone]
+
+      iEnd = 0
+      iRem = nTracks
+      newPlId = ''
+      # we have to add the tracks 100 at a time so we loop until finished
+      while (iRem > 0):
+        iStart = iEnd
+        if (iRem > 100):
+          iEnd = iEnd + 100
+        else:
+          iEnd = iEnd + iRem
+
+        # print(f'iStart = {iStart}, iEnd {iEnd}, iRem = {iRem}')
+        addList = uriTrackList[iStart:iEnd]
+        iRem = iRem - (iEnd - iStart)
+
+        if iEnd <= 100:
+          # if this is the first loop thru the list of tracks write tracks 1 to 100
+          # this is done as a Put:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
+          # as a put spotify replaces all the tracks in the playlist with what is in the addlist
+          this.oAuthGetSpotifyObj().playlist_replace_items(plId, addList)
+        else:
+          # write tracks greater than 100
+          # this is done as a Post:  'https://api.spotify.com/v1/playlists/1n2STXHae0Wg6ZV0OYwToy/tracks'
+          # as a post spotify adds the tracks in addList to the bottom of the playlist
+          this.oAuthGetSpotifyObj().playlist_add_items(plId, addList)
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errWrPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"An Error occurred while writing this playlist {plNm}.", str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def reloadPlaylist(this, plNm, plId):
+    # print('>>loader.reloadPlaylist()')
+    try:
+      # used when doing a refresh or a sort
+      # raise Exception('throwing loader.reloadPlaylist()')
+
+      del session['mPlTracksDict'][plId]
+      retVal, loadedPlIds = this.loadPlTracks1x(plId)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        return retVal
+
+      return [sfConst.errNone]
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errReloadPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"An Error occurred while reloading this playlist {plNm}.", str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal
+
+  # ---------------------------------------------------------------
+  def sortPlaylist(this, plNm, plId, uriTrackListSorted, reload):
+    try:
+      # used by sort btn and refresh btn
+      dtStr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+      buPlNm = f"{plNm} SF_Sort_Backup_{dtStr}"
+
+      # raise Exception('throwing loader.sortPlaylist()')
+
+      if plId not in session['mPlDict']:
+        raise Exception('throwing loader.sortPlaylist() - playlist not found in plDict.')
+
+      # we want an unsorted backup
+      uriTrackListUnsorted = []
+      cntInvalidTrackId = 0;
+      for vals in session['mPlTracksDict'][plId]:
+        if vals['Track Id'] != '':
+          uriTrackListUnsorted.append(vals['Track Uri'])
+        else:
+          cntInvalidTrackId += 1
+
+      if cntInvalidTrackId != 0:
+        print(f"sortPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
+
+      # create a backup playlist using the original/unsorted list of tracks
+      retVal = this.createPlaylist(buPlNm, uriTrackListUnsorted)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        retVal = [sfConst.errSortPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Sort error - failed to create backup for : {plNm}",
+                  'original playlist was not modified.', 'sort terminated.']
+        this.addErrLogEntry(retVal)
+        return retVal, buPlNm
+
+      # rewrite the playlist using the original/sorted set of tracks
+      retVal = this.wrPlaylist(plNm, plId, uriTrackListSorted)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        retVal = [sfConst.errSortPlaylistWr, this.getDateTm(), f"{this.fNm(this)}", f"Sort error - failed to write playlist: : {plNm}",
+                  'Use backup to recover', f"backup playlist: {buPlNm}"]
+        this.addErrLogEntry(retVal)
+        return retVal, buPlNm
+
+      # reload the playlist to ensure we match spotify
+      if reload == True:
+        # give spotify some time to complete the write then reload the playlist
+        time.sleep(6)
+        retVal = this.reloadPlaylist(plNm, plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          retVal = [sfConst.errSortPlaylistReLd, this.getDateTm(), f"{this.fNm(this)}", f"Sort error - playlist reload failed : {plNm}",
+                    'playlist write finished but post write reload failed.', f"backup playlist: {buPlNm}"]
+          this.addErrLogEntry(retVal)
+          return retVal, buPlNm
+
+      # this print can be removed after awhile once things look okay
+      print(f"sortPlaylist completed successfully: un: {session['mUserName']}, playlist: {plNm}")
+      return [sfConst.errNone], buPlNm
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errSortPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Sort Playlist failed.", str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal, buPlNm
+
+  # ---------------------------------------------------------------
+  def refreshPlaylist(this, plNm, plId, reload):
+    try:
+      dtStr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+      buPlNm = f"{plNm} SF_Refresh_Backup_{dtStr}"
+
+      # raise Exception('throwing loader.refreshPlaylist()')
+
+      if plId not in session['mPlDict']:
+        raise Exception('throwing loader.refreshPlaylist() - playlist not found in plDict.')
+
+      if plId not in session['mPlTracksDict']:
+        retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          retVal = [sfConst.errRefreshPlaylistLd, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to load playlist tracks: {plNm}",
+                    'original playlist was not modified.', 'refresh terminated.']
+          this.addErrLogEntry(retVal)
+          return retVal, buPlNm
+
+      uriTrackList = []
+      cntInvalidTrackId = 0;
+      for vals in session['mPlTracksDict'][plId]:
+        if vals['Track Id'] != '':
+          uriTrackList.append(vals['Track Uri'])
+        else:
+          cntInvalidTrackId += 1
+
+      if cntInvalidTrackId != 0:
+        print(f"refreshPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
+
+      # create a backup playlist using the original list of tracks
+      retVal = this.createPlaylist(buPlNm, uriTrackList)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        retVal = [sfConst.errRefreshPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to create backup for : {plNm}",
+                  'original playlist was not modified.', 'refresh terminated.']
+        this.addErrLogEntry(retVal)
+        return retVal, buPlNm
+
+      # rewrite the playlist using the original set of tracks
+      retVal = this.wrPlaylist(plNm, plId, uriTrackList)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        retVal = [sfConst.errRefreshPlaylistWr, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to write playlist: : {plNm}",
+                'Use backup to recover', f"backup playlist: {buPlNm}"]
+        this.addErrLogEntry(retVal)
+        return retVal, buPlNm
+
+      # reload the playlist to ensure we match spotify
+      if reload == True:
+        # give spotify some time to complete the write then reload the playlist
+        time.sleep(6)
+        retVal = this.reloadPlaylist(plNm, plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          retVal = [sfConst.errRefreshPlaylistReLd, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - playlist reload failed : {plNm}",
+                  'playlist write finished but post write reload failed.', f"backup playlist: {buPlNm}"]
+          this.addErrLogEntry(retVal)
+          return retVal, buPlNm
+
+      # this print can be removed after awhile once things look okay
+      print(f"refreshPlaylist completed successfully: un: {session['mUserName']}, playlist: {plNm}")
+      return [sfConst.errNone], buPlNm
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errRefreshPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Refresh Playlist failed.", str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal, buPlNm

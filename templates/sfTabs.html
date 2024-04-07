@@ -9,20 +9,20 @@
 <body>
 
   <div class="navbarTabs">
-    <a href="/" style="float: left; font-size: 16px; padding: 10px 18px 6px 18px;" title="Go to the landing page.">Home</a>
-    <button onclick="plTabs_btnReload()" style="float: left; font-size: 16px; padding: 10px 18px 6px 18px;" title="Reloading your playlists can be useful if you change any of your playlists in the Spotify App while using this website.">Reload from Spotify</button>
+    <a href="/" style="float: left; font-size: 16px; padding: 10px 10px 6px 5px;" title="Go to the landing page.">Home</a>
+    <button onclick="plTabs_btnReload()" style="float: left; font-size: 16px; padding: 10px 10px 6px 5px;" title="Reloading your playlists can be useful if you change any of your playlists in the Spotify App while using this website.">Reload from Spotify</button>
 <!--    <a onclick="plTabs_btnReload()" href="" style="float: left; font-size: 16px; padding: 10px 18px 6px 18px;" title="Reloading your playlists can be useful if you change any of your playlists in the Spotify App while using this website.">Reload from Spotify</a>-->
-    <a href="https://ko-fi.com/spotifyfinder" target="_blank" style="float: left; font-size: 16px; padding: 8px 18px 8px 18px; font-family: cursive;" title="Can you help support this ad free, tracker free, open source website.">Buy me a coffee</a>
-    <a onClick="javascript:window.open('mailto:?subject=You might also find this website useful: www.spotifyfinder.com. I use it to curate my playlists.&body=%0DThis web app allows you to: %0D   1) find/remove duplicate songs across playlists  %0D   2) search for songs across playlists. %0D%0DGoogle spotifyfinder to get a link', 'mail'); event.preventDefault()" href="mailto:?" target="_blank" class="fa-regular fa-envelope" style="float: left; padding: 13px 18px 10px 18px;" title="Tell a friend about www.spotifyFinder.com"></a>
-    <a onClick="javascript:window.open('mailto:spotifyfinderapp@gmail.com', 'mail'); event.preventDefault()" href="mailto:spotifyfinderapp@gmail.com" target="_blank" class="fa-regular fa-envelope" style="float: left; padding: 13px 18px 10px 18px;" title="Send an email to the developer of www.spotifyFinder.com"></a>
+    <a href="https://ko-fi.com/spotifyfinder" target="_blank" style="float: left; font-size: 16px; padding: 8px 10px 4px 5px; font-family: cursive;" title="Can you help support this ad free, tracker free, open source website.">Buy me a coffee</a>
+    <a onClick="javascript:window.open('mailto:?subject=You might also find this website useful: www.spotifyfinder.com. I use it to curate my playlists.&body=%0DThis web app allows you to: %0D   1) find/remove duplicate songs across playlists  %0D   2) search for songs across playlists. %0D%0DGoogle spotifyfinder to get a link', 'mail'); event.preventDefault()" href="mailto:?" target="_blank" class="fa-regular fa-envelope" style="float: left; padding: 13px 10px 6px 10px;" title="Tell a friend about SpotifyFinder."><span style="font-size: 11px; padding-left: 2px">Share</span></a>
+    <a onClick="javascript:window.open('mailto:spotifyfinderapp@gmail.com', 'mail'); event.preventDefault()" href="mailto:spotifyfinderapp@gmail.com" target="_blank" class="fa-regular fa-envelope" style="float: left; padding: 13px 5px 6px 10px;" title="Send an email to the developer of the SpotifyFinder web app"><span style="font-size: 11px; padding-left: 2px">Developer</span></a>
     {# this float right text is same color as backgrnd, it is used to help center SpotifyFinder Text    #}
-    <a href="" style="float: right; font-size: 16px; padding: 10px 18px 6px 18px; color: transparent; pointer-events: none;">..Home.................................................Reload from Spotify..</a>
+    <a href="" style="float: right; font-size: 16px; padding: 10px 10px 6px 5px; color: transparent; pointer-events: none;">..Home..................................................Reload from Spotify..</a>
     <a href="" class="tabsHatText" style="pointer-events: none;">SpotifyFinder</a>
   </div>
 
 
   <div class="tab">
-    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'PlayLists')" id="btnPlTab", title="Playlists selected on this tab determines which playlists are examined by the: &#10;   'Duplicates Tab', 'Search Tab', 'Tracks Tab', 'Artists Tab'.  &#10;Press Save to remember your selections.">PlayLists</button>
+    <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'PlayLists')" id="btnPlTab", title="Playlists selected on this tab determines which playlists are examined by the: &#10;   'Duplicates Tab', 'Search Tab', 'Tracks Tab', 'Artists Tab'.  &#10;Press Save to remember your selections, for your next visit to this site.">PlayLists</button>
     <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Duplicates')" id="btnDupsTab", title="Find duplicates across the selected playlists. &#10; or &#10;Find duplicates within each selected playlist. ">Duplicates</button>
     <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Search')" id="btnSearchTab", title="Search across the selected playlists for a: &#10;   track &#10;   artist &#10;   album">Search</button>
     <button class="tablinks tabLeft"  onclick="tabs_afSwitchTabs(event, 'Tracks')" id="btnTracksTab", title="Show the tracks in the selected playlists.">Tracks</button>
@@ -35,14 +35,13 @@
     {% include "plTab.html" %}
     <hr class="sep1px">
     <div id="plTabs_outerRow2" class="clearfix">
-      <div class="innerRowLeft rowMargin2"><label id="plTab_info1" class="spaceRight"  ondblclick="plTab_onDblClickExeTm()"></label></div>
+      <div class="innerRowLeft rowMargin2"><label id="plTab_info1" class="spaceRight"></label></div>
       <div class="innerRowLeft rowMargin2"><label id="plTab_info2"></label></div>
       <div class="innerRowRight rowMargin2"><label id="plTab_info3" style="color: red; font-size: 12px;"></label></div>
     </div>
     <div class="borderGreen"></div>
     <div id="plTabs_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="plTab_progBar" class="progressBar"></div> </div>
-      <div class="innerRowLeft rowMargin3"><label id="plTab_ExeTm" style="font-size: 11px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="plTab_progStat1" style="color: red;"></label></div>
       <div class="innerRowRight rowMargin3"><label id="plTab_hint" style="font-size: 13px;">Playlists selected on this tab determines what playlists are examined by the Duplicates, Search, Tracks, Artists Tabs.</label></div>
     </div>
@@ -59,7 +58,6 @@
     <div class="borderGreen"></div>
     <div id="tracksTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="tracksTab_progBar" class="progressBar"></div> </div>
-      <div class="innerRowLeft rowMargin3"><label id="tracksTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="tracksTab_progStat1" style="color: red;">lblStatus</label></div>
       <div class="innerRowRight rowMargin2"><button onclick="window.open('https://ko-fi.com/spotifyfinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Can you help support this ad free, tracker free, open source website.">Buy me a coffee</button></div>
     </div>
@@ -76,7 +74,6 @@
     <div class="borderGreen"></div>
     <div id="dupsTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="dupsTab_progBar" class="progressBar"></div> </div>
-      <div class="innerRowLeft rowMargin3"><label id="dupsTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="dupsTab_progStat1" style="color: red;">lblStatus</label></div>
       <div class="innerRowRight rowMargin2"><button onclick="window.open('https://ko-fi.com/spotifyfinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Can you help support this ad free, tracker free, open source website.">Buy me a coffee</button></div>
     </div>
@@ -93,7 +90,6 @@
     <div class="borderGreen"></div>
     <div id="artistsTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="artistsTab_progBar" class="progressBar"></div> </div>
-      <div class="innerRowLeft rowMargin3"><label id="artistsTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="artistsTab_progStat1" style="color: red;">lblStatus</label></div>
       <div class="innerRowRight rowMargin2"><button onclick="window.open('https://ko-fi.com/spotifyfinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Can you help support this ad free, tracker free, open source website.">Buy me a coffee</button></div>
     </div>
@@ -110,9 +106,8 @@
     <div class="borderGreen"></div>
     <div id="searchTab_outerRow3" class="clearfix">
       <div class="innerRowLeft rowMargin3 progressStatus"><div id="searchTab_progBar" class="progressBar"></div> </div>
-      <div class="innerRowLeft rowMargin3"><label id="searchTab_ExeTm" style="font-size: 10px;"></label></div>
       <div class="innerRowLeft rowMargin3"><label id="searchTab_progStat1" style="color: red;">lblStatus</label></div>
-      <div class="innerRowLeft rowMargin3"><label id="artistTab_hint" style="font-size: 16px; color: red;">To Search: Enter search value into 'Search Text' box and press enter.</label></div>
+      <div class="innerRowLeft rowMargin3"><label id="searchTab_hint" style="font-size: 16px; color: red;">To Search: Enter search value into 'Search Text' box and press enter.</label></div>
       <div class="innerRowRight rowMargin2"><button onclick="window.open('https://ko-fi.com/spotifyfinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Can you help support this ad free, tracker free, open source website.">Buy me a coffee</button></div>
     </div>
   </div>

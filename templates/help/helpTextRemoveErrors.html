@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Refreshing a Playlist to Fix Remove Errors</title>
+  </head>
+  <body>
+    <h2>Refreshing a Playlist to Fix Remove Errors</h2>
+
+    <h3>Why do the remove errors occur</h3>
+      <ol type="1">
+        <li><span style="font-size: 11pt;">Primary Reason: The playlist on the Spotify server needs to be refreshed.</span></li>
+          <ul>
+            <li><span style="font-size: 11pt;">Typically remove track errors only occur on playlist you created a long time ago.</span></li>
+            <li><span style="font-size: 11pt;">Refreshing the playlist rewrites/updates the playlist track information.</span></li>
+            <li><span style="font-size: 11pt;">Once the playlist is refreshed the remove errors will no longer occur.</span></li>
+          </ul>
+        <br>
+        <li><span style="font-size: 11pt;">Secondary Reason: You change the same playlist in SpotifyFinder and Spotify at the same time.</span></li>
+          <ul>
+            <li><span style="font-size: 11pt;">Press 'Reload from Spotify' to update SpotifyFinder with the current track positons..</span></li>
+          </ul>
+      </ol>
+
+
+    <h3>How to Refresh a Playlist</h3>
+      <ul>
+        <li><span style="font-size: 11pt;">There are 2 ways to fix refresh a playlist.</span></li>
+        <ol type="1">
+          <li><span style="font-size: 11pt;">Use the Refresh Button on the Playlist Tab (described below).</span></li>
+          <li><span style="font-size: 11pt;">Manually Refresh the Playlist using the Spotify App (described below).</span></li>
+        </ol>
+        <li><span style="font-size: 11pt;">Either way will work. They both do the exact same thing. Pick one you are most comfortable with.</span></li>
+      </ul>
+
+    <h3>Refresh a Playlist using the Playlist Tab Refresh Button</h3>
+      <ol type="1">
+        <li><span style="font-size: 11pt;">Go to the Playlist Tab.</span></li>
+        <li><span style="font-size: 11pt;">Select the playlist that has remove errors.</span></li>
+        <li><span style="font-size: 11pt;">Press the Refresh button.</span></li>
+      </ol>
+
+    <h3>How the Playlist Tab Refresh Button Works</h3>
+      <ol type="1">
+        <li><span style="font-size: 11pt;">It verfies you own the playlist (you can not refresh a playlist you do not own).</span></li>
+        <li><span style="font-size: 11pt;">It makes a backup copy of the playlist.</span></li>
+          <ol type="a">
+            <li><span style="font-size: 11pt;">The backup playlist name will be: original playlist name appended with 'SF_Refresh_Backup_[date]_[time].</span></li>
+            <li><span style="font-size: 11pt;">The backup playlist will show up in your list of playlists.</span></li>
+            <li><span style="font-size: 11pt;">If the backup fails the refresh is terminated and the original playlist is not modified.</span></li>
+          </ol>
+        <li><span style="font-size: 11pt;">It removes all the tracks from the playlist.</span></li>
+        <li><span style="font-size: 11pt;">It adds all the tracks back to the original playlist.</span></li>
+        <li><span style="font-size: 11pt;">Once you are satisfied with the refresh you can delete the backup playlist.</span></li>
+        <li><span style="font-size: 11pt;">Note: In the unlikely event that step 4 fails you will need to use the Spotify app to copy the tracks in the backup to the original playlist.</span></li>
+      </ol>
+      <ul>
+        <li><span style="font-size: 11pt;">The above steps will preserve the original playlist id.</span></li>
+        <li><span style="font-size: 11pt;">This is needed in cases where the playlist has been shared or is being followed.</span></li>
+      </ul>
+
+    <h3>Manually Refresh a Playlist Using the Spotify App - Overview</h3>
+      <ol type="1">
+        <li><span style="font-size: 11pt;">Make a backup copy of the playlist that has remove errors.</span></li>
+        <li><span style="font-size: 11pt;">Remove from the tracks from the original playlist.</span></li>
+        <li><span style="font-size: 11pt;">Copy tracks from the backup to the original playlist.</span></li>
+      </ol>
+      <ul>
+        <li><span style="font-size: 11pt;">The above steps will preserve the original playlist id.</span></li>
+        <li><span style="font-size: 11pt;">This is needed in cases where the playlist has been shared or is being followed.</span></li>
+      </ul>
+
+    <h3>Manually Refresh a Playlist Using the Spotify App - Step by Step Instructions</h3>
+      <ol type="1">
+        <li><span style="font-size: 11pt;">Open the Spotify Desktop App (not the Spotify Web App).</span></li>
+        <li><span style="font-size: 11pt;">Right click on the playlist that has remove errors.</span></li>
+        <li><span style="font-size: 11pt;">Click on 'Add to other playlist'.</span></li>
+        <li><span style="font-size: 11pt;">Click on 'New Playlist'.</span></li>
+        <li><span style="font-size: 11pt;">A new playlist will be created with all the tracks from the original playlist.</span></li>
+        <li><span style="font-size: 11pt;">The new playlist will be called: 'original playlist name (2)'.</span></li>
+        <li><span style="font-size: 11pt;">Go to original playlist.</span></li>
+        <li><span style="font-size: 11pt;">Click on first track.</span></li>
+        <li><span style="font-size: 11pt;">Press Ctrl-A or Cmd-A to select all the tracks.</span></li>
+        <li><span style="font-size: 11pt;">Press the Delete key and Press Remove. This will remove all the tracks from the original playlist.</span></li>
+        <li><span style="font-size: 11pt;">Right click on the backup playlist called: 'original playlist name (2).</span></li>
+        <li><span style="font-size: 11pt;">Click on 'Add to other playlist'.</span></li>
+        <li><span style="font-size: 11pt;">Select the original playlist. All the tracks from the backup will be added to the original playlist.</span></li>
+        <li><span style="font-size: 11pt;">Once you are satisfied the refresh is working you can delete the backup playlist.</span></li>
+      </ol>
+      <ul>
+        <li><span style="font-size: 11pt;">The above steps will preserve the original playlist id.</span></li>
+        <li><span style="font-size: 11pt;">This is needed in cases where the playlist has been shared or is being followed.</span></li>
+      </ul>
+
+    <h3>Support</h3>
+    <ul>
+      <li><span style=" font-size: 11pt;"><a onClick="javascript:window.open('mailto:spotifyfinderapp@gmail.com', 'mail');event.preventDefault()" href="mailto:spotifyfinderapp@gmail.com">Send us an e-mail</a>&nbsp; &nbsp; If you have questions, issues, or suggestions.</span></li>
+      <li><span style=" font-size: 11pt;"><a href="https://github.com/lfg6000/SpotifyFinder/issues", target="_blank", rel="noopener noreferrer">Report Issues on GitHub</a>&nbsp; &nbsp; If you are a github user.</span></li>
+    </ul>
+
+    <h3>Support the Project</h3>
+    <span style="font-size: 11pt;"><button onclick="window.open('https://ko-fi.com/spotifyfinder', target='_blank', rel='noopener noreferrer')" class="coffeeBMC" title="Support the project">Donate</button>&nbsp; &nbsp; A small donation will help pay for the web site hosting service.</span>
+    <br>
+    <br>
+    <br>
+
+  </body>
+  </body>
+</html>

@@ -5,7 +5,6 @@
   var vTracksTabLoading = false;
   var vPlTracksTableLastSearchCol = '';
   var vPlNameTableLastSelectedRow = 0;
-  var vLoadedPlIds = [];
   var vPlNamesTableInitComplete = false;
 
   //-----------------------------------------------------------------------------------------------
@@ -112,9 +111,10 @@
       "orderClasses":    false,   // background color of sorted column does not change
       "order":           [],
       columnDefs: [ { targets: 0, className: 'select-checkbox', orderable: false },
-                    { targets: 8, visible: false, searchable: false },
-                    { targets: 9, visible: false, searchable: false },
-                    { targets: 10, visible: false, searchable: false } ],
+                    { targets: 8, visible: false, searchable: false },     // Playlist Id
+                    { targets: 9, visible: false, searchable: false },     // Track Uri
+                    { targets: 10, visible: false, searchable: false },    // Playlist Owners Id
+                    { targets: 11, visible: false, searchable: false } ],  // Playlist Name
       select: { style: 'multi' }
     } );
   }
@@ -163,20 +163,13 @@
     {
       // console.log('__SF__tracksTab_activate()');
       // console.log('__SF__tracksTab_activate() - lastCnt = ' + vLastPlSelectionCntrTracksTab + ', curCnt = ' + curPlSelectionCntr);
-
-      // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
-      let t0;
-      if (vShowExeTm == 1)
-      {
-        $("#tracksTab_ExeTm").text(0);
-        t0 = Date.now();
-      }
-
       if (vLastPlSelectionCntrTracksTab !== curPlSelectionCntr)
       {
         vLastPlSelectionCntrTracksTab = curPlSelectionCntr;
         vPlNameTableLastSelectedRow = 0;
+        vPlNamesTableInitComplete = false;
         vTracksTabLoading = true;
+        $("#tracksTab_plNmTextInput").val('');
 
         // this works better if the clear tables are here instead of being inside async calls
         // we are reloading both tables so we empty them out
@@ -206,14 +199,6 @@
         //       --> tracksTab_plNameTableSelect()
         //         --> tracksTab_afLoadTracksTableSeq(plId, plName)
         //           --> tracksTab_afLoadTracksTable(plId, plName) this is vUrl getTrackList
-
-        // await tracksTab_afLoadTracksTable(plId='');
-        if (vShowExeTm == 1)
-        {
-          exeTm = Math.floor((Date.now() - t0) / 1000);
-          $("#tracksTab_ExeTm").text(exeTm);
-        }
-        // console.log('__SF__tracksTab_afActivate() - loading done - exit');
       }
     }
     catch(err)
@@ -259,9 +244,8 @@
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tracksTab_afLoadPlTracks1x()', reply['errRsp'], 'tracksTab_errInfo')
 
-      // how many tracks have been loaded so far
-      // when the user is selecting pl's on the plTab we warn them if there selection will cause over 40k tracks to be loaded
-      vLoadedPlIds = reply['loadedPlIds'];
+      // no longer used ... we now tell the user it's 25k max...you must selected fewer playlists...
+      // vLoadedPlIds = reply['loadedPlIds'];
     }
   }
 
@@ -408,7 +392,7 @@
       {
         vPlTracksTable.row.add(['', tVals['Track Name'], tVals['Artist Name'], tVals['Album Name'], tVals['Duration Hms'],
                                     tVals['Track Position'], tVals['Playlist Owners Name'], tVals['Track Id'], plId, tVals['Track Uri'],
-                                    tVals['Playlist Owners Id']]);
+                                    tVals['Playlist Owners Id'], tVals['Playlist Name']]);
       });
       vPlTracksTable.draw();
 
@@ -846,203 +830,8 @@
         this.select();
     });
     // console.log('__SF__tracksTab_btnSelectAll() - invalid track id cnt = ' + cntInvalidTrackId);
-    // vPlTracksTable.rows().select();
     vTracksTabLoading = false;
     tracksTab_updateSelectedCnt();
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnClearPlNmText()
-  {
-    // console.log('__SF__tracksTab_btnClearPlNmText()');
-    $("#tracksTab_plNmTextInput").val('');
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnCreatePlaylist()
-  {
-    // console.log('__SF__tracksTab_btnCreatePlaylist()');
-    tracksTab_afCreatePlaylistSeq();
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afCreatePlaylistSeq()
-  {
-    // console.log('__SF__tracksTab_afCreatePlaylistSeq()');
-    try
-    {
-      done = false
-      if ((vPlTracksTable.rows({selected: true}).count() == 0))
-      {
-        alert('At least one track must be selected to create a new playlist.');
-        return;
-      }
-
-      let vNewPlNm = $("#tracksTab_plNmTextInput").val();
-      if (vNewPlNm == '')
-      {
-        alert('Please enter a name for the new playlist.');
-        return;
-      }
-
-      let plNmAlreadyExists = false;
-      let plDict = await tabs_afGetPlDict();
-      $.each(plDict, function (key, values)
-      {
-        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
-          plNmAlreadyExists = true;
-      });
-
-      if (plNmAlreadyExists == true)
-      {
-        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
-        return;
-      }
-
-      vTracksTabLoading = true;
-      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Creating Playlist...', showStrImmed=true);
-
-      let rowData;
-      let createUriTrackList = [];
-      $.each(vPlTracksTable.rows('.selected').nodes(), function(i, item)
-      {
-        rowData = vPlTracksTable.row(this).data();
-        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
-          cntInvalidTrackId++;
-        else
-          createUriTrackList.push(rowData[9]); // track uri
-      });
-      // console.log('tracksTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
-
-      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
-      done = true
-    }
-    catch(err)
-    {
-      // console.log('__SF__tracksTab_btnCpTracks() caught error: ', err);
-      tabs_errHandler(err);
-    }
-    finally
-    {
-      // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
-      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vTracksTabLoading = false;
-      if (done)
-        plTabs_btnReload()
-    }
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  function tracksTab_btnSaveSort()
-  {
-    // console.log('__SF__tracksTab_btnSaveSort()');
-    tracksTab_afSaveSortSeq();
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afSaveSortSeq()
-  {
-    // console.log('__SF__tracksTab_afSaveSortSeq()');
-    try
-    {
-      done = false;
-
-      //---- check if user owns playlist
-      let rowDataTrack0 = vPlTracksTable.row(0).data();
-      if (rowDataTrack0[10] !== vUserId)
-      {
-        alert('You can not save a sort on a playlist you do not own.');
-        return;
-      }
-
-      // if (vPlTracksTable.rows().count() > 1001)
-      // {
-      //   alert('Save sort is only allowed on playlists with less than 1000 tracks.');
-      //   return;
-      // }
-
-      // for all users but me
-      // make sure the user understands
-      // 1) put a dialog explaining save sort danger
-      // 2) put a dialog requiring the user to say they have a backup
-      if (rowDataTrack0[10] !== 'slipstream422')
-      {
-        msg = 'Please confirm that you understand: \n' +
-            '  1) if this operation fails you will lose your playlist!  \n' +
-            '  2) You Need To Make a Copy/Backup of Your Playlist First.  \n' +
-            '  How Save Sort works: \n' +
-            '   - all the tracks in your playlist will be deleted, \n' +
-            '     then all the tracks will be added back to your playlist. \n' +
-            '! SELECT CANCEL: IF YOU DO NOT HAVE A COPY/BACKUP OF THIS PLAYLIST!\n';
-
-        if (confirm(msg) == false)
-          return;
-
-        // ask the user to type y
-        if (prompt("Type 'y' to confirm you have a copy/backup of your playlist.", '') != 'y')
-          return;
-      }
-
-      // start proj bar
-      vTracksTabLoading = true;
-      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Saving Sort...', showStrImmed=true);
-
-      // get a list of the sorted track uris
-      let rowData;
-      let uriTrackList = [];
-      vPlTracksTable.rows().every(function()
-      {
-        let rowData = this.data();
-        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
-          cntInvalidTrackId++;
-        else
-          uriTrackList.push(rowData[9]); // track uri
-      });
-      // console.log('tracksTab_afSaveSortSeq() uriTrackList: rowData = \n' + JSON.stringify(uriTrackList, null, 4));
-
-      // reorder playlist using the sorted track uris
-      vPlTracksTable.clear();
-      let reload = true;
-      let plId = rowDataTrack0[8]
-      await tracksTab_afReorderPlaylist(plId, uriTrackList, reload);
-      await tracksTab_afLoadTracksTable(plId);
-
-      done = true
-    }
-    catch(err)
-    {
-      // console.log('__SF__tracksTab_afSaveSortSeq() caught error: ', err);
-      tabs_errHandler(err);
-    }
-    finally
-    {
-      // console.log('__SF__tracksTab_afSaveSortSeq() finally.');
-      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
-      vTracksTabLoading = false;
-    }
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  async function tracksTab_afReorderPlaylist(plId, uriTrackList, reload)
-  {
-    console.log('__SF__tracksTab_afReorderPlaylistt() - vUrl - reorderPlaylist');
-    let response = await fetch(vUrl, {
-      method: 'POST', headers: {'Content-Type': 'application/json',},
-      body: JSON.stringify({
-        reorderPlaylist: 'reorderPlaylist',
-        plId: plId,
-        uriTrackList: uriTrackList,
-        reload: reload
-      }),
-    });
-    if (!response.ok)
-      tabs_throwErrHttp('tracksTab_afReorderPlaylist()', response.status, 'tabs_errInfo');
-    else {
-      let reply = await response.json();
-      // console.log('tabs_afReorderPlaylist() reply = ', reply);
-      if (reply['errRsp'][0] !== 1)
-        tabs_throwSvrErr('tracksTab_afReorderPlaylist()', reply['errRsp'], 'tabs_errInfo')
-    }
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -1196,3 +985,278 @@
       tabs_errHandler(err);
     }
   }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnClearPlNmText()
+  {
+    // console.log('__SF__tracksTab_btnClearPlNmText()');
+    $("#tracksTab_plNmTextInput").val('');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnCreatePlaylist()
+  {
+    // console.log('__SF__tracksTab_btnCreatePlaylist()');
+    tracksTab_afCreatePlaylistSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afCreatePlaylistSeq()
+  {
+    // console.log('__SF__tracksTab_afCreatePlaylistSeq()');
+    try
+    {
+      if ((vPlTracksTable.rows({selected: true}).count() == 0))
+      {
+        alert('At least one track must be selected to create a new playlist.');
+        return;
+      }
+
+      let vNewPlNm = $("#tracksTab_plNmTextInput").val();
+      if (vNewPlNm == '')
+      {
+        alert('Please enter a name for the new playlist.');
+        return;
+      }
+
+      let plNmAlreadyExists = false;
+      let plDict = await tabs_afGetPlDict();
+      $.each(plDict, function (key, values)
+      {
+        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
+          plNmAlreadyExists = true;
+      });
+
+      if (plNmAlreadyExists == true)
+      {
+        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
+        return;
+      }
+
+      vTracksTabLoading = true;
+      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Creating Playlist...', showStrImmed=true);
+
+      let rowData;
+      let createUriTrackList = [];
+      $.each(vPlTracksTable.rows('.selected').nodes(), function(i, item)
+      {
+        rowData = vPlTracksTable.row(this).data();
+        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+          cntInvalidTrackId++;
+        else
+          createUriTrackList.push(rowData[9]); // track uri
+      });
+      // console.log('tracksTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
+
+      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+      await new Promise(r => setTimeout(r, 3000));  // Spotify can be slow to update the list of playlists
+
+      // reload the plDict so the created pl is in the plDict w/o wiping the already loaded tracks
+      await plTab_afLoadPlDict(false);
+
+      // get the plTable to reload when the user goes back to the plTab
+      vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
+
+      $("#tracksTab_plNmTextInput").val('');
+    }
+    catch(err)
+    {
+      // console.log('__SF__tracksTab_btnCpTracks() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__tracksTab_afMvTracksSeq() finally.');
+      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
+      vTracksTabLoading = false;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function tracksTab_btnSort()
+  {
+    // console.log('__SF__tracksTab_btnSort()');
+    tracksTab_afSortPlaylist();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afSortPlaylist()
+  {
+    //                     { targets: 8, visible: false, searchable: false },      // Playlist Id
+    //                     { targets: 9, visible: false, searchable: false },     // Track Uri
+    //                     { targets: 10, visible: false, searchable: false },    // Playlist Owners Id
+    //                     { targets: 11, visible: false, searchable: false } ],  // Playlist Name
+
+    let nTrks = vPlTracksTable.rows().count();
+    if (nTrks === 0)
+    {
+      alert('The playlist you selected does not have any tracks.');
+      return;
+    }
+
+    // get the data on the selected playlist
+    let rowDataTrack0 = vPlTracksTable.row(0).data();
+    let plId = rowDataTrack0[8];
+    let ownerId = rowDataTrack0[10];
+    let plNm = rowDataTrack0[11];
+    // console.log('trks: ' + nTrks + ', plId: ' + plId + ', ownerId: ' + ownerId + ', plNm: ' + plNm);
+    
+    //---- check if user owns playlist
+    if (ownerId !== vUserId)
+    {
+      alert('You can not sort a playlist you do not own.');
+      return;
+    }
+
+    if (vPlTracksTable.rows().count() > 3000)
+    {
+      alert('Sorting is only allowed on playlists with less than 3000 tracks.');
+      return;
+    }
+
+    msg = 'Please confirm that you would like to Sort this playlist: \n' +
+           '   ' + plNm + '\n\n' +
+          'Note 1: A backup of this playlist is made prior to applying the Sort.\n' +
+          'Note 2: Once the Sort completes, and you are satisfied with the results, you can delete the backup.\n';
+
+    if (confirm(msg) == false)
+      return;
+
+    await tracksTab_afSortPlaylistSeq(plNm, plId);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tracksTab_afSortPlaylistSeq(plNm, plId)
+  {
+    try
+    {
+      vTracksTabLoading = true;
+      tabs_progBarStart('tracksTab_progBar', 'tracksTab_progStat1', 'Applying Sort to Playlist...', showStrImmed=true);
+
+      let rowData;
+      let uriTrackListSorted = [];
+      let cntInvalidTrackId = 0;
+
+      vPlTracksTable.rows().every(function ()
+      {
+        let rowData = this.data();
+        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+          cntInvalidTrackId++;
+        else
+          uriTrackListSorted.push(rowData[9]); // track uri
+      });
+
+      // console.log("__SF__tracksTab_afSortPlaylistSeq() invalid track id cnt: " + cntInvalidTrackId);
+
+      vPlTracksTable.clear();
+      let reply = await tabs_afSortPlaylist(plNm, plId, uriTrackListSorted, true);
+      // console.log('reply = ', reply['errRsp']);
+      buPlNm = reply['buPlNm'];
+
+      // did we have a refresh error
+      if (reply['errRsp'][0] != 1)
+      {
+        if (reply['errRsp'][0] === -48) // errSortPlaylistBu
+        {
+          msg = 'Sort Failed\n' +
+                'Failed to create a playlist backup.\n' +
+                'The original playlist was not modified.\n\n' +
+                'A session restart is needed.\n' +
+                'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+          return;
+        }
+
+        if (reply['errRsp'][0] === -49) // errSortPlaylistWr
+        {
+          msg = '*** READ THIS MESSAGE CAREFULLY ***\n' +
+              'Sort Playlist Failed\n' +
+              'Unable to copy tracks from backup to original playlist.\n'+
+              'A backup playlist was successfully created:\n'+
+              '   ' + buPlNm + '\n' +
+              'You may need to recover from this error by using the Spotify App to copy the tracks from the backup playlist to the original playlist.\n\n' +
+              'A session restart is needed.\n' +
+              'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+          return;
+        }
+
+        if (reply['errRsp'][0] === -50) // errSortPlaylistReLd
+        {
+          // reloading the playlist threw an error after the sort write finished ok
+          msg = 'Sort Finished Successfully\n\n' +
+                'A backup playlist was created:\n'+
+                '   ' + buPlNm + '\n' +
+                'Once you are satified with the results, you can delete the backup.\n' +
+                'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+          return;
+        }
+
+        if (reply['errRsp'][0] === -47) // errSortPlaylist
+        {
+          msg = 'Sort Failed\n\n' +
+                'A session restart is needed.\n' +
+                'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+          return;
+        }
+      }
+
+      await new Promise(r => setTimeout(r, 3000));  // Spotify can be slow to update the list of playlists
+      await tracksTab_afLoadTracksTable(plId);
+
+      msg = 'Sort Finished Successfully\n\n' +
+            'A backup playlist was created:\n'+
+            '   ' + buPlNm + '\n' +
+            'Once you are satified with the results, you can delete the backup.\n';
+      alert(msg);
+
+      // get the plTable to reload when the user goes back to the plTab
+      vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
+
+      // reload the plDict so the sort backup is in the plDict w/o wiping the already loaded tracks
+      await plTab_afLoadPlDict(false);
+    }
+    catch(err)
+    {
+      console.log('__SF__tracksTab_afSortPlaylistSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__tracksTab_afSortPlaylistSeq() finally.');
+      tabs_progBarStop('tracksTab_progBar', 'tracksTab_progStat1', '');
+      vTracksTabLoading = false;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afSortPlaylist(plNm, plId, uriTrackListSorted, reload)
+  {
+    console.log('__SF__tabs_afSortPlaylist() - vUrl - CreatePlaylist');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ sortPlaylist: 'sortPlaylist',
+                                                                    plNm: plNm,
+                                                                    plId: plId,
+                                                                    reload: reload,
+                                                                    uriTrackListSorted: uriTrackListSorted
+                                                                  })});
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afSortPlaylist()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__tabs_afSortPlaylist() reply = ', reply);
+      return reply
+    }
+  }
+

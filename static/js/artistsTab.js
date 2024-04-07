@@ -162,20 +162,13 @@
     {
       // console.log('__SF__artistsTab_activate()');
       // console.log('__SF__artistsTab_activate() - lastCnt = ' + vLastPlSelectionCntrArtistsTab + ', curCnt = ' + curPlSelectionCntr);
-
-      // if you click "Playlists selected on this tab determines..." at the bottom of the plTab load times for each tab will be displayed (for dbg)
-      let t0;
-      if (vShowExeTm == 1)
-      {
-        $("#artistsTab_ExeTm").text(0);
-        t0 = Date.now();
-      }
-
       if (vLastPlSelectionCntrArtistsTab !== curPlSelectionCntr)
       {
         vLastPlSelectionCntrArtistsTab = curPlSelectionCntr;
         vArtistNameTableLastSelectedRow = 0;
+        vArtistNameTableInitComplete = false;
         vArtistsTabLoading = true;
+        $("#artistsTab_plNmTextInput").val('');
 
         // this works better if the clear tables are here instead of being inside async calls
         // we are reloading both tables so we empty them out
@@ -208,13 +201,6 @@
         // - so we do not have to call artistsTab_afLoadArtistTracksTable() here
         // await artistsTab_afLoadArtistTracks(artistId = '')
         // await artistsTab_afLoadArtistTracksTable();
-
-        if (vShowExeTm == 1)
-        {
-          exeTm = Math.floor((Date.now() - t0) / 1000);
-          $("#artistsTab_ExeTm").text(exeTm);
-        }
-        // console.log('__SF__artistsTab_afActivate() - loading done - exit');
       }
     }
     catch(err)
@@ -799,92 +785,11 @@
         this.select();
     });
     // console.log('__SF__artistsTab_btnSelectAll() - invalid track id cnt = ' + cntInvalidTrackId);
-    // vArtistTracksTable.rows().select();
     vArtistsTabLoading = false;
     artistsTab_updateSelectedCnt();
   }
 
   //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnClearPlNmText()
-  {
-    // console.log('__SF__artistsTab_btnClearPlNmText()');
-    $("#artistsTab_plNmTextInput").val('');
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  function artistsTab_btnCreatePlaylist()
-  {
-    // console.log('__SF__artistsTab_btnCreatePlaylist()');
-    artistsTab_afCreatePlaylistSeq();
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  async function artistsTab_afCreatePlaylistSeq()
-  {
-    try {
-      // console.log('__SF__artistsTab_afCreatePlaylistSeq()');
-      done = false
-      if ((vArtistTracksTable.rows({selected: true}).count() == 0))
-      {
-        alert('At least one track must be selected to create a new playlist.');
-        return;
-      }
-
-      let vNewPlNm = $("#artistsTab_plNmTextInput").val();
-      if (vNewPlNm == '')
-      {
-        alert('Please enter a name for the new playlist.');
-        return;
-      }
-
-      let plNmAlreadyExists = false;
-      let plDict = await tabs_afGetPlDict();
-      $.each(plDict, function (key, values)
-      {
-        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
-          plNmAlreadyExists = true;
-      });
-
-      if (plNmAlreadyExists == true)
-      {
-        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
-        return;
-      }
-
-      vArtistsTabLoading = true;
-      tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Creating Playlist...', showStrImmed=true);
-
-      let rowData;
-      let createUriTrackList = [];
-      $.each(vArtistTracksTable.rows('.selected').nodes(), function(i, item)
-      {
-        rowData = vArtistTracksTable.row(this).data();
-        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
-          cntInvalidTrackId++;
-        else
-          createUriTrackList.push(rowData[9]); // track uri
-      });
-      // console.log('artistsTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
-
-      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
-      done = true
-    }
-    catch(err)
-    {
-      // console.log('__SF__artistsTab_btnCpTracks() caught error: ', err);
-      tabs_errHandler(err);
-    }
-    finally
-    {
-      // console.log('__SF__artistsTab_afMvTracksSeq() finally.');
-      tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
-      vArtistsTabLoading = false;
-      if (done)
-        plTabs_btnReload()
-    }
-  }
-
-    //-----------------------------------------------------------------------------------------------
   function artistsTab_setupPlaybackControls()
   {
     // enable/disable the playback btns
@@ -950,7 +855,7 @@
     }
     catch(err)
     {
-      console.log('__SF__artistsTab_afAddToQueueSeq() caught error: ', err);
+      // console.log('__SF__artistsTab_afAddToQueueSeq() caught error: ', err);
       tabs_errHandler(err);
     }
     finally
@@ -983,7 +888,7 @@
     }
     catch(err)
     {
-      console.log('__SF__artistsTab_afPlayTracksSeq() caught error: ', err);
+      // console.log('__SF__artistsTab_afPlayTracksSeq() caught error: ', err);
       tabs_errHandler(err);
     }
   }
@@ -1007,7 +912,7 @@
     }
     catch(err)
     {
-      console.log('__SF__artistsTab_afPauseTrackSeq() caught error: ', err);
+      // console.log('__SF__artistsTab_afPauseTrackSeq() caught error: ', err);
       tabs_errHandler(err);
     }
   }
@@ -1031,7 +936,93 @@
     }
     catch(err)
     {
-      console.log('__SF__artistsTab_afNextTrackSeq() caught error: ', err);
+      // console.log('__SF__artistsTab_afNextTrackSeq() caught error: ', err);
       tabs_errHandler(err);
     }
   }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnClearPlNmText()
+  {
+    // console.log('__SF__artistsTab_btnClearPlNmText()');
+    $("#artistsTab_plNmTextInput").val('');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function artistsTab_btnCreatePlaylist()
+  {
+    // console.log('__SF__artistsTab_btnCreatePlaylist()');
+    artistsTab_afCreatePlaylistSeq();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function artistsTab_afCreatePlaylistSeq()
+  {
+    try {
+      // console.log('__SF__artistsTab_afCreatePlaylistSeq()');
+      if ((vArtistTracksTable.rows({selected: true}).count() == 0))
+      {
+        alert('At least one track must be selected to create a new playlist.');
+        return;
+      }
+
+      let vNewPlNm = $("#artistsTab_plNmTextInput").val();
+      if (vNewPlNm == '')
+      {
+        alert('Please enter a name for the new playlist.');
+        return;
+      }
+
+      let plNmAlreadyExists = false;
+      let plDict = await tabs_afGetPlDict();
+      $.each(plDict, function (key, values)
+      {
+        if (vNewPlNm.toLowerCase() == values['Playlist Name'].toLowerCase())
+          plNmAlreadyExists = true;
+      });
+
+      if (plNmAlreadyExists == true)
+      {
+        alert('Please enter a unique playlist name. You already have or follow a playlist with the currently entered name.');
+        return;
+      }
+
+      vArtistsTabLoading = true;
+      tabs_progBarStart('artistsTab_progBar', 'artistsTab_progStat1', 'Creating Playlist...', showStrImmed=true);
+
+      let rowData;
+      let createUriTrackList = [];
+      $.each(vArtistTracksTable.rows('.selected').nodes(), function(i, item)
+      {
+        rowData = vArtistTracksTable.row(this).data();
+        if (!rowData[7])    // !trackId tests for "", null, undefined, false, 0, NaN
+          cntInvalidTrackId++;
+        else
+          createUriTrackList.push(rowData[9]); // track uri
+      });
+      // console.log('artistsTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
+
+      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+      await new Promise(r => setTimeout(r, 3000));  // Spotify can be slow to update the list of playlists
+
+      // reload the plDict so the created pl is in the plDict
+      await plTab_afLoadPlDict(false);
+
+      // get the plTable to reload when the user goes back to the plTab
+      vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
+
+      $("#artistsTab_plNmTextInput").val('');
+    }
+    catch(err)
+    {
+      // console.log('__SF__artistsTab_btnCpTracks() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__artistsTab_afMvTracksSeq() finally.');
+      tabs_progBarStop('artistsTab_progBar', 'artistsTab_progStat1', '');
+      vArtistsTabLoading = false;
+    }
+  }
+
