@@ -241,8 +241,6 @@ def Tabs():
     rqJson = request.get_json()
     if rqJson is not None:
       key = next(iter(rqJson))
-
-      # gc.collect()
       try:
         if (key == 'loadPlDictBatch'):
           idx = rqJson['idx']
@@ -512,9 +510,11 @@ def Tabs():
         # not sure why most users see the new dupsTab.js and a few were still using the old dupsTab.js
         # 3/16/23 we are now using ?v=xx, on each /static/js and /static/css file that we use so the browser will reload them
         # 3/16/23 ?v=xx is updated in _js_files.html and _css_files.html anytime we update a /static/js or /static/css file
+        if (key is None):
+          key = 'key was none'
         exTyp, exObj, exTrace = sys.exc_info()
         es = f"Tabs():{exTrace.tb_lineno},  typ:{str(exTyp)},  obj:{str(exObj)}"
-        retVal = [sfConst.errRmJavaScriptSyncErr, oLoader.getDateTm(), 'Tabs()', 'Client broswers javascript is out of sync with server.', es, 'You may need to clear your browsers cache.']
+        retVal = [sfConst.errRmJavaScriptSyncErr, oLoader.getDateTm(), 'Tabs()', f"Client broswers javascript is out of sync with server. Triggered by post cmd = ({key})", es, 'You may need to clear your browsers cache.']
         oLoader.addErrLogEntry(retVal)
         return jsonify({'errRsp': retVal})
 

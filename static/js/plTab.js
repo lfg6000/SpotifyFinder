@@ -806,7 +806,7 @@
 
     msg = 'Please confirm that you would like to delete this playlist: \n' +
            '   ' + plNm + '\n\n' +
-          'FYI: You can recover deleted playlists on you spotify account page.\n';
+          'FYI: You can recover deleted playlists on your spotify account page.\n';
 
     if (confirm(msg) == false)
       return;
@@ -1029,10 +1029,11 @@
       return;
     }
 
-    msg = 'Refresh this playlist: \n' +
-           '   ' + plNm + '\n\n' +
+    msg = 'Refresh this playlist:\n' +
+          '   ' + plNm + '\n\n' +
           'Note 1: A backup of this playlist is made prior to the Refresh.\n' +
-          'Note 2: Once the Refresh completes, and you are satisfied with the results, you can delete the backup.\n';
+          'Note 2: Once the Refresh completes, and you are satisfied with the results, you can delete the backup.\n\n' +
+          '(*** only do this if you are seeing remove errors on this playlist ***)\n';
     if (confirm(msg) == false)
       return;
 

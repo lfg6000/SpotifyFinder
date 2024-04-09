@@ -346,7 +346,7 @@ class SpfLoader():
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errSpotifyInfo, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to get spotify info.', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal, '', '', ''
+      return retVal, '', '', '', ''
 
   # ---------------------------------------------------------------
   def updateDbUniqueSpotifyInfo(this, mysql):
