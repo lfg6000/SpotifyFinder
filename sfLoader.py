@@ -215,6 +215,7 @@ class SpfLoader():
       return authUrl
 
     except Exception:
+      print(f"oAuthLogin() exception, this print is trying to identify the source of the ppund 33")
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Spotify Login Failed.', str(exTyp), str(exObj)]
       pprint.pprint(retVal) #pprint sorts on key
@@ -251,6 +252,7 @@ class SpfLoader():
       session["tokenInfo"] = tokenInfo
 
     except Exception:
+      print(f"oAuthCallback() exception, this print is trying to identify the source of the ppund 33")
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'oAuthCallback failed.', str(exTyp), str(exObj)]
       pprint.pprint(retVal) #pprint sorts on key
@@ -290,6 +292,7 @@ class SpfLoader():
       tokenValid = True
       return tokenInfo, tokenValid
     except Exception:
+      print(f"oAuthGetToken() exception, this print is trying to identify the source of the ppund 33")
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errSpotiyLogin, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Failed to acquire spotify object.', str(exTyp), str(exObj)]
       # pprint.pprint(retVal) #pprint sorts on key
@@ -318,7 +321,7 @@ class SpfLoader():
     session['tokenInfo'], tokenValid = this.oAuthGetToken(session)
     session.modified = True
     if not tokenValid:
-      raise Exception('loader.oAuthGetToken() token is not valid, session expired.')
+      raise Exception('loader.oAuthGetSpotifyObj() token is not valid, session expired.')
     sp = spotipy.Spotify(auth=session.get('tokenInfo').get('access_token'))
     return sp
 

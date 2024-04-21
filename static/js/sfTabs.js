@@ -667,7 +667,6 @@
     if (errMsgSplit[2] === "errCode: -5") // errRmTracksByPosFromSpotPlaylist = -5
     {
       vHtmlInfoFn = 'helpTextRemoveErrors.html';
-      // a long-winded explanation for a -5 is added in infoTab_addClientLogErrMsg()
       msg = 'One or more of the tracks you selected were not removed from this\n' +
             'Playlist:  ' + vRmByPosErrPlNm + '.\n\n' +
             'There are 2 ways to fix Remove Errors.\n' +

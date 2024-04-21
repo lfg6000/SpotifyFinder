@@ -565,15 +565,6 @@
 
     let count = vPlTable.rows({ selected: true }).count();
     tabs_setLabel('plTab_info1', 'Selected Playlists: ' + count + '&nbsp &nbsp &nbsp &nbsp &nbsp' + ' Selected Tracks: '+ vTotalTracksSelected);
-
-    // console.log('tracksToBeLoaded = ', tracksToBeLoaded);
-    if (vTotalTracksSelected > 25000)
-    {
-      msg = 'The maximum number of tracks that can be loaded is 25,000.\n' +
-            'With the currently selected playlists  ' + vTotalTracksSelected + '  tracks will need to be loaded.\n' +
-            'You must reduce the number of tracks to be loaded by selecting fewer playlists\n\n';
-      alert(msg);
-    }
   }
 
   //-----------------------------------------------------------------------------------------------
