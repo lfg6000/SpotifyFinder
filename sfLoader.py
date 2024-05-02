@@ -620,27 +620,28 @@ class SpfLoader():
       # session['mPlDict']['plId'] = {'Playlist Id': plId, 'Playlist Uri': uri, 'Playlist Name': plNm, 'Playlist Owners Name': ownerNm,
       #                               'Playlist Owners Id': ownerId, 'Public': pub, 'Snapshot Id': snapid], 'Tracks': nTrks, 'Duration': dur}
 
-      # in late march of 2024 spotify stopped returning the list of playlists using the order set in the Spotify App UI
+      # in late march of 2024 spotify stopped returning the list of playlists using the custom order set in the Spotify App UI
       # the playlist order returned by spotify was a jumbled mess so now we sort the playlists alphabetically
+      # in late april of 2024 spotify once again returned the list of playlists using the custom order set in the Spotify App UI
 
-      # we get each playlist dict and put it into a list of playlist dicts
-      listOfPl = []
-      for id, pl in session['mPlDict'].items():
-        listOfPl.append(pl)
+      # this block will sort the playlists alphabetically
+      # # we get each playlist dict and put it into a list of playlist dicts
+      # listOfPl = []
+      # for id, pl in session['mPlDict'].items():
+      #   listOfPl.append(pl)
+      #
+      # # we sort the list of playlist dicts by plNm and Owner Id
+      # # sortedListOfPl = sorted(listOfPl, key=lambda x: (x['Playlist Name'].lower(), x['Playlist Owners Id']))  # case insensitive
+      # sortedListOfPl = sorted(listOfPl, key=lambda x: (x['Playlist Name'], x['Playlist Owners Id']))
+      #
+      # # we put the sorted list pl dicts back into a dictionary of playlist dictionaries
+      # sortedPlDict = {}
+      # for pl in sortedListOfPl:
+      #   sortedPlDict[pl['Playlist Id']] = pl
+      # return [sfConst.errNone], sortedPlDict, len(sortedPlDict), session['mTotalTrackCnt'], session['mPlDictOwnersList']
 
-      # we sort the list of playlist dicts by plNm and Owner Id
-      # sortedListOfPl = sorted(listOfPl, key=lambda x: (x['Playlist Name'].lower(), x['Playlist Owners Id']))  # case insensitive
-      sortedListOfPl = sorted(listOfPl, key=lambda x: (x['Playlist Name'], x['Playlist Owners Id']))
-
-      # we put the sorted list pl dicts back into a dictionary of playlist dictionaries
-      sortedPlDict = {}
-      for pl in sortedListOfPl:
-        sortedPlDict[pl['Playlist Id']] = pl
-
-      return [sfConst.errNone], sortedPlDict, len(sortedPlDict), session['mTotalTrackCnt'], session['mPlDictOwnersList']
-
-      # previously we just returned what we rxd from spotify because the order followed the users Spotify UI order
-      # return [sfConst.errNone], session['mPlDict'], len(session['mPlDict']), session['mTotalTrackCnt'], session['mPlDictOwnersList']
+      # we just returned what we rxd from spotify because it matches the users custom order in the Spotify UI
+      return [sfConst.errNone], session['mPlDict'], len(session['mPlDict']), session['mTotalTrackCnt'], session['mPlDictOwnersList']
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errGetPlDict, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", 'Session Invalid??', str(exTyp), str(exObj)]
