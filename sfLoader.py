@@ -977,7 +977,8 @@ class SpfLoader():
       cntr = 0
       done = False
       maxRetries = 4
-      origPlLen = len(session['mPlTracksDict'][plId])
+      nAct = 0
+      nOrig = len(session['mPlTracksDict'][plId])
 
       if plId in session['mPlDict']:
         plNm = session['mPlDict'][plId]['Playlist Name']
@@ -987,15 +988,30 @@ class SpfLoader():
           pos = spotRmTrackList[0]['positions'][0]
           tn = session['mPlTracksDict'][plId][pos]['Track Name']
 
+      sUsr = session['mUserName']
+      nRm = len(spotRmTrackList)
+      nExp = nOrig - nRm
+      print(f"rmTracksBPFSP info prior to rm: usr: {sUsr}, plNm: {plNm}, nOrig: {nOrig}, nRm: {nRm}, nExp: {nExp}")
+
       # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
-      time.sleep(2) # it may take a few seconds for spotify to complete the remove
+      time.sleep(4) # it may take a few seconds for spotify to complete the remove
 
       # on 7/22/22 Ridrigo Flay da Silva reported an issue that turns out to be a race condition:
       # - it was observed that the pyAny server does the delete and refetch before spotify is done deleting the tracks
       #   spotify will eventually delete all the tracks but now sf pl is out of sync w/ spotify. the results are very confusing.
       # - this error/race condition does not occur on my local server because it is slowly than pyAny?
       # - so now we wait upto x secs for the remove to complete
+
+      # 5-5-24 spotipy is ignoring postion param if more than one duplicate exists in a pl they are all being deleted
+      # https://community.spotify.com/t5/Spotify-for-Developers/Positions-field-in-JSON-body-is-ignored-when-removing-tracks/td-p/6044424
+      # ignoring the position parameter from the web api delete /playlists/{playlist_id}/tracks is a major issue for
+      # www.spotifyfinder.com   users want to be able to delete a specific duplicate based on position.
+      # now that position is being ignored multiple instances of the same track are being removed.  this breaks www.spotifyfinder.com
+      # i am really hoping that the position parameter is supported once again.
+      # this breaks spotipy.  this spotipy api is no longer working because position is being ignored:
+      # - playlist_remove_specific_occurrences_of_items(playlist_id, items, snapshot_id=None)
+      # this spotipy api calls the spotify web api: delete /playlists/{playlist_id}/tracks
 
       # - it may take a few seconds for spotify to remove the tracks
       # - we compare the expected pl len to the actual len to determine if the remove is complete
@@ -1004,9 +1020,18 @@ class SpfLoader():
         cntr += 1
         del session['mPlTracksDict'][plId]
         retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        # retVal = [sfConst.errRmTracksByPos, this.getDateTm(), f"n", "r", "s", "t"]  # for testing
+        # this.addErrLogEntry(retVal)
         if retVal[sfConst.errIdxCode] == sfConst.errNone:
-          if len(session['mPlTracksDict'][plId]) != (origPlLen - len(spotRmTrackList)):
-            time.sleep(8)
+          nAct = len(session['mPlTracksDict'][plId])
+          # - this is not fool proof because the rm of multiple dups messes with the count.
+          if nAct != nExp:
+            print(f"rm sync info: usr: {sUsr}, cntr: {cntr}, plNm: {plNm}, nOrig: {nOrig}, nRm: {nRm}, nExp: {nExp}, nAct: {nAct}")
+            # see 5-5-24 note above, spotify ignoring pos, deleting all instances of a track instead of just the selected original
+            if nExp > nAct:
+              done = True
+            else:
+              time.sleep(15)
           else:
             done = True
         else:
@@ -1016,10 +1041,19 @@ class SpfLoader():
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal, plNm
 
+      # - if nAct > nExp then some of the desired tracks were not removed
+      # - ignore the case where the actual track count is lower than the expected track count.
+      #   all the tracks were removed plus all the tracks that had multiple copies
+      # - this is not fool proof because the rm of multiple dups messes with the count.
+      # - 'If you have Multiple Copies of the Same Track in a playlist\n' +
+      # 'and you selected ONE of them to be removed unfortanetly ALL\n' +
+      # 'copies of the selected track will be removed from the playlist.\n'
       if (cntr >= maxRetries):
-        retVal = [sfConst.errRmTracksByPosSyncErr, this.getDateTm(), f"{this.fNm(this)}", f"Invalid track count after remove: expected({origPlLen - len(spotRmTrackList)}), actual({len(session['mPlTracksDict'][plId])})",f"we asked for the pl {cntr} times before throwing this error.", "n/a"]
-        this.addErrLogEntry(retVal)
-        return retVal, plNm
+        if nAct > nExp:
+          nAct = len(session['mPlTracksDict'][plId])
+          retVal = [sfConst.errRmTracksByPosSyncErr, this.getDateTm(), f"{this.fNm(this)}", f"Invalid track count after rm: nOrig({nOrig}), nRm({nRm}), exp({nExp}), act({nAct})",f"we asked for ({plNm}) ({cntr}) times before throwing this error.", "n/a"]
+          this.addErrLogEntry(retVal)
+          return retVal, plNm
 
       return [sfConst.errNone], plNm
     except Exception:

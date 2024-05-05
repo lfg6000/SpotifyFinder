@@ -291,6 +291,19 @@
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
+
+    msg = 'Spotify made a major change in late April of 2024...\n\n' +
+          'If you have Multiple Copies of the Same Track in a playlist\n' +
+          'and you selected ONE of them to be removed unfortanetly ALL\n' +
+          'copies of the selected track will be removed from the\n' +
+          'playlist. (I have filed a bug report with Spotify....)\n\n' +
+          'Press Ok to continue with the remove.\n' +
+          'Press Cancel to exit out of the remove.\n\n';
+
+
+    if (confirm(msg) == false)
+      return;
+
     if (Object.keys(rmTrackList).length > 100)
     {
       msg = 'Spotify limits the number of tracks that can be removed at a time to 100. No tracks were removed.\n'
