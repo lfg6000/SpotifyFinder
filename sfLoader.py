@@ -971,7 +971,7 @@ class SpfLoader():
       # plNm, pub, tn are fetched to make a more informative error msg
       pub = 'not found'
       plNm = 'unknown playlist name (b)'
-      tn = f"rm list len = {len(spotRmTrackList)}"
+      tNm = '..many..'
 
       # cntr, done, origPlLen are used to determine if the remove has completed
       cntr = 0
@@ -986,12 +986,12 @@ class SpfLoader():
       if len(spotRmTrackList) == 1:
         if plId in session['mPlTracksDict']:
           pos = spotRmTrackList[0]['positions'][0]
-          tn = session['mPlTracksDict'][plId][pos]['Track Name']
+          tNm = session['mPlTracksDict'][plId][pos]['Track Name']
 
       sUsr = session['mUserName']
       nRm = len(spotRmTrackList)
       nExp = nOrig - nRm
-      print(f"rmTracksBPFSP info prior to rm: usr: {sUsr}, plNm: {plNm}, nOrig: {nOrig}, nRm: {nRm}, nExp: {nExp}")
+      print(f"rm INFO: usr: {sUsr}, plNm: {plNm}, nTrks: {nOrig}, nRm: {nRm}")
 
       # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
@@ -1026,7 +1026,7 @@ class SpfLoader():
           nAct = len(session['mPlTracksDict'][plId])
           # - this is not fool proof because the rm of multiple dups messes with the count.
           if nAct != nExp:
-            print(f"rm sync info: usr: {sUsr}, cntr: {cntr}, plNm: {plNm}, nOrig: {nOrig}, nRm: {nRm}, nExp: {nExp}, nAct: {nAct}")
+            print(f"rm SYNC: usr: {sUsr}, cntr: {cntr}, plNm: {plNm}, nOrig: {nOrig}, nRm: {nRm}, nExp: {nExp}, nAct: {nAct}")
             # see 5-5-24 note above, spotify ignoring pos, deleting all instances of a track instead of just the selected original
             if nExp > nAct:
               done = True
@@ -1058,7 +1058,7 @@ class SpfLoader():
       return [sfConst.errNone], plNm
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
-      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Remove tracks from spotify playlist ({pub}:{plNm}:{tn}) by pos failed", str(exTyp), str(exObj)]
+      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Remove tracks from spotify playlist: plNm({plNm}), nTrks({nOrig}), nRm({nRm}), pub({pub}) tNm({tNm}) by pos failed", str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, plNm
 
