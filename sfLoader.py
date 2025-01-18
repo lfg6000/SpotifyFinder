@@ -993,6 +993,32 @@ class SpfLoader():
       nExp = nOrig - nRm
       print(f"rm INFO: usr: {sUsr}, plNm: {plNm}, nTrks: {nOrig}, nRm: {nRm}")
 
+      # 5-5-24 spotify is ignoring postion param if more than one duplicate exists in a pl they are all being deleted
+      # https://community.spotify.com/t5/Spotify-for-Developers/Positions-field-in-JSON-body-is-ignored-when-removing-tracks/td-p/6044424
+      # ignoring the position parameter from the web api delete /playlists/{playlist_id}/tracks is a major issue for
+      # www.spotifyfinder.com   users want to be able to delete a specific duplicate based on position.
+      # now that position is being ignored multiple instances of the same track are being removed.  this breaks www.spotifyfinder.com
+      # i am really hoping that the position parameter is supported once again.
+      # this breaks spotipy.  this spotipy api is no longer working because position is being ignored:
+      # - playlist_remove_specific_occurrences_of_items(playlist_id, items, snapshot_id=None)
+      # this spotipy api calls the spotify web api: delete /playlists/{playlist_id}/tracks
+
+      # - this is a workaround to the delete issue
+      # - just send an array of position values instead of a list of track ids and a list of positions
+      # - to implement this work around you must modify spotipy:client.py locally and on pyAny
+      #
+      # - the following 4 lines
+      # must be added to
+      #      def playlist_remove_specific_occurrences_of_items()
+      # in 2 places:
+      #      1) WA_SpotifyFinder\venv39\Lib\site-packages\spotipy\client.py
+      #      2) /home/slipstreamcode/.local/lib/python3.9/site-packages/spotipy/client.py
+      #
+      # 1) posRm = []
+      # 2) for tr in items:
+      # 3)     posRm.append(tr["positions"][0])
+      # 4) payload = {"positions": posRm}
+
       # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
       time.sleep(4) # it may take a few seconds for spotify to complete the remove
@@ -1002,16 +1028,6 @@ class SpfLoader():
       #   spotify will eventually delete all the tracks but now sf pl is out of sync w/ spotify. the results are very confusing.
       # - this error/race condition does not occur on my local server because it is slowly than pyAny?
       # - so now we wait upto x secs for the remove to complete
-
-      # 5-5-24 spotipy is ignoring postion param if more than one duplicate exists in a pl they are all being deleted
-      # https://community.spotify.com/t5/Spotify-for-Developers/Positions-field-in-JSON-body-is-ignored-when-removing-tracks/td-p/6044424
-      # ignoring the position parameter from the web api delete /playlists/{playlist_id}/tracks is a major issue for
-      # www.spotifyfinder.com   users want to be able to delete a specific duplicate based on position.
-      # now that position is being ignored multiple instances of the same track are being removed.  this breaks www.spotifyfinder.com
-      # i am really hoping that the position parameter is supported once again.
-      # this breaks spotipy.  this spotipy api is no longer working because position is being ignored:
-      # - playlist_remove_specific_occurrences_of_items(playlist_id, items, snapshot_id=None)
-      # this spotipy api calls the spotify web api: delete /playlists/{playlist_id}/tracks
 
       # - it may take a few seconds for spotify to remove the tracks
       # - we compare the expected pl len to the actual len to determine if the remove is complete
