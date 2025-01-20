@@ -275,7 +275,8 @@
     });
     if (!response.ok)
       tabs_throwErrHttp('tabs_afGetPlDict()', response.status, 'plTab_errInfo');
-    else {
+    else
+    {
       let reply = await response.json();
       // console.log('__SF__tabs_afGetPlDict() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
@@ -291,18 +292,6 @@
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
 
-
-    msg = 'Spotify made a major change in late April of 2024...\n\n' +
-          'If you have Multiple Copies of the Same Track in a playlist\n' +
-          'and you selected ONE of them to be removed unfortanetly ALL\n' +
-          'copies of the selected track will be removed from the\n' +
-          'playlist. (I have filed a bug report with Spotify....)\n\n' +
-          'Press Ok to continue with the remove.\n' +
-          'Press Cancel to exit out of the remove.\n\n';
-
-
-    if (confirm(msg) == false)
-      return;
 
     if (Object.keys(rmTrackList).length > 100)
     {
@@ -363,11 +352,13 @@
     });
     if (!response.ok)
       tabs_throwErrHttp('tabs_afCreatePlaylist()', response.status, 'tabs_errInfo');
-    else {
+    else
+    {
       let reply = await response.json();
       // console.log('tabs_afCreatePlaylist() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tabs_afCreatePlaylist()', reply['errRsp'], 'tabs_errInfo')
+      return reply['newPlId']
     }
   }
 

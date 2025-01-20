@@ -1874,6 +1874,7 @@ class SpfLoader():
     try:
       # raise Exception('throwing loader.createPlaylist()')
 
+      newPlId = ''
       nTracks = len(createUriTrackList)
       if nTracks == 0:
         return [sfConst.errNone]
@@ -1900,12 +1901,12 @@ class SpfLoader():
 
         this.oAuthGetSpotifyObj().playlist_add_items(newPlId, addList)
 
-      return [sfConst.errNone]
+      return [sfConst.errNone], newPlId
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errCreatePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f'Failed to create playlist: {newPlNm}', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal
+      return retVal, newPlId
 
   # ---------------------------------------------------------------
   def wrPlaylist(this, plNm, plId, uriTrackList):
@@ -1958,7 +1959,8 @@ class SpfLoader():
       # used when doing a refresh or a sort
       # raise Exception('throwing loader.reloadPlaylist()')
 
-      del session['mPlTracksDict'][plId]
+      if plId in session['mPlTracksDict']:
+        del session['mPlTracksDict'][plId]
       retVal, loadedPlIds = this.loadPlTracks1x(plId)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
@@ -1995,7 +1997,7 @@ class SpfLoader():
         print(f"sortPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
 
       # create a backup playlist using the original/unsorted list of tracks
-      retVal = this.createPlaylist(buPlNm, uriTrackListUnsorted)
+      retVal, newPlId = this.createPlaylist(buPlNm, uriTrackListUnsorted)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         retVal = [sfConst.errSortPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Sort error - failed to create backup for : {plNm}",
                   'original playlist was not modified.', 'sort terminated.']
@@ -2035,6 +2037,7 @@ class SpfLoader():
     try:
       dtStr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
       buPlNm = f"{plNm} SF_Refresh_Backup_{dtStr}"
+      buPlId = ''
 
       # raise Exception('throwing loader.refreshPlaylist()')
 
@@ -2047,7 +2050,7 @@ class SpfLoader():
           retVal = [sfConst.errRefreshPlaylistLd, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to load playlist tracks: {plNm}",
                     'original playlist was not modified.', 'refresh terminated.']
           this.addErrLogEntry(retVal)
-          return retVal, buPlNm
+          return retVal, buPlNm, buPlId
 
       uriTrackList = []
       cntInvalidTrackId = 0;
@@ -2061,12 +2064,12 @@ class SpfLoader():
         print(f"refreshPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
 
       # create a backup playlist using the original list of tracks
-      retVal = this.createPlaylist(buPlNm, uriTrackList)
+      retVal, buPlId = this.createPlaylist(buPlNm, uriTrackList)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         retVal = [sfConst.errRefreshPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to create backup for : {plNm}",
                   'original playlist was not modified.', 'refresh terminated.']
         this.addErrLogEntry(retVal)
-        return retVal, buPlNm
+        return retVal, buPlNm, buPlId
 
       # rewrite the playlist using the original set of tracks
       retVal = this.wrPlaylist(plNm, plId, uriTrackList)
@@ -2074,24 +2077,61 @@ class SpfLoader():
         retVal = [sfConst.errRefreshPlaylistWr, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to write playlist: : {plNm}",
                 'Use backup to recover', f"backup playlist: {buPlNm}"]
         this.addErrLogEntry(retVal)
-        return retVal, buPlNm
-
-      # reload the playlist to ensure we match spotify
-      if reload == True:
-        # give spotify some time to complete the write then reload the playlist
-        time.sleep(6)
-        retVal = this.reloadPlaylist(plNm, plId)
-        if retVal[sfConst.errIdxCode] != sfConst.errNone:
-          retVal = [sfConst.errRefreshPlaylistReLd, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - playlist reload failed : {plNm}",
-                  'playlist write finished but post write reload failed.', f"backup playlist: {buPlNm}"]
-          this.addErrLogEntry(retVal)
-          return retVal, buPlNm
+        return retVal, buPlNm, buPlId
 
       # this print can be removed after awhile once things look okay
       print(f"refreshPlaylist completed successfully: un: {session['mUserName']}, playlist: {plNm}")
-      return [sfConst.errNone], buPlNm
+      return [sfConst.errNone], buPlNm, buPlId
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errRefreshPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Refresh Playlist failed.", str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal, buPlNm
+      return retVal, buPlNm, buPlId
+
+  # ---------------------------------------------------------------
+  def backupPlaylist(this, plNm, plId, reload):
+    try:
+      dtStr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+      buPlNm = f"{plNm} SF_Backup_{dtStr}"
+      buPlId = ''
+
+      # raise Exception('throwing loader.backupPlaylist()')
+
+      if plId not in session['mPlDict']:
+        raise Exception('throwing loader.backupPlaylist() - playlist not found in plDict.')
+
+      if plId not in session['mPlTracksDict']:
+        retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          retVal = [sfConst.errBackupPlaylistLd, this.getDateTm(), f"{this.fNm(this)}", f"Backup error - failed to load playlist tracks: {plNm}",
+                    'original playlist was not modified.', 'refresh terminated.']
+          this.addErrLogEntry(retVal)
+          return retVal, buPlNm, buPlId
+
+      uriTrackList = []
+      cntInvalidTrackId = 0;
+      for vals in session['mPlTracksDict'][plId]:
+        if vals['Track Id'] != '':
+          uriTrackList.append(vals['Track Uri'])
+        else:
+          cntInvalidTrackId += 1
+
+      if cntInvalidTrackId != 0:
+        print(f"backupPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
+
+      # create a backup playlist using the original list of tracks
+      retVal, buPlId = this.createPlaylist(buPlNm, uriTrackList)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        retVal = [sfConst.errBackupPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Backup error - failed to create backup for : {plNm}",
+                  'original playlist was not modified.', 'refresh terminated.']
+        this.addErrLogEntry(retVal)
+        return retVal, buPlNm, buPlId
+
+      # this print can be removed after awhile once things look okay
+      print(f"backupPlaylist completed successfully: un: {session['mUserName']}, playlist: {plNm}")
+      return [sfConst.errNone], buPlNm, buPlId
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errBackupPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Backup Playlist failed.", str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal, buPlNm, buPlId

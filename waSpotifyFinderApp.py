@@ -466,20 +466,28 @@ def Tabs():
           # print('>>/Tabs createPlaylist()')
           newPlNm = rqJson['newPlNm']
           createUriTrackList = rqJson['createUriTrackList']
-          retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
+          retVal, newPlId = oLoader.createPlaylist(newPlNm, createUriTrackList)
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'Create')
-          return jsonify({ 'errRsp': retVal })
+          return jsonify({ 'errRsp': retVal, 'newPlId': newPlId })
 
         elif (key == 'refreshPlaylist'):
           # print('>>/Tabs refreshPlaylist()')
           plId = rqJson['plId']
           plNm = rqJson['plNm']
           reload = rqJson['reload']
-          retVal, buPlNm = oLoader.refreshPlaylist(plNm, plId, reload)
+          retVal, buPlNm, buPlId = oLoader.refreshPlaylist(plNm, plId, reload)
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
              oLoader.updateDbVisitCnt(mysql, 'RefreshPl')
-          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm })
+          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm, 'buPlId': buPlId})
+
+        elif (key == 'backupPlaylist'):
+          # print('>>/Tabs backupPlaylist()')
+          plId = rqJson['plId']
+          plNm = rqJson['plNm']
+          reload = rqJson['reload']
+          retVal, buPlNm, buPlId = oLoader.backupPlaylist(plNm, plId, reload)
+          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm, 'buPlId': buPlId })
 
         elif (key == 'sortPlaylist'):
           # print('>>/Tabs sortPlaylist()')
@@ -492,6 +500,11 @@ def Tabs():
              oLoader.updateDbVisitCnt(mysql, 'SortPl')
           return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm })
 
+        elif (key == 'runTest'):
+          # print('>>/Tabs runTest()')
+          testIndex = rqJson['testIndex']
+          retVal, testResutlsMsg = oLoader.runTest(testIndex)
+          return jsonify({ 'errRsp': retVal, 'testResultsMsg': testResultsMsg})
 
         # - this is the error in the logs when a route return nothing....
         #   File "C:\Users\lfg70\.aa\LFG_Code\Python\WA_SpotifyFinder\venv\Lib\site-packages\flask\app.py", line 2097, in make_response

@@ -93,6 +93,9 @@
       {
         vLastTracksRmMvCpCntr = 1;
 
+        $('#plTabs_cbTests').hide();
+        $('#plTab_btnTest').hide();
+
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
         tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Loading Playlists...', showStrImmed=true);
 
@@ -188,7 +191,7 @@
   {
     try
     {
-      // used by plTab: rename, delete, & refresh to reload the mPlDict to avoid wiping out mPlTracksDict and mPlSelectedDict
+      // used by plTab: rename, delete, refresh, backup to reload the mPlDict to avoid wiping out mPlTracksDict and mPlSelectedDict
 
       console.log("__SF__plTab_afPartialReload()");
       vPlTabLoading = true;
@@ -255,6 +258,19 @@
       vSid = reply['sid']
       // console.log('__SF__plTabs_loadSpotifyInfo() - \n   userId = ' + vUserId + ',\n   userName = ' + vUserName + ',\n   cookie = ' + vCookie + ',\n   sid = ' + vSid);
       infoTab_addClientLogMsg([vSid]);
+
+      if (vUserId == 'slipstream422')
+      {
+        $('#plTabs_cbTests').empty();
+        $('#plTabs_cbTests').append($('<option>', { value: 0, text : "All" }));
+        $('#plTabs_cbTests').append($('<option>', { value: 1, text : "1" }));
+        $('#plTabs_cbTests').append($('<option>', { value: 2, text : "2" }));
+        $('#plTabs_cbTests').append($('<option>', { value: 3, text : "3" }));
+        $('#plTabs_cbTests').append($('<option>', { value: 4, text : "4" }));
+        $('#plTabs_cbTests').append($('<option>', { value: 5, text : "5" }));
+        $('#plTabs_cbTests').show();
+        $('#plTab_btnTest').show();
+      }
     }
   }
 
@@ -1029,7 +1045,6 @@
       return;
 
     rv = await plTab_afRefreshPlaylistSeq(plNm, plId);
-    await plTab_afPartialReloadSeq(true);
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -1044,6 +1059,7 @@
       let reply = await tabs_afRefreshPlaylist(plNm, plId, true);
       // console.log('reply = ', reply['errRsp']);
       buPlNm = reply['buPlNm'];
+      buPlId = reply['buPlId'];
 
       // did we have a refresh error
       if (reply['errRsp'][0] != 1)
@@ -1114,6 +1130,21 @@
 
       await new Promise(r => setTimeout(r, 4000));  // Spotify can be slow to update the list of playlists
 
+      // - get the new buPlId/buPlNm loaded into the plDict
+      // - this reload will return a track count of 0 for the buPlId/buPlNm
+      // - spotify takes a long time to get the pl track cnt updated
+      await plTab_afLoadPlDict(false);
+
+      // - but if we load the bupl we just created it will have the tracks
+      // - this will update the plDict w/ the correct track cnt
+      await tracksTab_afLoadPlTracks1x(buPlId, buPlNm);
+
+      // - get the updated plDict from the server and repaint the table
+      vPlTable.clear().draw();
+      await plTab_afLoadPlTable();
+      await plTab_afRestorePlTableCkboxes();
+      plTabs_updateSelectedCntInfo();
+
       // console.log("__SF__plTab_afRefreshPlaylistSeq() success.");
       msg = 'Refresh Playlist Finished Successfully\n\n' +
           'A backup playlist was created:\n' +
@@ -1154,4 +1185,182 @@
       return reply
     }
   }
-  
+
+  //-----------------------------------------------------------------------------------------------
+  function plTab_btnBackup()
+  {
+    // console.log('__SF__plTab_btnBackup()');
+    plTab_afBackupPlaylist();
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afBackupPlaylist()
+  {
+    // console.log('__SF__plTab_afBackupPlaylist()');
+    let cnt = vPlTable.rows({ selected: true }).count();
+    if (cnt != 1)
+    {
+      alert('Select one playlist to Backup.\nCurrently there are ' + cnt + ' playlists selected.');
+      return;
+    }
+
+    let rowData;
+    $.each(vPlTable.rows('.selected').nodes(), function(i, item)
+    {
+      rowData = vPlTable.row(this).data();
+    });
+
+    plNm = rowData[1];
+    nTrks = rowData[2];
+    plId = rowData[5];
+    ownerId = rowData[6];
+    // console.log('trks: ' + nTrks + ', plId: ' + plId + ', ownerId: ' + ownerId + ', plNm: ' + plNm);
+
+    if (nTrks === 0)
+    {
+      alert('The playlist selected does not have any tracks.');
+      return;
+    }
+
+    rv = await plTab_afBackupPlaylistSeq(plNm, plId);
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afBackupPlaylistSeq(plNm, plId)
+  {
+    try
+    {
+      // console.log("__SF__plTab_afBackupPlaylistSeq()");
+      vPlTabLoading = true;
+      tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Backing up Playlist...', showStrImmed = true);
+
+      let reply = await tabs_afBackupPlaylist(plNm, plId, true);
+      console.log('reply = ', reply['errRsp']);
+      buPlNm = reply['buPlNm'];
+      buPlId = reply['buPlId'];
+
+      // did we have a refresh error
+      if (reply['errRsp'][0] != 1)
+      {
+        if (reply['errRsp'][0] === -52) // errBackupPlaylistLd
+        {
+          msg = 'Backup Failed\n' +
+              'Failed to load tracks for the selected playlist:\n' +
+              '   ' + plNm + '\n' +
+              'This playlist was not backed up.\n\n' +
+              'A session restart is needed.\n' +
+              'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+        }
+
+        if (reply['errRsp'][0] === -53) // errBackupPlaylistBu
+        {
+          msg = 'Backup Failed\n' +
+              'Failed to create a playlist backup.\n' +
+              'A session restart is needed.\n' +
+              'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+        }
+
+        if (reply['errRsp'][0] === -55) // errBackupPlaylistReLd
+        {
+          // reloading the playlist threw an error
+          msg = 'Backup Playlist Finished Successfully\n\n' +
+              'A backup playlist was created:\n' +
+              '   ' + buPlNm + '\n' +
+              'Once you are satified with the results, you can delete the backup.\n' +
+              'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+        }
+
+        if (reply['errRsp'][0] === -51) // errBackupPlaylist
+        {
+          msg = 'Backup Failed\n\n' +
+              'A session restart is needed.\n' +
+              'Press Ok and you will be redirected to the home page.\n';
+          alert(msg);
+          let urlSpotifyFinderStartPage = window.location.origin;
+          location.replace(urlSpotifyFinderStartPage); // goto home page
+        }
+      }
+
+      await new Promise(r => setTimeout(r, 4000));  // Spotify can be slow to update the list of playlists
+
+      // - get the new buPlId/buPlNm loaded into the plDict
+      // - this reload will return a track count of 0 for the buPlId/buPlNm
+      // - spotify takes a long time to get the pl track cnt updated
+      await plTab_afLoadPlDict(false);
+
+      // - but if we load the bupl we just created it will have the tracks
+      // - this will update the plDict w/ the correct track cnt
+      await tracksTab_afLoadPlTracks1x(buPlId, buPlNm);
+
+      // - get the updated plDict from the server and repaint the table
+      vPlTable.clear().draw();
+      await plTab_afLoadPlTable();
+      await plTab_afRestorePlTableCkboxes();
+      plTabs_updateSelectedCntInfo();
+
+      // console.log("__SF__plTab_afBackupPlaylistSeq() success.");
+      // msg = 'Backup Playlist Finished Successfully\n\n' +
+      //     'A backup playlist was created:\n' +
+      //     '   ' + buPlNm
+      // alert(msg);
+    }
+    catch(err)
+    {
+      // console.log('__SF__plTab_afBackupPlaylistSeq() caught error: ', err);
+      tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__plTab_afBackupPlaylistSeq() finally.');
+      tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
+      vPlTabLoading = false;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afBackupPlaylist(plNm, plId, reload)
+  {
+    console.log('__SF__plTabs_afBackupPlaylist() - vUrl - BackupPlaylist');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ backupPlaylist: 'backupPlaylist',
+                                                                    plNm: plNm,
+                                                                    plId: plId,
+                                                                    reload: reload,
+                                                                  })});
+    if (!response.ok)
+      tabs_throwErrHttp('tabs_afBackupPlaylist()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__plTabs_afBackupPlaylist() reply = ', reply);
+      return reply
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function plTabs_cbTestSelector()
+  {
+    console.log('__SF__plTabs_cbTestSelector()');
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  function plTab_btnRunTest()
+  {
+    console.log('__SF__plTab_btnRunTest()');
+    // curSel = $('#plTabs_cbTests').selectedIndex;
+    // let curSel = $('#plTabs_cbTests option:selected').text();
+    // let curSel = $('#plTabs_cbTests').value;
+    selectElement = document.querySelector('#plTabs_cbTests');
+    let curSel = selectElement.value;
+
+    console.log('text test cb selected entry = ', + curSel);
+  }

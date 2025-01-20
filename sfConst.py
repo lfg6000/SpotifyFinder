@@ -65,6 +65,10 @@ errRefreshPlaylistBu = -53                  # if you change this name or value y
 errRefreshPlaylistWr = -54                  # if you change this name or value you to update the javascript code
 errRefreshPlaylistReLd = -55                # if you change this name or value you to update the javascript code
 errReloadPlaylist = -56                     # if you change this name or value you to update the javascript code
+errBackupPlaylist = -57                     # if you change this name or value you to update the javascript code
+errBackupPlaylistLd = -58                   # if you change this name or value you to update the javascript code
+errBackupPlaylistBu = -59                   # if you change this name or value you to update the javascript code
+errBackupPlaylistReLd = -60                 # if you change this name or value you to update the javascript code
 
 
 
