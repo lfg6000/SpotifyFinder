@@ -71,6 +71,18 @@ errBackupPlaylistBu = -59                   # if you change this name or value y
 errBackupPlaylistReLd = -60                 # if you change this name or value you to update the javascript code
 
 
+errRunTest = 100
+errTest101 = 101
+errTest102 = 102
+errTest103 = 103
+errTest104 = 104
+errTest105 = 105
+errTest106 = 106
+errTest107 = 107
+errTest108 = 108
+errTestInvalidTestIndex = 190
+
+
 
 
 

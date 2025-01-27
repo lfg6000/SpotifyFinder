@@ -93,7 +93,6 @@
       {
         vLastTracksRmMvCpCntr = 1;
 
-        $('#plTabs_cbTests').hide();
         $('#plTab_btnTest').hide();
 
         tabs_set2Labels('plTab_info1', 'Loading...', 'plTab_info2', 'Loading...');
@@ -259,16 +258,9 @@
       // console.log('__SF__plTabs_loadSpotifyInfo() - \n   userId = ' + vUserId + ',\n   userName = ' + vUserName + ',\n   cookie = ' + vCookie + ',\n   sid = ' + vSid);
       infoTab_addClientLogMsg([vSid]);
 
-      if (vUserId == 'slipstream422')
+      // the test btn is hidden
+      if (vUserId.includes('slipstream4'))
       {
-        $('#plTabs_cbTests').empty();
-        $('#plTabs_cbTests').append($('<option>', { value: 0, text : "All" }));
-        $('#plTabs_cbTests').append($('<option>', { value: 1, text : "1" }));
-        $('#plTabs_cbTests').append($('<option>', { value: 2, text : "2" }));
-        $('#plTabs_cbTests').append($('<option>', { value: 3, text : "3" }));
-        $('#plTabs_cbTests').append($('<option>', { value: 4, text : "4" }));
-        $('#plTabs_cbTests').append($('<option>', { value: 5, text : "5" }));
-        $('#plTabs_cbTests').show();
         $('#plTab_btnTest').show();
       }
     }
@@ -1222,11 +1214,11 @@
       return;
     }
 
-    rv = await plTab_afBackupPlaylistSeq(plNm, plId);
+    rv = await plTab_afBackupPlaylistSeq(plNm, plId, nTrks);
   }
 
   //-----------------------------------------------------------------------------------------------
-  async function plTab_afBackupPlaylistSeq(plNm, plId)
+  async function plTab_afBackupPlaylistSeq(plNm, plId, nTrks)
   {
     try
     {
@@ -1242,7 +1234,7 @@
       // did we have a refresh error
       if (reply['errRsp'][0] != 1)
       {
-        if (reply['errRsp'][0] === -52) // errBackupPlaylistLd
+        if (reply['errRsp'][0] === -58) // errBackupPlaylistLd
         {
           msg = 'Backup Failed\n' +
               'Failed to load tracks for the selected playlist:\n' +
@@ -1255,7 +1247,7 @@
           location.replace(urlSpotifyFinderStartPage); // goto home page
         }
 
-        if (reply['errRsp'][0] === -53) // errBackupPlaylistBu
+        if (reply['errRsp'][0] === -59) // errBackupPlaylistBu
         {
           msg = 'Backup Failed\n' +
               'Failed to create a playlist backup.\n' +
@@ -1266,20 +1258,7 @@
           location.replace(urlSpotifyFinderStartPage); // goto home page
         }
 
-        if (reply['errRsp'][0] === -55) // errBackupPlaylistReLd
-        {
-          // reloading the playlist threw an error
-          msg = 'Backup Playlist Finished Successfully\n\n' +
-              'A backup playlist was created:\n' +
-              '   ' + buPlNm + '\n' +
-              'Once you are satified with the results, you can delete the backup.\n' +
-              'Press Ok and you will be redirected to the home page.\n';
-          alert(msg);
-          let urlSpotifyFinderStartPage = window.location.origin;
-          location.replace(urlSpotifyFinderStartPage); // goto home page
-        }
-
-        if (reply['errRsp'][0] === -51) // errBackupPlaylist
+        if (reply['errRsp'][0] === -57) // errBackupPlaylist
         {
           msg = 'Backup Failed\n\n' +
               'A session restart is needed.\n' +
@@ -1290,16 +1269,42 @@
         }
       }
 
-      await new Promise(r => setTimeout(r, 4000));  // Spotify can be slow to update the list of playlists
+      // await new Promise(r => setTimeout(r, 4000));  // Spotify can be slow to update the list of playlists
+      //
+      // // - get the new buPlId/buPlNm loaded into the plDict
+      // // - this reload will return a track count of 0 for the buPlId/buPlNm
+      // // - spotify takes a long time to get the pl track cnt updated
+      // await plTab_afLoadPlDict(false);
+      //
+      //
+      // // - but if we load the bupl we just created it will have the tracks
+      // // - this will update the plDict w/ the correct track cnt
+      // await tracksTab_afLoadPlTracks1x(buPlId, buPlNm);
 
-      // - get the new buPlId/buPlNm loaded into the plDict
-      // - this reload will return a track count of 0 for the buPlId/buPlNm
-      // - spotify takes a long time to get the pl track cnt updated
-      await plTab_afLoadPlDict(false);
+      // Spotify can be slow to update the list of playlists so we check for up to 30 seconds
+      let buLoopCntr = 0;
+      let buTrkCnt = 0;
+      while ((buLoopCntr < 20) && (buTrkCnt != nTrks))
+      {
+        tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Backup...waiting for spotify server...', showStrImmed = true);
 
-      // - but if we load the bupl we just created it will have the tracks
-      // - this will update the plDict w/ the correct track cnt
-      await tracksTab_afLoadPlTracks1x(buPlId, buPlNm);
+        await new Promise(r => setTimeout(r, 6000));
+        await plTab_afLoadPlDict(false); // this will fetch a new plDict from spotify
+        let plDict = await tabs_afGetPlDict();
+        buTrkCnt = plDict[buPlId]['Tracks']
+        buLoopCntr += 1;
+        console.log('__SF__plTab_afBackupPlaylistSeq() buLoopCntr = ' + buLoopCntr + ', nTrks =' + nTrks + ', buTrkCnt =' + buTrkCnt + ', buPlNm =' + buPlNm + ', buPlId =' + buPlId);
+      }
+
+      // spotify can be slow
+      if (buTrkCnt != nTrks)
+      {
+        msg = 'The playlist backup was successfully submitted to Spotify.\n' +
+            'but Spotify has not yet updated it\'s database.\n\n' +
+            'It can take upto 2 minutes for the rename to take affect.\n\n' +
+            'You can press \'Reload from Spotify\' to reload the playlist table.\n';
+        alert(msg);
+      }
 
       // - get the updated plDict from the server and repaint the table
       vPlTable.clear().draw();
@@ -1346,21 +1351,95 @@
     }
   }
 
-  //-----------------------------------------------------------------------------------------------
-  function plTabs_cbTestSelector()
-  {
-    console.log('__SF__plTabs_cbTestSelector()');
-  }
+  // //-----------------------------------------------------------------------------------------------
+  // function plTabs_cbTestSelector()
+  // {
+  //   console.log('__SF__plTabs_cbTestSelector()');
+  // }
 
   //-----------------------------------------------------------------------------------------------
   function plTab_btnRunTest()
   {
     console.log('__SF__plTab_btnRunTest()');
-    // curSel = $('#plTabs_cbTests').selectedIndex;
-    // let curSel = $('#plTabs_cbTests option:selected').text();
-    // let curSel = $('#plTabs_cbTests').value;
-    selectElement = document.querySelector('#plTabs_cbTests');
-    let curSel = selectElement.value;
+    // let curSel = $('#plTabs_cbTests').value;  // it is not clear why this line would not work
+    // let testIndex = document.querySelector('#plTabs_cbTests').value;
+    // console.log('text test cb selected testIndex = ', + testIndex);
+    plTab_afRunTestBatch(1)
+  }
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afRunTestBatch(testIndex)
+  {
+    let idx = 1;
+    rv = await plTab_afRunTestSeq(idx);
+    console.log('testIndex =', + idx + ', rv = ' + rv);
+    if (rv != 1)
+      return;
 
-    console.log('text test cb selected entry = ', + curSel);
+    idx = 2;
+    rv = await plTab_afRunTestSeq(idx);
+    console.log('testIndex =', + idx + ', rv = ' + rv);
+    if (rv != 1)
+      return;
+
+    idx = 3;
+    rv = await plTab_afRunTestSeq(idx);
+    console.log('testIndex =', + idx + ', rv = ' + rv);
+    if (rv != 1)
+      return;
+
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function plTab_afRunTestSeq(testIndex)
+  {
+     let rv = -999;
+    try
+    {
+      // console.log("__SF__plTab_afBackupPlaylistSeq()");
+      vPlTabLoading = true;
+      tabs_progBarStart('plTab_progBar', 'plTab_progStat1', 'Run Test...', showStrImmed = true);
+
+      let reply = await tabs_afRunTest(testIndex);
+      rv = reply['errRsp'][0];
+      if (reply['errRsp'][0] != 1)
+        console.log('testErrRsp = ', reply['errRsp']);
+      else
+        console.log('test finished successfully - test Number: ' + testIndex);
+
+      // - get the updated plDict from the server and repaint the table
+      vPlTable.clear().draw();
+      await plTab_afLoadPlTable();
+      await plTab_afRestorePlTableCkboxes();
+      plTabs_updateSelectedCntInfo();
+    }
+    catch(err)
+    {
+      console.log('__SF__plTab_afBackupPlaylistSeq() caught error: ', err);
+      // tabs_errHandler(err);
+    }
+    finally
+    {
+      // console.log('__SF__plTab_afBackupPlaylistSeq() finally.');
+      tabs_progBarStop('plTab_progBar', 'plTab_progStat1', '');
+      vPlTabLoading = false;
+      return rv;
+    }
+  }
+
+  //-----------------------------------------------------------------------------------------------
+  async function tabs_afRunTest(testIndex)
+  {
+    console.log('__SF__plTabs_afRunTest() - vUrl - runTest');
+    let response = await fetch(vUrl, { method: 'POST', headers: {'Content-Type': 'application/json',},
+                                       body: JSON.stringify({ runTest: 'runTest',
+                                                                    testIndex: testIndex,
+                                                                  })});
+    if (!response.ok)
+      tabs_throwErrHttp('plTab_afRunTest()', response.status, 'tabs_errInfo');
+    else
+    {
+      let reply = await response.json();
+      // console.log('__SF__plTabs_afRunTest() reply = ', reply);
+      return reply
+    }
   }

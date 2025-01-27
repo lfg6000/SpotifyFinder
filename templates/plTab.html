@@ -52,30 +52,37 @@
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft rowMargin1">
-      <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
-         <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Rename Playlist</legend>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="curPtr" onclick="plTab_btnRenamePlaylist()"  title="Rename a playlist. &#10;Only one playlist can be selected. &#10;This feature waits for the rename to take affect on the Spotify sever, which can take between 0 to 90 seconds.">Rename</button></div>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="btnClrSearch curPtr" onclick="plTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><input style="margin: 0px 6px 2px 0px; padding: 1px 6px 2px 6px;" size="20" id="plTab_plNmTextInput" type="text"  placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>
-        </fieldset>
-      </span>
-    </div>
-    <div class="innerRowLeft rowMargin1">
-      <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playlist Operations</legend>
-          <div class="innerRowLeft" style="margin: 2px 4px 3px 0px;"><button class="curPtr" onClick="plTab_btnBackup()"  title="Make a backup. &#10;Only one playlist can be selected.">Backup</button></div>
-          <div class="innerRowLeft" style="margin: 2px 4px 3px 0px;"><button class="curPtr" onClick="plTab_btnDelete()"  title="Delete a playlist. &#10;Only one playlist can be selected.">Delete</button></div>
-          <div class="innerRowLeft" style="margin: 2px 0px 3px 0px;"><button class="curPtr" onclick="plTab_btnRefresh()" title="Only use Refresh on a playlist that has remove track errors.  &#10;Refreshes your playlist on the Spotify server. &#10;A backup of your playlist will be made prior to the refresh.  &#10;Once you are satified with the results, you can delete the backup.  &#10;Go to the Help page: 'Refreshing Playlist to Fix Remove Errors' for detals.">Refresh</button></div>
-          <div class="innerRowLeft" style="margin: 2px 0px 3px 4px;"><button class="curPtr" onClick="plTabs_btnHelpRefresh()" title="View 'Refreshing Playlist to Fix Remove Errors' Help Info">?</button></div>
-        </fieldset>
-      </span>
-    </div>
+<!--    <div id="divId_plTabRename" class="innerRowLeft rowMargin1">-->
+<!--      <span style="font-size: 10pt;">-->
+<!--        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">-->
+<!--         <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Rename Playlist</legend>-->
+<!--         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="curPtr" onclick="plTab_btnRenamePlaylist()"  title="Rename a playlist. &#10;Only one playlist can be selected. &#10;This feature waits for the rename to take affect on the Spotify server, which can take between 0 to 120 seconds.">Rename</button></div>-->
+<!--         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="btnClrSearch curPtr" onclick="plTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>-->
+<!--         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><input style="margin: 0px 6px 2px 0px; padding: 1px 6px 2px 6px;" size="20" id="plTab_plNmTextInput" type="text"  placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>-->
+<!--        </fieldset>-->
+<!--      </span>-->
+<!--    </div>-->
+<!--    <div class="innerRowLeft rowMargin1">-->
+<!--      <span style="font-size: 10pt;">-->
+<!--        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">-->
+<!--          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playlist Backup</legend>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 4px 3px 0px;"><button class="curPtr" onClick="plTab_btnBackup()"  title="Make a backup prior removing tracks. &#10;Format of backup name = '[Playlist Name] SF_Backup_yyyymmdd_hhmmss'. &#10;Only one playlist can be selected. &#10;This feature waits for the rename to take affect on the Spotify server, which can take between 0 to 120 seconds.">Backup PLaylist</button></div>-->
+<!--        </fieldset>-->
+<!--      </span>-->
+<!--    </div>-->
+<!--    <div class="innerRowLeft rowMargin1">-->
+<!--      <span style="font-size: 10pt;">-->
+<!--        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 6px 2px 6px;">-->
+<!--          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playlist Operations</legend>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 4px 3px 0px;"><button class="curPtr" onClick="plTab_btnDelete()"  title="Delete a playlist. &#10;Only one playlist can be selected.">Delete</button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 0px 3px 0px;"><button class="curPtr" onclick="plTab_btnRefresh()" title="Only use Refresh on a playlist that has remove track errors.  &#10;Refreshes your playlist on the Spotify server. &#10;A backup of your playlist will be made prior to the refresh.  &#10;Once you are satified with the results, you can delete the backup.  &#10;Go to the Help page: 'Refreshing Playlist to Fix Remove Errors' for detals.">Refresh</button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 0px 3px 4px;"><button class="curPtr" onClick="plTabs_btnHelpRefresh()" title="View 'Refreshing Playlist to Fix Remove Errors' Help Info">?</button></div>-->
+<!--        </fieldset>-->
+<!--      </span>-->
+<!--    </div>-->
     <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" onClick="plTabs_btnRestore()" title="Clear search boxes and restore original sort">Restore</button></div>
     <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" onClick="plTabs_btnHelp()" title="View Playlist Tab Help Info">?</button></div>
-    <div class="innerRowLeft" style="margin: 27px 4px 6px 4px; padding: 0px 6px 2px 6px;"><select class="curPtr" id="plTabs_cbTests" onchange="plTabs_cbTestSelector()" title="Test Selector."></select></div>
+<!--    <div class="innerRowLeft" style="margin: 27px 4px 6px 4px; padding: 0px 6px 2px 6px;"><select class="curPtr" id="plTabs_cbTests" onchange="plTabs_cbTestSelector()" title="Test Selector."></select></div>-->
     <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" id="plTab_btnTest" onClick="plTab_btnRunTest()" title="Run the test suite">Test</button></div>
   </div>
 

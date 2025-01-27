@@ -5,8 +5,7 @@ from flask import jsonify
 from flask_mysqldb import MySQL
 import spotipy
 import json, logging, datetime, pprint, os, time
-import sfLoader, sfConst
-
+import sfLoader, sfConst, sfTester
 # import gc
 # from guppy import hpy
 
@@ -31,6 +30,7 @@ app = Flask(__name__)
 
 oLoader = sfLoader.SpfLoader()
 oLoader.loadCfgFile() # call this before setting 'SECRET_KEY'
+oTester = sfTester.SpfTester(oLoader)
 
 # for firefox debugging use this to stop caching...so html files are alwasy reload...put this in a .css file used by all pages
 #   <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
@@ -503,8 +503,8 @@ def Tabs():
         elif (key == 'runTest'):
           # print('>>/Tabs runTest()')
           testIndex = rqJson['testIndex']
-          retVal, testResutlsMsg = oLoader.runTest(testIndex)
-          return jsonify({ 'errRsp': retVal, 'testResultsMsg': testResultsMsg})
+          retVal = oTester.runTest(testIndex)
+          return jsonify({ 'errRsp': retVal})
 
         # - this is the error in the logs when a route return nothing....
         #   File "C:\Users\lfg70\.aa\LFG_Code\Python\WA_SpotifyFinder\venv\Lib\site-packages\flask\app.py", line 2097, in make_response

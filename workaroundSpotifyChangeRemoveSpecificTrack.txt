@@ -1,6 +1,9 @@
 
-      # 5-5-24 spotify is ignoring postion param if more than one duplicate exists in a pl they are all being deleted
-      # https://community.spotify.com/t5/Spotify-for-Developers/Positions-field-in-JSON-body-is-ignored-when-removing-tracks/td-p/6044424
+      # as of 2025/01/27 both spotify and spotipy have not addressed this issue.
+
+      # 2024/05/05 issue created on spotify developers forum
+      # - spotify is ignoring postion param if more than one duplicate exists in a pl they are all being deleted
+      # - https://community.spotify.com/t5/Spotify-for-Developers/Positions-field-in-JSON-body-is-ignored-when-removing-tracks/td-p/6044424
       # - this spotipy api is no longer working because position is being ignored by spotify:
       # - playlist_remove_specific_occurrences_of_items(playlist_id, items, snapshot_id=None)
       #   this spotipy api calls the spotify web api: delete /playlists/{playlist_id}/tracks
@@ -8,11 +11,19 @@
       # - this is a workaround to the remove specific track issue
       # - just send a list of position values instead of a list of track ids and a list of positions
       # - to implement this work around you must modify spotipy:client.py private server and public server
-      #
-      # - the following 9 line removal and 4 line addittion must be added to
+
+      # 2024/05/05 issue created on spotipy gethub
+      # - https://github.com/spotipy-dev/spotipy/issues/1098
+
+
+
+step 1:
+-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------
+      # - the following 9 line are commented out and 4 line addittion must be added to
       #     spotipy:client.py - def playlist_remove_specific_occurrences_of_items()
       # in 2 places:
-      #      1) (private server) WA_SpotifyFinder\venv39\Lib\site-packages\spotipy\client.py
+      #      1) (local server) WA_SpotifyFinder\venv39\Lib\site-packages\spotipy\client.py
       #      2) (public server) /home/[username]/.local/lib/python3.9/site-packages/spotipy/client.py
         #
         # 2025/01/18 - the next 9 lines:
@@ -33,3 +44,11 @@
         for tr in items:
             posRm.append(tr["positions"][0])
         payload = {"positions": posRm}
+
+
+step 2: (optional - python will see the edit and update the cached client.py)
+-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------
+        # delete the spotipy/__pycache__ dir
+        (public server) > cd /home/[username]/.local/lib/python3.9/site-packages/spotipy
+        (public server) > rm -rf __pycache__

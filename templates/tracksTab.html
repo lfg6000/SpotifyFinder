@@ -75,41 +75,38 @@
 
   <div class="borderGreen2"></div>
   <div id="tracksTab_outerRow1" class="clearfix">
-    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
     <div class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
         <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist</legend>
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Remove</legend>
+          <div class="innerRowLeft" style="margin: 2px 0px 3px 4px;"><button class="curPtr" onclick="tracksTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
+        </fieldset>
+      </span>
+    </div>
+    <div id="idTracksTabMvCp" class="innerRowLeft rowMargin1">
+      <span style="font-size: 10pt;">
+        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist (dev only)</legend>
           <div class="innerRowLeft" style="margin: 2px  0px 3px 4px;"><button class="curPtr" onclick="tracksTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>
           <div class="innerRowLeft" style="margin: 2px  0px 3px 4px;"><button class="curPtr" onclick="tracksTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
           <div class="innerRowLeft" style="margin: 3px  2px 0px 4px;"><select class="curPtr" style="width: 250px;" id="tracksTab_cbMvCpDest" title="Destination playlist for a move or copy operation">Select a destination playlist</select></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft rowMargin1">
+    <div id="idTracksTabCreate" class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
         <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Create Playlist</legend>
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Create/Sort Playlist (dev only)</legend>
          <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="curPtr" onclick="tracksTab_btnCreatePlaylist()"  title="Create a new playlist from the selected tracks. &#10;You can use the table colunm headers to sort the tracks prior creating a new playlist.">Create</button></div>
          <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="btnClrSearch curPtr" onclick="tracksTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>
          <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><input style="margin: 0px 2px 2px 0px; padding: 1px 6px 2px 6px;" size="20" id="tracksTab_plNmTextInput" type="text"  placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>
+         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;;"><button class="curPtr" onclick="tracksTab_btnSort()"  title="Save the current sort order shown in the tracks table. &#10;Use column headers to apply the desired sort.  &#10;A backup of your playlist will be made prior to saving the sort.  &#10;Once you are satified with the results, you can delete the backup.  &#10;Go to the Tracks Tab Help page for detals.">Sort</button></div>
+         <div class="innerRowLeft" style="margin: 2px 0px 0px 4px;"><button class="curPtr" onclick="tracksTab_btnSelectAll()" title="Select all the tracks in the selected playlist">Select All</button></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft rowMargin1">
-      <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playback</legend>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="tracksTab_btnAddToQueue()"  id="tracksTab_AddToQueue"  title="Add to Queue. &#10;Add up to 20 selected tracks to the Spotify queue. &#10;The currently playing track will finish before Spotify plays the tracks you added. &#10;You can view your queue in the Spotify phone app. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-list"></i></button></div>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="tracksTab_btnPlayTracks()"  id="tracksTab_PlayTracks"  title="Play. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-play"></i></button></div>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="tracksTab_btnPauseTrack()"  id="tracksTab_PauseTrack"  title="Pause. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-pause"></i></button></div>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="tracksTab_btnNextTrack()"   id="tracksTab_NextTrack"   title="Next. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature equires a Spotify Premium account."><i class="fa fa-step-forward"></i></button></div>
-        </fieldset>
-      </span>
-    </div>
-    <!--    <div class="innerRowLeft" style="margin: 24px 4px 6px 4px;"><button onclick="tracksTab_afBtnPlay()"  title="play">Play</button></div>-->
-    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnSort()"  title="Save the current sort order shown in the tracks table. &#10;Use column headers to apply the desired sort.  &#10;A backup of your playlist will be made prior to saving the sort.  &#10;Once you are satified with the results, you can delete the backup.  &#10;Go to the Tracks Tab Help page for detals.">Sort</button></div>
-    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnSelectAll()" title="Select all the tracks in the selected playlist">Select All</button></div>
+<!--    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnSort()"  title="Save the current sort order shown in the tracks table. &#10;Use column headers to apply the desired sort.  &#10;A backup of your playlist will be made prior to saving the sort.  &#10;Once you are satified with the results, you can delete the backup.  &#10;Go to the Tracks Tab Help page for detals.">Sort</button></div>-->
+<!--    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnSelectAll()" title="Select all the tracks in the selected playlist">Select All</button></div>-->
     <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnClear()"     title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
     <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="tracksTab_btnHelp()"      title="View Tracks Tab Help Info">?</button></div>
   </div>

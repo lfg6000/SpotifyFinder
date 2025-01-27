@@ -80,41 +80,48 @@
   <hr class="sep1px">
 
   <div id="searchTab_outerRow2" class="clearfix" style="margin: 4px 0px 4px 4px;">
-    <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
     <div class="innerRowLeft rowMargin1">
       <span style="font-size: 10pt;">
         <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist</legend>
-          <div class="innerRowLeft" style="margin: 3px  0px 2px 2px; "><button class="curPtr" onclick="searchTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>
-          <div class="innerRowLeft" style="margin: 3px  0px 2px 2px; "><button class="curPtr" onclick="searchTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>
-          <div class="innerRowLeft" style="margin: 4px  2px 0px 2px; "><select class="curPtr" style="width: 250px;" id="searchTab_cbMvCpDest" title="Destination playlist for a move or copy operation.">Select a destination playlist</select></div>
+          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Remove</legend>
+          <div class="innerRowLeft" style="margin: 2px 0px 3px 4px;"><button class="curPtr" onclick="searchTab_btnRmTracksByPos()" title="Remove selected tracks from Playlist">Remove Selected Tracks </button></div>
         </fieldset>
       </span>
     </div>
-    <div class="innerRowLeft rowMargin1">
-      <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Create Playlist</legend>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 2px;"><button class="curPtr" onclick="searchTab_btnCreatePlaylist()"     title="Create a new playlist from the selected tracks. &#10;You can use the table colunm headers to sort the tracks prior creating a new playlist.">Create</button></div>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 2px;"><button class="btnClrSearch curPtr" onclick="searchTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>
-         <div class="innerRowLeft" style="margin: 2px 0px 0px 2px;"><input style="margin: 0px 2px 2px 0px; padding: 1px 6px 2px 6px;" size="20" id="searchTab_plNmTextInput" type="text" placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>
-        </fieldset>
-      </span>
-    </div>
-    <div class="innerRowLeft rowMargin1">
-      <span style="font-size: 10pt;">
-        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">
-          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playback</legend>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnAddToQueue()"  id="searchTab_AddToQueue"  title="Add to Queue. &#10;Add up to 20 selected tracks to the Spotify queue.  &#10;The currently playing track will finish before Spotify plays the tracks you added. &#10;You can view your queue in the Spotify phone app. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-list"></i></button></div>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnPlayTracks()"  id="searchTab_PlayTracks"  title="Play. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-play"></i></button></div>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnPauseTrack()"  id="searchTab_PauseTrack"  title="Pause. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-pause"></i></button></div>
-          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnNextTrack()"   id="searchTab_NextTrack"   title="Next. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature equires a Spotify Premium account."><i class="fa fa-step-forward"></i></button></div>
-        </fieldset>
-      </span>
-    </div>
-    <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnSelectAll()"    title="Select all the tracks">Select All</button></div>
-    <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnClear()" title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
-    <div class="innerRowLeft" style="margin: 27px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnHelp()"  title="View Search Tab Help Info">?</button></div>
+<!--    <div class="innerRowLeft rowMargin1">-->
+<!--      <span style="font-size: 10pt;">-->
+<!--        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">-->
+<!--          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Move/Copy Selected Tracks to Another Playlist</legend>-->
+<!--          <div class="innerRowLeft" style="margin: 3px  0px 2px 2px; "><button class="curPtr" onclick="searchTab_btnMvTracks()" title="Move selected tracks to another playlist">Move</button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 3px  0px 2px 2px; "><button class="curPtr" onclick="searchTab_btnCpTracks()" title="Copy selected tracks to another playlist">Copy</button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 4px  2px 0px 2px; "><select class="curPtr" style="width: 250px;" id="searchTab_cbMvCpDest" title="Destination playlist for a move or copy operation.">Select a destination playlist</select></div>-->
+<!--        </fieldset>-->
+<!--      </span>-->
+<!--    </div>-->
+<!--    <div class="innerRowLeft rowMargin1">-->
+<!--      <span style="font-size: 10pt;">-->
+<!--        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">-->
+<!--          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Create Playlist</legend>-->
+<!--         <div class="innerRowLeft" style="margin: 2px 0px 0px 2px;"><button class="curPtr" onclick="searchTab_btnCreatePlaylist()"     title="Create a new playlist from the selected tracks. &#10;You can use the table colunm headers to sort the tracks prior creating a new playlist.">Create</button></div>-->
+<!--         <div class="innerRowLeft" style="margin: 2px 0px 0px 2px;"><button class="btnClrSearch curPtr" onclick="searchTab_btnClearPlNmText()"  title="Clear playlist name">x</button></div>-->
+<!--         <div class="innerRowLeft" style="margin: 2px 0px 0px 2px;"><input style="margin: 0px 2px 2px 0px; padding: 1px 6px 2px 6px;" size="20" id="searchTab_plNmTextInput" type="text" placeholder="enter playlist name" title="New playlist name" spellcheck="false"></div>-->
+<!--        </fieldset>-->
+<!--      </span>-->
+<!--    </div>-->
+<!--    <div class="innerRowLeft rowMargin1">-->
+<!--      <span style="font-size: 10pt;">-->
+<!--        <fieldset style="margin: 0px 0px 0px 0px; padding: 0px 2px 2px 2px;">-->
+<!--          <legend style="margin: 0px 6px 0px 0px; padding: 0px 6px 2px 6px;">Playback</legend>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnAddToQueue()"  id="searchTab_AddToQueue"  title="Add to Queue. &#10;Add up to 20 selected tracks to the Spotify queue.  &#10;The currently playing track will finish before Spotify plays the tracks you added. &#10;You can view your queue in the Spotify phone app. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-list"></i></button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnPlayTracks()"  id="searchTab_PlayTracks"  title="Play. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-play"></i></button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnPauseTrack()"  id="searchTab_PauseTrack"  title="Pause. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature requires a Spotify Premium account."><i class="fa fa-pause"></i></button></div>-->
+<!--          <div class="innerRowLeft" style="margin: 2px 2px 3px 2px;"><button class="curPtr" onclick="searchTab_btnNextTrack()"   id="searchTab_NextTrack"   title="Next. &#10;For this to work you must have an active/playing Spotify playback device. &#10;    e.g. phone, computer, tablet, spotify connect device, ... &#10;This feature equires a Spotify Premium account."><i class="fa fa-step-forward"></i></button></div>-->
+<!--        </fieldset>-->
+<!--      </span>-->
+<!--    </div>-->
+<!--    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnSelectAll()"    title="Select all the tracks">Select All</button></div>-->
+    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnClear()" title="Clear selections, clear search boxes and restore original sort">Clear</button></div>
+    <div class="innerRowLeft" style="margin: 26px 4px 6px 4px;"><button class="curPtr" onclick="searchTab_btnHelp()"  title="View Search Tab Help Info">?</button></div>
   </div>
 
 

@@ -1896,7 +1896,7 @@ class SpfLoader():
 
         # if this is the first loop thru the list of tracks create a new playlist
         if newPlId == '':
-          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='sorted using spotifyFinder.com')
+          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='created using spotifyFinder.com')
           newPlId = results['id']
 
         this.oAuthGetSpotifyObj().playlist_add_items(newPlId, addList)
@@ -2122,8 +2122,7 @@ class SpfLoader():
       # create a backup playlist using the original list of tracks
       retVal, buPlId = this.createPlaylist(buPlNm, uriTrackList)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
-        retVal = [sfConst.errBackupPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Backup error - failed to create backup for : {plNm}",
-                  'original playlist was not modified.', 'refresh terminated.']
+        retVal = [sfConst.errBackupPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Backup error - failed to create backup for : {plNm}", '', '']
         this.addErrLogEntry(retVal)
         return retVal, buPlNm, buPlId
 

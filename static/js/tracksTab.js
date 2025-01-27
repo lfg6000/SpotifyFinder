@@ -165,6 +165,14 @@
       // console.log('__SF__tracksTab_activate() - lastCnt = ' + vLastPlSelectionCntrTracksTab + ', curCnt = ' + curPlSelectionCntr);
       if (vLastPlSelectionCntrTracksTab !== curPlSelectionCntr)
       {
+        // if false         hide mc/cp/create/sort btns
+        // if true   do not hide mc/cp/create/sort btns
+        if (vUserId.includes('slipstream4') == false)
+        {
+          $('#idTracksTabMvCp').toggle();
+          $('#idTracksTabCreate').toggle();
+        }
+
         vLastPlSelectionCntrTracksTab = curPlSelectionCntr;
         vPlNameTableLastSelectedRow = 0;
         vPlNamesTableInitComplete = false;
