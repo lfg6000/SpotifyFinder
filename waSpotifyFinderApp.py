@@ -556,10 +556,10 @@ def Tabs():
 # -> pyinstaller paSpotifyFinderApp.py --clean --add-data "templates;templates" --add-data "static;static" -i ./assets/spfIcon.ico --noconfirm
 # - drop in waSpotifyFinderApp.spec addition from https://stackoverflow.com/questions/35811448/pyinstaller-jinja2-templatenotfound
 # - run this to create a working dist from a spec file
-# -> pyinstaller waSpotifyFinderApp.spec --noconfirm
+# - (venv) > pyinstaller waSpotifyFinderApp.spec --noconfirm
 
 # - creates a dist folder w/ a seApp.exe - no terminal window when running from dist
-# -> pyinstaller waSpotifyFinderApp.py --clean --add-data "assets;assets" -i ./assets/seIcon.ico --windowed --noconfirm
+# - (venv) > pyinstaller waSpotifyFinderApp.py --clean --add-data "assets;assets" -i ./assets/seIcon.ico --windowed --noconfirm
 
 
 #----------------------------------------------------------------------------------------------
