@@ -106,6 +106,28 @@
         plTab_initPlTableCkboxes();
         await plTab_afUpdatePlSelectedDict();
         plTabs_updateSelectedCntInfo();
+
+        // this functionality is only displayed for slipstream4
+        if (vUserId.includes('slipstream4') == false)
+        {
+          console.log("plTab_afActivate() - divs display = none, vUserId = " + vUserId);
+          // delete, rename, backup, refresh
+          $('#idDivPlTabRename').css('display', 'none');
+          $('#idDivPlTabBu').css('display', 'none');
+          $('#idDivPlTabDelRefresh').css('display', 'none');
+
+          // move, cp, create
+          $('#idDivSearchTabMvCp').css('display', 'none');
+          $('#idDivSearchTabCreate').css('display', 'none');
+
+          // move, cp, create, sort
+          $('#idDivTracksTabMvCp').css('display', 'none');
+          $('#idDivTracksTabCreate').css('display', 'none');
+
+          // move, cp, create
+          $('#idDivArtistsTabMvCp').css('display', 'none');
+          $('#idDivArtistsTabCreate').css('display', 'none');
+        }
       }
       else if (vLastTracksRmMvCpCntr !== curTracksRmMvCpCntr)
       {
