@@ -108,9 +108,11 @@
         plTabs_updateSelectedCntInfo();
 
         // this functionality is only displayed for slipstream4
-        if (vUserId.includes('slipstream4') == false)
+
+        // console.log("plTab_afActivate() - vUserId = " + vUserId);
+        if (vUserId.includes('slipstream4') === false)
         {
-          console.log("plTab_afActivate() - divs display = none, vUserId = " + vUserId);
+          // console.log("plTab_afActivate() - divs display = none, vUserId = " + vUserId);
           // delete, rename, backup, refresh
           $('#idDivPlTabRename').css('display', 'none');
           $('#idDivPlTabBu').css('display', 'none');
