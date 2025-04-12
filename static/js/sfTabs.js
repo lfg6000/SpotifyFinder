@@ -275,7 +275,8 @@
     });
     if (!response.ok)
       tabs_throwErrHttp('tabs_afGetPlDict()', response.status, 'plTab_errInfo');
-    else {
+    else
+    {
       let reply = await response.json();
       // console.log('__SF__tabs_afGetPlDict() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
@@ -290,6 +291,7 @@
     vRmByPosErrPlNm = 'unknown playlist name (c)';  // used in err dlg to tell user the plNm with the remove error
     vCurPlSelectionCntr = vCurPlSelectionCntr + 1;
     vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
+
 
     if (Object.keys(rmTrackList).length > 100)
     {
@@ -350,11 +352,13 @@
     });
     if (!response.ok)
       tabs_throwErrHttp('tabs_afCreatePlaylist()', response.status, 'tabs_errInfo');
-    else {
+    else
+    {
       let reply = await response.json();
       // console.log('tabs_afCreatePlaylist() reply = ', reply);
       if (reply['errRsp'][0] !== 1)
         tabs_throwSvrErr('tabs_afCreatePlaylist()', reply['errRsp'], 'tabs_errInfo')
+      return reply['newPlId']
     }
   }
 

@@ -978,13 +978,14 @@ class SpfLoader():
       # plNm, pub, tn are fetched to make a more informative error msg
       pub = 'not found'
       plNm = 'unknown playlist name (b)'
-      tn = f"rm list len = {len(spotRmTrackList)}"
+      tNm = '..many..'
 
       # cntr, done, origPlLen are used to determine if the remove has completed
       cntr = 0
       done = False
       maxRetries = 4
-      origPlLen = len(session['mPlTracksDict'][plId])
+      nAct = 0
+      nOrig = len(session['mPlTracksDict'][plId])
 
       if plId in session['mPlDict']:
         plNm = session['mPlDict'][plId]['Playlist Name']
@@ -992,11 +993,42 @@ class SpfLoader():
       if len(spotRmTrackList) == 1:
         if plId in session['mPlTracksDict']:
           pos = spotRmTrackList[0]['positions'][0]
-          tn = session['mPlTracksDict'][plId][pos]['Track Name']
+          tNm = session['mPlTracksDict'][plId][pos]['Track Name']
+
+      sUsr = session['mUserName']
+      nRm = len(spotRmTrackList)
+      nExp = nOrig - nRm
+      print(f"rm INFO: usr: {sUsr}, plNm: {plNm}, nTrks: {nOrig}, nRm: {nRm}")
+
+      # 5-5-24 spotify is ignoring postion param if more than one duplicate exists in a pl they are all being deleted
+      # https://community.spotify.com/t5/Spotify-for-Developers/Positions-field-in-JSON-body-is-ignored-when-removing-tracks/td-p/6044424
+      # ignoring the position parameter from the web api delete /playlists/{playlist_id}/tracks is a major issue for
+      # www.spotifyfinder.com   users want to be able to delete a specific duplicate based on position.
+      # now that position is being ignored multiple instances of the same track are being removed.  this breaks www.spotifyfinder.com
+      # i am really hoping that the position parameter is supported once again.
+      # this breaks spotipy.  this spotipy api is no longer working because position is being ignored:
+      # - playlist_remove_specific_occurrences_of_items(playlist_id, items, snapshot_id=None)
+      # this spotipy api calls the spotify web api: delete /playlists/{playlist_id}/tracks
+
+      # - this is a workaround to the delete issue
+      # - just send an array of position values instead of a list of track ids and a list of positions
+      # - to implement this work around you must modify spotipy:client.py locally and on pyAny
+      #
+      # - the following 4 lines
+      # must be added to
+      #      def playlist_remove_specific_occurrences_of_items()
+      # in 2 places:
+      #      1) WA_SpotifyFinder\venv39\Lib\site-packages\spotipy\client.py
+      #      2) /home/slipstreamcode/.local/lib/python3.9/site-packages/spotipy/client.py
+      #
+      # 1) posRm = []
+      # 2) for tr in items:
+      # 3)     posRm.append(tr["positions"][0])
+      # 4) payload = {"positions": posRm}
 
       # raise Exception('throwing loader.rmTracksByPosFromSpotPlaylist()')
       this.oAuthGetSpotifyObj().playlist_remove_specific_occurrences_of_items(plId, spotRmTrackList)
-      time.sleep(2) # it may take a few seconds for spotify to complete the remove
+      time.sleep(4) # it may take a few seconds for spotify to complete the remove
 
       # on 7/22/22 Ridrigo Flay da Silva reported an issue that turns out to be a race condition:
       # - it was observed that the pyAny server does the delete and refetch before spotify is done deleting the tracks
@@ -1011,9 +1043,18 @@ class SpfLoader():
         cntr += 1
         del session['mPlTracksDict'][plId]
         retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        # retVal = [sfConst.errRmTracksByPos, this.getDateTm(), f"n", "r", "s", "t"]  # for testing
+        # this.addErrLogEntry(retVal)
         if retVal[sfConst.errIdxCode] == sfConst.errNone:
-          if len(session['mPlTracksDict'][plId]) != (origPlLen - len(spotRmTrackList)):
-            time.sleep(8)
+          nAct = len(session['mPlTracksDict'][plId])
+          # - this is not fool proof because the rm of multiple dups messes with the count.
+          if nAct != nExp:
+            print(f"rm SYNC: usr: {sUsr}, cntr: {cntr}, plNm: {plNm}, nOrig: {nOrig}, nRm: {nRm}, nExp: {nExp}, nAct: {nAct}")
+            # see 5-5-24 note above, spotify ignoring pos, deleting all instances of a track instead of just the selected original
+            if nExp > nAct:
+              done = True
+            else:
+              time.sleep(15)
           else:
             done = True
         else:
@@ -1023,15 +1064,24 @@ class SpfLoader():
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal, plNm
 
+      # - if nAct > nExp then some of the desired tracks were not removed
+      # - ignore the case where the actual track count is lower than the expected track count.
+      #   all the tracks were removed plus all the tracks that had multiple copies
+      # - this is not fool proof because the rm of multiple dups messes with the count.
+      # - 'If you have Multiple Copies of the Same Track in a playlist\n' +
+      # 'and you selected ONE of them to be removed unfortanetly ALL\n' +
+      # 'copies of the selected track will be removed from the playlist.\n'
       if (cntr >= maxRetries):
-        retVal = [sfConst.errRmTracksByPosSyncErr, this.getDateTm(), f"{this.fNm(this)}", f"Invalid track count after remove: expected({origPlLen - len(spotRmTrackList)}), actual({len(session['mPlTracksDict'][plId])})",f"we asked for the pl {cntr} times before throwing this error.", "n/a"]
-        this.addErrLogEntry(retVal)
-        return retVal, plNm
+        if nAct > nExp:
+          nAct = len(session['mPlTracksDict'][plId])
+          retVal = [sfConst.errRmTracksByPosSyncErr, this.getDateTm(), f"{this.fNm(this)}", f"Invalid track count after rm: nOrig({nOrig}), nRm({nRm}), exp({nExp}), act({nAct})",f"we asked for ({plNm}) ({cntr}) times before throwing this error.", "n/a"]
+          this.addErrLogEntry(retVal)
+          return retVal, plNm
 
       return [sfConst.errNone], plNm
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
-      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Remove tracks from spotify playlist ({pub}:{plNm}:{tn}) by pos failed", str(exTyp), str(exObj)]
+      retVal = [sfConst.errRmTracksByPosFromSpotPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Remove tracks from spotify playlist: plNm({plNm}), nTrks({nOrig}), nRm({nRm}), pub({pub}) tNm({tNm}) by pos failed", str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
       return retVal, plNm
 
@@ -1831,6 +1881,7 @@ class SpfLoader():
     try:
       # raise Exception('throwing loader.createPlaylist()')
 
+      newPlId = ''
       nTracks = len(createUriTrackList)
       if nTracks == 0:
         return [sfConst.errNone]
@@ -1852,17 +1903,17 @@ class SpfLoader():
 
         # if this is the first loop thru the list of tracks create a new playlist
         if newPlId == '':
-          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='sorted using spotifyFinder.com')
+          results = this.oAuthGetSpotifyObj().user_playlist_create(session['mUserId'], newPlNm, public=False, collaborative=False, description='created using spotifyFinder.com')
           newPlId = results['id']
 
         this.oAuthGetSpotifyObj().playlist_add_items(newPlId, addList)
 
-      return [sfConst.errNone]
+      return [sfConst.errNone], newPlId
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errCreatePlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f'Failed to create playlist: {newPlNm}', str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal
+      return retVal, newPlId
 
   # ---------------------------------------------------------------
   def wrPlaylist(this, plNm, plId, uriTrackList):
@@ -1915,7 +1966,8 @@ class SpfLoader():
       # used when doing a refresh or a sort
       # raise Exception('throwing loader.reloadPlaylist()')
 
-      del session['mPlTracksDict'][plId]
+      if plId in session['mPlTracksDict']:
+        del session['mPlTracksDict'][plId]
       retVal, loadedPlIds = this.loadPlTracks1x(plId)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         return retVal
@@ -1952,7 +2004,7 @@ class SpfLoader():
         print(f"sortPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
 
       # create a backup playlist using the original/unsorted list of tracks
-      retVal = this.createPlaylist(buPlNm, uriTrackListUnsorted)
+      retVal, newPlId = this.createPlaylist(buPlNm, uriTrackListUnsorted)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         retVal = [sfConst.errSortPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Sort error - failed to create backup for : {plNm}",
                   'original playlist was not modified.', 'sort terminated.']
@@ -1992,6 +2044,7 @@ class SpfLoader():
     try:
       dtStr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
       buPlNm = f"{plNm} SF_Refresh_Backup_{dtStr}"
+      buPlId = ''
 
       # raise Exception('throwing loader.refreshPlaylist()')
 
@@ -2004,7 +2057,7 @@ class SpfLoader():
           retVal = [sfConst.errRefreshPlaylistLd, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to load playlist tracks: {plNm}",
                     'original playlist was not modified.', 'refresh terminated.']
           this.addErrLogEntry(retVal)
-          return retVal, buPlNm
+          return retVal, buPlNm, buPlId
 
       uriTrackList = []
       cntInvalidTrackId = 0;
@@ -2018,12 +2071,12 @@ class SpfLoader():
         print(f"refreshPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
 
       # create a backup playlist using the original list of tracks
-      retVal = this.createPlaylist(buPlNm, uriTrackList)
+      retVal, buPlId = this.createPlaylist(buPlNm, uriTrackList)
       if retVal[sfConst.errIdxCode] != sfConst.errNone:
         retVal = [sfConst.errRefreshPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to create backup for : {plNm}",
                   'original playlist was not modified.', 'refresh terminated.']
         this.addErrLogEntry(retVal)
-        return retVal, buPlNm
+        return retVal, buPlNm, buPlId
 
       # rewrite the playlist using the original set of tracks
       retVal = this.wrPlaylist(plNm, plId, uriTrackList)
@@ -2031,24 +2084,60 @@ class SpfLoader():
         retVal = [sfConst.errRefreshPlaylistWr, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - failed to write playlist: : {plNm}",
                 'Use backup to recover', f"backup playlist: {buPlNm}"]
         this.addErrLogEntry(retVal)
-        return retVal, buPlNm
-
-      # reload the playlist to ensure we match spotify
-      if reload == True:
-        # give spotify some time to complete the write then reload the playlist
-        time.sleep(6)
-        retVal = this.reloadPlaylist(plNm, plId)
-        if retVal[sfConst.errIdxCode] != sfConst.errNone:
-          retVal = [sfConst.errRefreshPlaylistReLd, this.getDateTm(), f"{this.fNm(this)}", f"Refresh error - playlist reload failed : {plNm}",
-                  'playlist write finished but post write reload failed.', f"backup playlist: {buPlNm}"]
-          this.addErrLogEntry(retVal)
-          return retVal, buPlNm
+        return retVal, buPlNm, buPlId
 
       # this print can be removed after awhile once things look okay
       print(f"refreshPlaylist completed successfully: un: {session['mUserName']}, playlist: {plNm}")
-      return [sfConst.errNone], buPlNm
+      return [sfConst.errNone], buPlNm, buPlId
     except Exception:
       exTyp, exObj, exTrace = sys.exc_info()
       retVal = [sfConst.errRefreshPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Refresh Playlist failed.", str(exTyp), str(exObj)]
       this.addErrLogEntry(retVal)
-      return retVal, buPlNm
+      return retVal, buPlNm, buPlId
+
+  # ---------------------------------------------------------------
+  def backupPlaylist(this, plNm, plId, reload):
+    try:
+      dtStr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+      buPlNm = f"{plNm} SF_Backup_{dtStr}"
+      buPlId = ''
+
+      # raise Exception('throwing loader.backupPlaylist()')
+
+      if plId not in session['mPlDict']:
+        raise Exception('throwing loader.backupPlaylist() - playlist not found in plDict.')
+
+      if plId not in session['mPlTracksDict']:
+        retVal, loadedPlIds = this.loadPlTracks1x(plId)
+        if retVal[sfConst.errIdxCode] != sfConst.errNone:
+          retVal = [sfConst.errBackupPlaylistLd, this.getDateTm(), f"{this.fNm(this)}", f"Backup error - failed to load playlist tracks: {plNm}",
+                    'original playlist was not modified.', 'refresh terminated.']
+          this.addErrLogEntry(retVal)
+          return retVal, buPlNm, buPlId
+
+      uriTrackList = []
+      cntInvalidTrackId = 0;
+      for vals in session['mPlTracksDict'][plId]:
+        if vals['Track Id'] != '':
+          uriTrackList.append(vals['Track Uri'])
+        else:
+          cntInvalidTrackId += 1
+
+      if cntInvalidTrackId != 0:
+        print(f"backupPlaylist - plNm: {plNm}, had {cntInvalidTrackId} track ids that were null.")
+
+      # create a backup playlist using the original list of tracks
+      retVal, buPlId = this.createPlaylist(buPlNm, uriTrackList)
+      if retVal[sfConst.errIdxCode] != sfConst.errNone:
+        retVal = [sfConst.errBackupPlaylistBu, this.getDateTm(), f"{this.fNm(this)}", f"Backup error - failed to create backup for : {plNm}", '', '']
+        this.addErrLogEntry(retVal)
+        return retVal, buPlNm, buPlId
+
+      # this print can be removed after awhile once things look okay
+      print(f"backupPlaylist completed successfully: un: {session['mUserName']}, playlist: {plNm}")
+      return [sfConst.errNone], buPlNm, buPlId
+    except Exception:
+      exTyp, exObj, exTrace = sys.exc_info()
+      retVal = [sfConst.errBackupPlaylist, this.getDateTm(), f"{this.fNm(this)}:{exTrace.tb_lineno}", f"Backup Playlist failed.", str(exTyp), str(exObj)]
+      this.addErrLogEntry(retVal)
+      return retVal, buPlNm, buPlId

@@ -58,6 +58,9 @@ This website works fine w/o a MySql server/db.  If you leave sMySqlDbName, in sf
 will not need to setup a MySql server/db. You will still need to import the Flask-MySqlDb package 
 into your IDE.
 
+### Modification to spotipy client.py is required
+see workaroundSpotifyChangeRemoveSpecificTrack.txt for details
+
 ### Running this Project from an IDE
   * download the project from github
   * open the project in your favorite IDE.  

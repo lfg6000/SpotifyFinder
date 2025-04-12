@@ -5,8 +5,7 @@ from flask import jsonify
 from flask_mysqldb import MySQL
 import spotipy
 import json, logging, datetime, pprint, os, time
-import sfLoader, sfConst
-
+import sfLoader, sfConst, sfTester
 # import gc
 # from guppy import hpy
 
@@ -31,6 +30,7 @@ app = Flask(__name__)
 
 oLoader = sfLoader.SpfLoader()
 oLoader.loadCfgFile() # call this before setting 'SECRET_KEY'
+oTester = sfTester.SpfTester(oLoader)
 
 # for firefox debugging use this to stop caching...so html files are alwasy reload...put this in a .css file used by all pages
 #   <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
@@ -466,20 +466,28 @@ def Tabs():
           # print('>>/Tabs createPlaylist()')
           newPlNm = rqJson['newPlNm']
           createUriTrackList = rqJson['createUriTrackList']
-          retVal = oLoader.createPlaylist(newPlNm, createUriTrackList)
+          retVal, newPlId = oLoader.createPlaylist(newPlNm, createUriTrackList)
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
             oLoader.updateDbVisitCnt(mysql, 'Create')
-          return jsonify({ 'errRsp': retVal })
+          return jsonify({ 'errRsp': retVal, 'newPlId': newPlId })
 
         elif (key == 'refreshPlaylist'):
           # print('>>/Tabs refreshPlaylist()')
           plId = rqJson['plId']
           plNm = rqJson['plNm']
           reload = rqJson['reload']
-          retVal, buPlNm = oLoader.refreshPlaylist(plNm, plId, reload)
+          retVal, buPlNm, buPlId = oLoader.refreshPlaylist(plNm, plId, reload)
           if ((retVal[0] == 1) and (oLoader.sMySqlDbName != '')):
              oLoader.updateDbVisitCnt(mysql, 'RefreshPl')
-          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm })
+          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm, 'buPlId': buPlId})
+
+        elif (key == 'backupPlaylist'):
+          # print('>>/Tabs backupPlaylist()')
+          plId = rqJson['plId']
+          plNm = rqJson['plNm']
+          reload = rqJson['reload']
+          retVal, buPlNm, buPlId = oLoader.backupPlaylist(plNm, plId, reload)
+          return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm, 'buPlId': buPlId })
 
         elif (key == 'sortPlaylist'):
           # print('>>/Tabs sortPlaylist()')
@@ -492,6 +500,11 @@ def Tabs():
              oLoader.updateDbVisitCnt(mysql, 'SortPl')
           return jsonify({ 'errRsp': retVal, 'buPlNm': buPlNm })
 
+        elif (key == 'runTest'):
+          # print('>>/Tabs runTest()')
+          testIndex = rqJson['testIndex']
+          retVal = oTester.runTest(testIndex)
+          return jsonify({ 'errRsp': retVal})
 
         # - this is the error in the logs when a route return nothing....
         #   File "C:\Users\lfg70\.aa\LFG_Code\Python\WA_SpotifyFinder\venv\Lib\site-packages\flask\app.py", line 2097, in make_response
@@ -543,10 +556,10 @@ def Tabs():
 # -> pyinstaller paSpotifyFinderApp.py --clean --add-data "templates;templates" --add-data "static;static" -i ./assets/spfIcon.ico --noconfirm
 # - drop in waSpotifyFinderApp.spec addition from https://stackoverflow.com/questions/35811448/pyinstaller-jinja2-templatenotfound
 # - run this to create a working dist from a spec file
-# -> pyinstaller waSpotifyFinderApp.spec --noconfirm
+# - (venv) > pyinstaller waSpotifyFinderApp.spec --noconfirm
 
 # - creates a dist folder w/ a seApp.exe - no terminal window when running from dist
-# -> pyinstaller waSpotifyFinderApp.py --clean --add-data "assets;assets" -i ./assets/seIcon.ico --windowed --noconfirm
+# - (venv) > pyinstaller waSpotifyFinderApp.py --clean --add-data "assets;assets" -i ./assets/seIcon.ico --windowed --noconfirm
 
 
 #----------------------------------------------------------------------------------------------

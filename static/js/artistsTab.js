@@ -1002,11 +1002,24 @@
       });
       // console.log('artistsTab_afCreatePlaylistSeq() rmTrackList: rowData = \n' + JSON.stringify(createUriTrackList, null, 4));
 
-      await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
+      let vNewPlId = await tabs_afCreatePlaylist(vNewPlNm, createUriTrackList);
       await new Promise(r => setTimeout(r, 3000));  // Spotify can be slow to update the list of playlists
 
-      // reload the plDict so the created pl is in the plDict
+      // - get the new pl loaded into the plDict
+      // - this reload will return a track count of 0 for the new pl
+      // - spotify takes a long time to get the pl track cnt updated
       await plTab_afLoadPlDict(false);
+
+      // - but if we load the bupl we just created it will have the tracks
+      // - this will update the plDict w/ the correct track cnt
+      await tracksTab_afLoadPlTracks1x(vNewPlId, vNewPlNm);
+
+      // - get the updated plDict from the server and repaint the table
+      vPlTable.clear().draw();
+      await plTab_afLoadPlTable();
+      await plTab_afRestorePlTableCkboxes();
+      plTabs_updateSelectedCntInfo();
+
 
       // get the plTable to reload when the user goes back to the plTab
       vCurTracksRmMvCpCntr = vCurTracksRmMvCpCntr + 1;
