@@ -52,3 +52,7 @@ step 2: (optional - python will see the edit and update the cached client.py)
         # delete the spotipy/__pycache__ dir
         (public server) > cd /home/[username]/.local/lib/python3.9/site-packages/spotipy
         (public server) > rm -rf __pycache__
+
+
+- testing smartgit push to github
+
