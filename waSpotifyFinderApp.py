@@ -242,6 +242,18 @@ def Tabs():
     if rqJson is not None:
       key = next(iter(rqJson))
       try:
+        # spotify refresh tokens now expire ~6 months after being issued (spotify policy change, 7/20/2026)
+        # check/refresh the token once, up front, before dispatching any command - if spotify rejects the
+        # refresh_token with invalid_grant the user must be sent through the spotify login flow again instead
+        # of the request falling through to the generic error handler below
+        try:
+          oLoader.oAuthGetSpotifyObj()
+        except sfLoader.SpotifyReauthRequired:
+          retVal = [sfConst.errSpotifyReauthRequired, oLoader.getDateTm(), 'Tabs()', 'Your Spotify authorization has expired.', 'Please log in with Spotify again.', ' ', ' ']
+          return jsonify({ 'errRsp': retVal }) # errSpotifyReauthRequired = -61
+        except Exception:
+          pass # not a reauth case - let the normal per-command dispatch below handle/report it as it already did
+
         if (key == 'loadPlDictBatch'):
           idx = rqJson['idx']
           clearTracksDict = rqJson['clearTracksDict']

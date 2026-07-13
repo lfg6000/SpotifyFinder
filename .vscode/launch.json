@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: waSpotifyFinderApp.py (Flask)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/waSpotifyFinderApp.py",
+            "python": "${workspaceFolder}/venv39/Scripts/python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: sfTester.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sfTester.py",
+            "python": "${workspaceFolder}/venv39/Scripts/python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "python": "${workspaceFolder}/venv39/Scripts/python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

@@ -69,6 +69,7 @@ errBackupPlaylist = -57                     # if you change this name or value y
 errBackupPlaylistLd = -58                   # if you change this name or value you to update the javascript code
 errBackupPlaylistBu = -59                   # if you change this name or value you to update the javascript code
 errBackupPlaylistReLd = -60                 # if you change this name or value you to update the javascript code
+errSpotifyReauthRequired = -61              # if you change this name or value you to update the javascript code
 
 
 errRunTest = 100

@@ -38,6 +38,15 @@ class sfCacheFileHandler(CacheHandler):
     pass
 
 # ---------------------------------------------------------------
+# raised when spotify rejects a refresh_token with error='invalid_grant' (expired or revoked)
+# spotify started expiring refresh tokens 6 months after issue on 7/20/2026, see announcement:
+# https://developer.spotify.com/blog (Developer Blog, 6/18/2026)
+# the caller must discard the stored token and send the user through the spotify login flow again,
+# not retry the refresh
+class SpotifyReauthRequired(Exception):
+  pass
+
+# ---------------------------------------------------------------
 class SpfLoader():
   def __init__(this, **kwargs):
     # print('>>loader.SpfLoader()  __init__ method')
@@ -285,12 +294,24 @@ class SpfLoader():
                                               redirect_uri=this.sSpotifyRedirectUri,
                                               scope=this.sSpotifyScope,
                                               cache_handler = sfCacheFileHandler())
-        tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
-        # print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
-        # pprint.pprint(tokenInfo)
+        try:
+          tokenInfo = spoAuth.refresh_access_token(session.get('tokenInfo').get('refresh_token'))
+          # print('>>loader.oAuthGetToken() - token refresh, ' + this.getSidTruncated())
+          # pprint.pprint(tokenInfo)
+        except spotipy.oauth2.SpotifyOauthError as spoEx:
+          # spotify refresh tokens now expire ~6 months after being issued (spotify policy change, 7/20/2026)
+          # an expired/revoked refresh token comes back from spotify as error='invalid_grant' - per spotify's
+          # guidance we discard the stored token (do not retry the refresh) and make the caller send the user
+          # through the spotify login flow again
+          session.pop('tokenInfo', None)
+          if (spoEx.error == 'invalid_grant'):
+            raise SpotifyReauthRequired('oAuthGetToken() refresh_token rejected (invalid_grant), reauthorization required.') from spoEx
+          raise
 
       tokenValid = True
       return tokenInfo, tokenValid
+    except SpotifyReauthRequired:
+      raise
     except Exception:
       print(f"oAuthGetToken() exception, this print is trying to identify the source of the ppund 33")
       exTyp, exObj, exTrace = sys.exc_info()

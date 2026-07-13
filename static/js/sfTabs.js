@@ -637,6 +637,19 @@
 
     let msg = ' ';
     errStr = err.message;
+    if (errStr.search('errCode: -61') != -1)
+    {
+      msg = 'Your Spotify authorization has expired.\n' +
+            'Please log in with Spotify again.\n\n' +
+            'Press Ok and you will be redirected to the home page.\n';
+
+      vAborting = 1;
+      alert(msg);
+      let urlSpotifyFinderStartPage = window.location.origin;
+      location.replace(urlSpotifyFinderStartPage);  // goto home page
+      return;
+    }
+
     if (errStr.search('-742') != -1)
     {
       msg = 'Your session has timed out.\n' +
